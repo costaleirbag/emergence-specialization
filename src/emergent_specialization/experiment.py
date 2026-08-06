@@ -521,6 +521,12 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--num-rounds", type=int, help="Override number of interaction rounds")
     parser.add_argument("--seed", type=int, help="Override experiment/task/router seed")
     parser.add_argument("--output-dir", help="Override the parent directory for a run")
+    parser.add_argument(
+        "--report",
+        action="store_true",
+        help="After a completed run, execute the notebook and export an HTML report (requires the report group)",
+    )
+    parser.add_argument("--report-output", help="Override the generated report directory")
     return parser
 
 
@@ -534,6 +540,12 @@ async def async_main(argv: Iterable[str] | None = None) -> Path:
     )
     run_dir = await ExperimentRunner(config).run()
     print(f"Raw events and metrics: {run_dir}")
+    if args.report:
+        from .reporting import generate_run_report
+
+        report_dir = generate_run_report(run_dir, args.report_output)
+        print(f"Executed notebook: {report_dir / 'report.ipynb'}")
+        print(f"HTML report: {report_dir / 'report.html'}")
     return run_dir
 
 

@@ -33,6 +33,12 @@ uv sync
 `uv sync` creates/updates the project environment and lockfile. No manual
 `.venv` activation is needed; prefix project commands with `uv run`.
 
+Install the optional notebook/report stack when you want visual analysis:
+
+```bash
+uv sync --group report
+```
+
 Check the installed OMP without printing credentials:
 
 ```bash
@@ -117,3 +123,45 @@ latency, and errors—but never credentials. Derived checkpoint metrics include
 individual/per-domain accuracy, utilization entropy, task-agent mutual
 information, oracle gain, cosine behavioral distance, exact single-linkage HSE,
 and normalized variants. Routing robustness remains a future extension.
+
+## Executed notebook and visual report
+
+The raw run remains the source of truth. Reports are derived, reproducible
+artifacts generated from a completed run; notebook cells never perform model
+inference or update agent memory.
+
+Generate an executed notebook and standalone HTML report:
+
+```bash
+uv run --group report emergence-report --run data/runs/<run-id>
+```
+
+Or request the report at the end of an experiment:
+
+```bash
+uv run --group report python -m emergent_specialization.experiment \
+  --config configs/pilot_private.yaml \
+  --report
+```
+
+Compare private/shared conditions or several seeds:
+
+```bash
+uv run --group report emergence-compare --runs \
+  data/runs/<private-run-id> \
+  data/runs/<shared-run-id>
+```
+
+Each generated `reports/<report-id>/` contains:
+
+- `report.ipynb`: executed, ordered Jupyter notebook;
+- `report.html`: clean standalone report with code inputs hidden;
+- `figures/`: SVG and PNG exports;
+- `tables/`: CSV analysis tables;
+- `report-manifest.json`: input/output hashes and package versions.
+
+The single-run report covers metric trajectories, competence and routing
+heatmaps, controlled-memory growth, round dynamics, confidence diagnostics,
+probe success rasters, behavioral distance/dendrograms, and inference health.
+The comparison report emphasizes permutation-invariant metrics so raw agent
+labels are not averaged across seeds without alignment.

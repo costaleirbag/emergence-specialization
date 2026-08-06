@@ -12,6 +12,21 @@ dependencies = ["PyYAML>=6.0"]
 
 [project.scripts]
 emergent-specialization = "emergent_specialization.experiment:main"
+emergence-report = "emergent_specialization.reporting:main"
+emergence-compare = "emergent_specialization.reporting:comparison_main"
+
+[dependency-groups]
+report = [
+  "ipykernel>=6.29",
+  "matplotlib>=3.9",
+  "nbclient>=0.10",
+  "nbconvert>=7.16",
+  "nbformat>=5.10",
+  "numpy>=2.1",
+  "pandas>=2.2",
+  "seaborn>=0.13",
+  "scipy>=1.14",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
