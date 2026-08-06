@@ -52,6 +52,29 @@ silently substitutes another model.
 
 ## Run and test
 
+Para não precisar memorizar a cadeia de launcher, `uv` e módulos Python, use
+os atalhos do `Makefile`:
+
+```bash
+make help
+make test
+make smoke-dry
+make smoke-real
+make pilot-private
+make report RUN=data/runs/<run-id>
+```
+
+O alvo `pilot-private` é o primeiro piloto científico real. O alvo shared tem
+uma confirmação explícita para evitar uma execução acidental:
+
+```bash
+make pilot-shared CONFIRM=YES
+```
+
+Os alvos `smoke-real`, `pilot-private` e `pilot-shared` fazem chamadas reais e
+pedem autenticação pelo launcher quando necessário. `make test` e
+`make smoke-dry` não fazem chamadas de modelo.
+
 Run the automated test suite (it never contacts DeepSeek):
 
 ```bash
