@@ -18,20 +18,20 @@ This project asks the inverse, dynamical question:
 
 > **Can behavioral diversity and functional specialization emerge from a society of initially identical language-model agents through asymmetric interaction histories alone?**
 
-We start with \(N\) copies of the **same model**, with the same system prompt, capabilities, initial memory, task distribution, and no manually assigned roles.
+We start with $N$ copies of the **same model**, with the same system prompt, capabilities, initial memory, task distribution, and no manually assigned roles.
 
 The only mechanism allowed to break the symmetry is the history of interaction:
 
-\[
+$$
 r_i(0) \equiv r_j(0)
 \qquad \forall i,j,
-\]
+$$
 
 but after agents receive different private feedback,
 
-\[
+$$
 m_i(t) \neq m_j(t),
-\]
+$$
 
 so their effective behavior may diverge.
 
@@ -40,7 +40,7 @@ The core experiment compares:
 - **Shared-memory society:** every feedback item is visible to every agent.
 - **Private-memory society:** only the selected agent receives feedback.
 
-At fixed checkpoints we freeze the society, evaluate every agent on the same probe set, construct the behavioral matrix \(B(t)\), and measure:
+At fixed checkpoints we freeze the society, evaluate every agent on the same probe set, construct the behavioral matrix $B(t)$, and measure:
 
 - HSE through time;
 - mutual information between task domain and selected agent;
@@ -63,24 +63,24 @@ The desired pilot result is **not** “we discovered a phase transition.” The 
 
 Suppose the agents are initially exchangeable:
 
-\[
+$$
 \mathcal R(0) = \{r_1(0),\ldots,r_N(0)\},
-\]
+$$
 
 with
 
-\[
+$$
 r_i(0) \overset{\text{behavior}}{\approx} r_j(0)
 \qquad \forall i,j.
-\]
+$$
 
 We expose the society to a sequence of tasks
 
-\[
+$$
 q_1,q_2,\ldots,q_T,
-\]
+$$
 
-and allow the interaction mechanism to generate different histories \(m_i(t)\). We then ask whether the induced behavioral profiles \(b_i(t)\) become measurably different over time.
+and allow the interaction mechanism to generate different histories $m_i(t)$. We then ask whether the induced behavioral profiles $b_i(t)$ become measurably different over time.
 
 ## Secondary questions
 
@@ -98,37 +98,37 @@ and allow the interaction mechanism to generate different histories \(m_i(t)\). 
 
 The routing paper evaluates each actor on a common task set
 
-\[
+$$
 \mathcal E=\{e_1,\ldots,e_L\},
-\]
+$$
 
 and gives each actor a behavioral vector
 
-\[
+$$
 b_i =
 \left(
 s(r_i,e_1),
 \ldots,
 s(r_i,e_L)
 \right).
-\]
+$$
 
 Stacking them gives
 
-\[
+$$
 B=
 \begin{bmatrix}
 b_1^\top\\
 \vdots\\
 b_N^\top
 \end{bmatrix}.
-\]
+$$
 
 The conceptual extension here is simply:
 
-\[
+$$
 \boxed{B \rightarrow B(t)}
-\]
+$$
 
 We construct the same object at several time checkpoints and study the trajectory of the society.
 
@@ -152,7 +152,7 @@ For this pilot, “emergent specialization” means:
 
 We are looking for something analogous to symmetry breaking:
 
-\[
+$$
 \text{initially exchangeable agents}
 \rightarrow
 \text{small stochastic/history differences}
@@ -160,7 +160,7 @@ We are looking for something analogous to symmetry breaking:
 \text{feedback amplification}
 \rightarrow
 \text{persistent functional asymmetry}.
-\]
+$$
 
 A strong pilot would show that initial behavioral diversity is small, private histories cause diversity to grow, different domains become associated with different agents, those associations become persistent, and shared histories suppress the effect.
 
@@ -195,7 +195,7 @@ For a first controlled experiment, expertise should be **acquired during the run
 
 ## Proposed task family
 
-Create \(K=4\) hidden worlds:
+Create $K=4$ hidden worlds:
 
 - `ALPHA`
 - `BETA`
@@ -204,37 +204,37 @@ Create \(K=4\) hidden worlds:
 
 Each world implements a hidden modular rule
 
-\[
+$$
 f_k(x,y)
 =
 (a_kx+b_ky+c_k)\bmod 7.
-\]
+$$
 
 Example hidden rules:
 
-\[
+$$
 f_{\text{ALPHA}}(x,y)
 =
 (2x+y+1)\bmod 7,
-\]
+$$
 
-\[
+$$
 f_{\text{BETA}}(x,y)
 =
 (x+3y+2)\bmod 7,
-\]
+$$
 
-\[
+$$
 f_{\text{GAMMA}}(x,y)
 =
 (4x+2y)\bmod 7,
-\]
+$$
 
-\[
+$$
 f_{\text{DELTA}}(x,y)
 =
 (3x+5y+4)\bmod 7.
-\]
+$$
 
 The exact coefficients are not scientifically important. What matters is that all worlds have the same structural complexity, their hidden rules are different, the model is not told the coefficients, and agents can infer them from examples and feedback.
 
@@ -275,7 +275,7 @@ The environment knows the correct answer exactly.
 
 # 5. Agents
 
-Use \(N=4\) agents.
+Use $N=4$ agents.
 
 Every agent should have:
 
@@ -321,9 +321,9 @@ Infer useful regularities only from your own observed experience.
 
 Each agent has a private memory
 
-\[
+$$
 m_i(t).
-\]
+$$
 
 The simplest implementation is a list of past experiences:
 
@@ -346,10 +346,10 @@ For the pilot, avoid sophisticated vector databases or learned memory systems un
 
 # 7. Interaction dynamics
 
-For every round \(t\):
+For every round $t$:
 
-1. Sample a world \(C_t\).
-2. Sample an input \((x_t,y_t)\).
+1. Sample a world $C_t$.
+2. Sample an input $(x_t,y_t)$.
 3. Send the same task to all agents.
 4. Each agent returns answer and confidence.
 5. Select one agent.
@@ -360,13 +360,13 @@ For every round \(t\):
 
 Initial routing rule:
 
-\[
+$$
 R_t
 =
 \arg\max_i c_i(q_t),
-\]
+$$
 
-where \(c_i\) is the agent's stated confidence.
+where $c_i$ is the agent's stated confidence.
 
 Ties must be broken randomly.
 
@@ -378,21 +378,21 @@ Still, log all confidence values.
 
 ### Optional exploration
 
-If greedy routing locks in too early, use an \(\varepsilon\)-greedy selector:
+If greedy routing locks in too early, use an $\varepsilon$-greedy selector:
 
-\[
+$$
 R_t =
 \begin{cases}
 \text{random agent}, & \text{with probability }\varepsilon,\\
 \arg\max_i c_i(q_t), & \text{otherwise}.
 \end{cases}
-\]
+$$
 
 Suggested pilot value:
 
-\[
+$$
 \varepsilon \in [0.05,0.10].
-\]
+$$
 
 Only add this if needed.
 
@@ -406,7 +406,7 @@ When an agent is selected and receives feedback, the experience is copied to **a
 
 Conceptually,
 
-\[
+$$
 m_1(t)
 =
 m_2(t)
@@ -414,7 +414,7 @@ m_2(t)
 \cdots
 =
 m_N(t).
-\]
+$$
 
 This suppresses persistent informational asymmetry.
 
@@ -424,15 +424,15 @@ Only the selected agent receives feedback.
 
 Therefore,
 
-\[
+$$
 m_i(t)\neq m_j(t)
-\]
+$$
 
 can emerge.
 
 This allows the positive feedback loop:
 
-\[
+$$
 \text{experience}
 \rightarrow
 \text{competence}
@@ -442,7 +442,7 @@ This allows the positive feedback loop:
 \text{more selection}
 \rightarrow
 \text{more experience}.
-\]
+$$
 
 ## Optional C — No memory
 
@@ -458,15 +458,15 @@ Manually assign one world to each agent. This provides an approximate upper boun
 
 Suggested horizon:
 
-\[
+$$
 T=80.
-\]
+$$
 
 Checkpoints:
 
-\[
+$$
 t\in\{0,20,40,60,80\}.
-\]
+$$
 
 At each checkpoint:
 
@@ -476,7 +476,7 @@ At each checkpoint:
 4. store outputs;
 5. compute society-level metrics.
 
-Use \(L=40\) probe tasks:
+Use $L=40$ probe tasks:
 
 - 10 ALPHA;
 - 10 BETA;
@@ -487,7 +487,7 @@ The probe set must be generated once and never used for learning.
 
 For each agent,
 
-\[
+$$
 b_i(t)
 =
 \left(
@@ -495,22 +495,22 @@ s(r_i(t),e_1),
 \ldots,
 s(r_i(t),e_L)
 \right),
-\]
+$$
 
 with binary correctness
 
-\[
+$$
 s(r_i,e_\ell)
 =
 \begin{cases}
 1, & \text{correct},\\
 0, & \text{incorrect}.
 \end{cases}
-\]
+$$
 
 Then
 
-\[
+$$
 B(t)
 =
 \begin{bmatrix}
@@ -518,7 +518,7 @@ b_1(t)^\top\\
 \vdots\\
 b_N(t)^\top
 \end{bmatrix}.
-\]
+$$
 
 ---
 
@@ -528,7 +528,7 @@ b_N(t)^\top
 
 Behavioral distance:
 
-\[
+$$
 d_{ij}(t)
 =
 1-
@@ -538,43 +538,43 @@ b_i(t)^\top b_j(t)
 \|b_i(t)\|_2
 \|b_j(t)\|_2
 }.
-\]
+$$
 
 If one behavioral vector has zero norm, handle it explicitly. For compatibility with the paper's treatment, a zero-performance actor can be treated as maximally distant from a nonzero actor.
 
 Run single-linkage hierarchical clustering.
 
-For threshold \(h\), let \(\mathcal C_t(h)\) be the partition. If cluster \(c_k\) contains fraction
+For threshold $h$, let $\mathcal C_t(h)$ be the partition. If cluster $c_k$ contains fraction
 
-\[
+$$
 p_k(h)=\frac{|c_k|}{N},
-\]
+$$
 
 then
 
-\[
+$$
 H_t(h)
 =
 -\sum_k p_k(h)\log_2p_k(h).
-\]
+$$
 
 Finally,
 
-\[
+$$
 \operatorname{HSE}(t)
 =
 \int H_t(h)\,dh.
-\]
+$$
 
 Because the partition changes only at dendrogram merge distances, compute the integral exactly as a finite sum over intervals.
 
 Useful normalization:
 
-\[
+$$
 \operatorname{HSE}_{\mathrm{norm}}(t)
 =
 \frac{\operatorname{HSE}(t)}{\log_2N}.
-\]
+$$
 
 Interpretation:
 
@@ -589,19 +589,19 @@ Interpretation:
 
 Let:
 
-- \(C\) = task world;
-- \(R\) = selected agent.
+- $C$ = task world;
+- $R$ = selected agent.
 
 Estimate
 
-\[
+$$
 I(C;R)
 =
 \sum_{c,r}
 p(c,r)
 \log_2
 \frac{p(c,r)}{p(c)p(r)}.
-\]
+$$
 
 This asks:
 
@@ -609,23 +609,23 @@ This asks:
 
 At the beginning:
 
-\[
+$$
 I(C;R)\approx0.
-\]
+$$
 
 If stable specialization emerges:
 
-\[
+$$
 I(C;R)>0.
-\]
+$$
 
 Normalize with
 
-\[
+$$
 I_{\mathrm{norm}}(C;R)
 =
 \frac{I(C;R)}{H(C)}.
-\]
+$$
 
 ---
 
@@ -633,24 +633,24 @@ I_{\mathrm{norm}}(C;R)
 
 To detect routing collapse:
 
-\[
+$$
 H(R)
 =
 -\sum_i p(R=i)\log_2p(R=i).
-\]
+$$
 
 Normalize:
 
-\[
+$$
 H_{\mathrm{util}}
 =
 \frac{H(R)}{\log_2N}.
-\]
+$$
 
 Interpretation:
 
-- \(H_{\mathrm{util}}\approx0\): one agent dominates;
-- \(H_{\mathrm{util}}\approx1\): selections are spread across agents.
+- $H_{\mathrm{util}}\approx0$: one agent dominates;
+- $H_{\mathrm{util}}\approx1$: selections are spread across agents.
 
 ---
 
@@ -658,21 +658,21 @@ Interpretation:
 
 Individual accuracy:
 
-\[
+$$
 A_i(t).
-\]
+$$
 
 Best individual:
 
-\[
+$$
 A_{\mathrm{best}}(t)
 =
 \max_i A_i(t).
-\]
+$$
 
 Oracle society:
 
-\[
+$$
 A_{\mathrm{oracle}}(t)
 =
 \frac1L
@@ -682,17 +682,17 @@ A_{\mathrm{oracle}}(t)
 \exists i:
 s(r_i(t),e_\ell)=1
 \right].
-\]
+$$
 
 Complementarity gain:
 
-\[
+$$
 \Delta_{\mathrm{comp}}(t)
 =
 A_{\mathrm{oracle}}(t)
 -
 A_{\mathrm{best}}(t).
-\]
+$$
 
 This separates behavioral difference from useful complementary competence.
 
@@ -702,11 +702,11 @@ This separates behavioral difference from useful complementary competence.
 
 Construct
 
-\[
+$$
 A_{ic}(t)
 =
 P(\text{agent }i\text{ correct}\mid C=c).
-\]
+$$
 
 Visualize as a heatmap.
 
@@ -718,9 +718,9 @@ A diagonal/block structure after a permutation of agent labels is the qualitativ
 
 Generate semantically equivalent variants of routing probes.
 
-For routing policy \(\pi_t\),
+For routing policy $\pi_t$,
 
-\[
+$$
 \rho(t)
 =
 P\left[
@@ -728,7 +728,7 @@ P\left[
 =
 \pi_t(\tilde q)
 \right].
-\]
+$$
 
 This asks whether emergent specialization is tied to task semantics rather than fragile wording.
 
@@ -738,7 +738,7 @@ This asks whether emergent specialization is tied to task semantics rather than 
 
 Using a fixed routing probe set:
 
-\[
+$$
 S_{\mathrm{temporal}}(t)
 =
 \frac1L
@@ -749,7 +749,7 @@ S_{\mathrm{temporal}}(t)
 =
 \pi_{t-\Delta t}(e_\ell)
 \right].
-\]
+$$
 
 This is an extension for the dynamical setting, not a metric from the routing paper.
 
@@ -759,33 +759,33 @@ This is an extension for the dynamical setting, not a metric from the routing pa
 
 ### H1 — Behavioral differentiation
 
-\[
+$$
 \operatorname{HSE}_{\mathrm{private}}(T)
 >
 \operatorname{HSE}_{\mathrm{shared}}(T).
-\]
+$$
 
 ### H2 — Functional specialization
 
-\[
+$$
 I_{\mathrm{private}}(C;R)
 >
 I_{\mathrm{shared}}(C;R).
-\]
+$$
 
 ### H3 — Complementarity
 
-\[
+$$
 \Delta_{\mathrm{comp,private}}(T)
 >
 \Delta_{\mathrm{comp,shared}}(T).
-\]
+$$
 
 ### H4 — Persistent roles
 
-\[
+$$
 S_{\mathrm{temporal}}(t)
-\]
+$$
 
 should increase during later checkpoints if roles consolidate.
 
@@ -994,21 +994,21 @@ Unit tests:
 
 ### Identical actors
 
-\[
+$$
 b_1=b_2=\cdots=b_N
 \Rightarrow
 \operatorname{HSE}=0.
-\]
+$$
 
 ### Maximally separated toy actors
 
-For mutually orthogonal profiles over distance range \([0,1]\),
+For mutually orthogonal profiles over distance range $[0,1]$,
 
-\[
+$$
 \operatorname{HSE}
 \approx
 \log_2N.
-\]
+$$
 
 ---
 
@@ -1095,7 +1095,7 @@ y: normalized HSE
 lines: shared vs private
 ```
 
-## Plot 2 — \(I(C;R)\) through time
+## Plot 2 — $I(C;R)$ through time
 
 ```text
 x: interaction round
@@ -1105,7 +1105,7 @@ lines: shared vs private
 
 ## Plot 3 — Per-domain competence heatmap
 
-Show at \(t=0\) and \(t=T\).
+Show at $t=0$ and $t=T$.
 
 ## Plot 4 — Routing matrix
 
@@ -1113,9 +1113,9 @@ Rows: worlds.
 Columns: agents.  
 Cells:
 
-\[
+$$
 P(R=i\mid C=c).
-\]
+$$
 
 ## Plot 5 — Complementarity gain
 
@@ -1159,7 +1159,7 @@ A null result is still informative.
 
 One agent may become overconfident and receive almost every task.
 
-Monitor \(H(R)\). If routing collapses, add small exploration.
+Monitor $H(R)$. If routing collapses, add small exploration.
 
 ## Memory length
 
@@ -1175,7 +1175,7 @@ Never feed probe answers into memory.
 
 ## Unequal world difficulty
 
-Use the same functional family for all worlds and inspect \(t=0\) performance.
+Use the same functional family for all worlds and inspect $t=0$ performance.
 
 ## Agent identity effects
 
@@ -1183,7 +1183,7 @@ Use opaque IDs, not names/personas.
 
 ## Stochastic diversity is not specialization
 
-Random answers can increase behavioral distance. That is why HSE must be paired with \(I(C;R)\), temporal persistence, and complementarity.
+Random answers can increase behavioral distance. That is why HSE must be paired with $I(C;R)$, temporal persistence, and complementarity.
 
 ---
 
@@ -1203,7 +1203,7 @@ Random answers can increase behavioral distance. That is why HSE must be paired 
 
 - [ ] Generate fixed probe set.
 - [ ] Evaluate all agents in batch.
-- [ ] Save \(B(t)\).
+- [ ] Save $B(t)$.
 - [ ] Verify probes do not update memory.
 
 ## Metrics
@@ -1211,7 +1211,7 @@ Random answers can increase behavioral distance. That is why HSE must be paired 
 - [ ] Individual accuracy.
 - [ ] Per-domain accuracy.
 - [ ] HSE.
-- [ ] \(I(C;R)\).
+- [ ] $I(C;R)$.
 - [ ] Utilization entropy.
 - [ ] Oracle gain.
 - [ ] Temporal stability.
@@ -1251,7 +1251,7 @@ Potential fixes, in order:
 1. increase number of rounds;
 2. ensure private memories actually influence prompts;
 3. make hidden rules require several examples;
-4. add small \(\varepsilon\)-greedy exploration;
+4. add small $\varepsilon$-greedy exploration;
 5. reduce memory leakage;
 6. inspect confidence collapse.
 
@@ -1263,24 +1263,24 @@ Do not spend time polishing HSE if the underlying dynamics are not producing sig
 
 Introduce a feedback-privacy parameter
 
-\[
+$$
 p_{\mathrm{private}}\in[0,1].
-\]
+$$
 
 For each selected experience:
 
-- with probability \(p_{\mathrm{private}}\), feedback remains private;
+- with probability $p_{\mathrm{private}}$, feedback remains private;
 - otherwise it is broadcast.
 
 Sweep:
 
-\[
+$$
 p_{\mathrm{private}}
 \in
 \{0,0.25,0.5,0.75,1\}.
-\]
+$$
 
-Measure final HSE, \(I(C;R)\), and complementarity.
+Measure final HSE, $I(C;R)$, and complementarity.
 
 This creates a first crude “phase-diagram style” experiment.
 
@@ -1292,13 +1292,13 @@ Call any sharp change a **regime change** until proper finite-size analysis exis
 
 Repeat for
 
-\[
+$$
 N\in\{2,4,8,16\}.
-\]
+$$
 
 Questions:
 
-- Does larger \(N\) increase accessible behavioral diversity?
+- Does larger $N$ increase accessible behavioral diversity?
 - Is there a minimum population size for stable division of labor?
 - Does excessive population dilute experience per agent?
 - Does complementarity saturate?
@@ -1329,9 +1329,9 @@ Potential question:
 
 The pilot uses
 
-\[
+$$
 I(C;R)
-\]
+$$
 
 as a simple measure of division of labor.
 
@@ -1358,7 +1358,7 @@ toward:
 
 The most interesting conceptual possibility is the feedback loop
 
-\[
+$$
 \text{routing}
 \rightarrow
 \text{asymmetric experience}
@@ -1368,7 +1368,7 @@ The most interesting conceptual possibility is the feedback loop
 \text{better routing signal}
 \rightarrow
 \text{stronger specialization}.
-\]
+$$
 
 The routing paper largely treats actor diversity as something the router encounters.
 
@@ -1392,7 +1392,7 @@ Start with identical LLM agents and ask whether interaction itself can create th
 
 ### 3. Physical analogy
 
-\[
+$$
 \text{symmetry}
 \rightarrow
 \text{fluctuation}
@@ -1400,7 +1400,7 @@ Start with identical LLM agents and ask whether interaction itself can create th
 \text{feedback}
 \rightarrow
 \text{symmetry breaking}.
-\]
+$$
 
 Use this as motivation, not as proof of a phase transition.
 
@@ -1411,8 +1411,8 @@ Four agents. Four hidden worlds. Same model. Same prompt. Private vs shared expe
 ### 5. Metrics
 
 - HSE: did agents become behaviorally different?
-- \(I(C;R)\): did differences organize into division of labor?
-- \(H(R)\): did routing collapse?
+- $I(C;R)$: did differences organize into division of labor?
+- $H(R)$: did routing collapse?
 - oracle gain: are differences useful?
 - robustness: are roles semantically stable?
 
@@ -1460,7 +1460,7 @@ These are more informative than simply saying “multi-agent was better.”
 
 # 32. Core conceptual model
 
-\[
+$$
 \boxed{
 \text{identical agents}
 +
@@ -1472,41 +1472,41 @@ These are more informative than simply saying “multi-agent was better.”
 \rightarrow
 \text{possible symmetry breaking}
 }
-\]
+$$
 
 Measurement:
 
-\[
+$$
 \boxed{
 B(t)
 \rightarrow
 \operatorname{HSE}(t)
 }
-\]
+$$
 
-\[
+$$
 \boxed{
 (C_t,R_t)
 \rightarrow
 I(C;R)
 }
-\]
+$$
 
-\[
+$$
 \boxed{
 \text{probe success sets}
 \rightarrow
 \Delta_{\mathrm{comp}}
 }
-\]
+$$
 
-\[
+$$
 \boxed{
 q,\tilde q
 \rightarrow
 \rho
 }
-\]
+$$
 
 The key distinction is:
 
