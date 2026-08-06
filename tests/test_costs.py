@@ -27,6 +27,28 @@ class CostAccountingTests(unittest.TestCase):
             },
         )
 
+    def test_normalizes_omp_usage_and_provider_reported_cost(self) -> None:
+        usage = normalize_token_usage(
+            {
+                "cacheRead": 2048,
+                "cacheWrite": 0,
+                "input": 47,
+                "output": 14,
+                "totalTokens": 2109,
+                "cost": {
+                    "cacheRead": 0.0000057344,
+                    "cacheWrite": 0,
+                    "input": 0.00000658,
+                    "output": 0.00000392,
+                    "total": 0.0000162344,
+                },
+            }
+        )
+        self.assertEqual(usage["input_tokens"], 47)
+        self.assertEqual(usage["cached_input_tokens"], 2048)
+        self.assertEqual(usage["total_tokens"], 2109)
+        self.assertAlmostEqual(usage["provider_cost"]["total"], 0.0000162344)
+
     def test_cost_requires_complete_usage_and_explicit_rates(self) -> None:
         unavailable = summarize_usage([None], input_per_million_tokens=1, output_per_million_tokens=2)
         self.assertEqual(unavailable["status"], "unavailable")
@@ -47,3 +69,14 @@ class CostAccountingTests(unittest.TestCase):
         self.assertEqual(summary["status"], "partial_usage")
         self.assertEqual(summary["usage_coverage"], 0.5)
         self.assertIsNone(summary["total_tokens"])
+
+    def test_provider_reported_cost_takes_precedence_over_local_pricing(self) -> None:
+        summary = summarize_usage(
+            [
+                {"input": 47, "output": 14, "totalTokens": 2109, "cost": {"total": 0.0000162344}},
+                {"input": 102, "output": 14, "totalTokens": 2420, "cost": {"total": 0.0000246512}},
+            ]
+        )
+        self.assertEqual(summary["status"], "provider_reported")
+        self.assertAlmostEqual(summary["reported_cost"], 0.0000408856)
+        self.assertIsNone(summary["estimated_cost"])

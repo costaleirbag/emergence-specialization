@@ -38,7 +38,7 @@ def _first_number(mapping: Mapping[str, Any], *keys: str) -> int | float | None:
     return None
 
 
-def normalize_token_usage(usage: Mapping[str, Any] | None) -> dict[str, int | float] | None:
+def normalize_token_usage(usage: Mapping[str, Any] | None) -> dict[str, Any] | None:
     """Normalize common OpenAI/DeepSeek usage field names.
 
     The raw provider payload is retained in ``events.jsonl``.  The normalized
@@ -47,9 +47,11 @@ def normalize_token_usage(usage: Mapping[str, Any] | None) -> dict[str, int | fl
     if not isinstance(usage, Mapping):
         return None
 
-    input_tokens = _first_number(usage, "input_tokens", "prompt_tokens", "inputTokens", "promptTokens")
+    input_tokens = _first_number(
+        usage, "input_tokens", "prompt_tokens", "inputTokens", "promptTokens", "input"
+    )
     output_tokens = _first_number(
-        usage, "output_tokens", "completion_tokens", "outputTokens", "completionTokens"
+        usage, "output_tokens", "completion_tokens", "outputTokens", "completionTokens", "output"
     )
     cached_input_tokens = _first_number(
         usage,
@@ -58,6 +60,7 @@ def normalize_token_usage(usage: Mapping[str, Any] | None) -> dict[str, int | fl
         "prompt_cache_hit_tokens",
         "cached_tokens",
         "cachedInputTokens",
+        "cacheRead",
     )
     reasoning_tokens = _first_number(usage, "reasoning_tokens", "reasoningTokens")
     total_tokens = _first_number(usage, "total_tokens", "totalTokens")
@@ -69,7 +72,7 @@ def normalize_token_usage(usage: Mapping[str, Any] | None) -> dict[str, int | fl
     if isinstance(completion_details, Mapping) and reasoning_tokens is None:
         reasoning_tokens = _first_number(completion_details, "reasoning_tokens", "reasoningTokens")
 
-    result: dict[str, int | float] = {}
+    result: dict[str, Any] = {}
     for key, value in (
         ("input_tokens", input_tokens),
         ("cached_input_tokens", cached_input_tokens),
@@ -81,6 +84,22 @@ def normalize_token_usage(usage: Mapping[str, Any] | None) -> dict[str, int | fl
             result[key] = value
     if "total_tokens" not in result and input_tokens is not None and output_tokens is not None:
         result["total_tokens"] = input_tokens + output_tokens
+
+    provider_cost = usage.get("cost")
+    if isinstance(provider_cost, Mapping):
+        normalized_cost: dict[str, int | float] = {}
+        for key, aliases in {
+            "input": ("input", "input_cost"),
+            "output": ("output", "output_cost"),
+            "cache_read": ("cacheRead", "cache_read", "cache_read_cost"),
+            "cache_write": ("cacheWrite", "cache_write", "cache_write_cost"),
+            "total": ("total", "total_cost"),
+        }.items():
+            value = _first_number(provider_cost, *aliases)
+            if value is not None:
+                normalized_cost[key] = value
+        if normalized_cost:
+            result["provider_cost"] = normalized_cost
     return result or None
 
 
@@ -112,6 +131,14 @@ def summarize_usage(
         "reasoning_tokens": _sum_complete(usable, "reasoning_tokens") if usage_complete else None,
         "total_tokens": _sum_complete(usable, "total_tokens") if usage_complete else None,
     }
+    provider_cost_values = [value.get("provider_cost") for value in usable]
+    provider_cost_complete = bool(usage_complete and provider_cost_values and all(provider_cost_values))
+    reported_cost: dict[str, int | float] = {}
+    if provider_cost_complete:
+        for key in ("input", "output", "cache_read", "cache_write", "total"):
+            values = [cost.get(key) for cost in provider_cost_values]
+            if all(value is not None for value in values):
+                reported_cost[key] = sum(value for value in values if value is not None)
 
     pricing = {
         "currency": currency,
@@ -120,7 +147,9 @@ def summarize_usage(
         "output_per_million_tokens": output_per_million_tokens,
     }
     estimated_cost: float | None = None
-    if calls_total == 0 or calls_with_usage == 0:
+    if "total" in reported_cost:
+        status = "provider_reported"
+    elif calls_total == 0 or calls_with_usage == 0:
         status = "unavailable"
     elif not usage_complete:
         status = "partial_usage"
@@ -147,5 +176,7 @@ def summarize_usage(
         "usage_coverage": (calls_with_usage / calls_total) if calls_total else 0.0,
         **aggregate,
         "pricing": pricing,
+        "reported_cost": reported_cost.get("total"),
+        "reported_cost_breakdown": reported_cost or None,
         "estimated_cost": estimated_cost,
     }

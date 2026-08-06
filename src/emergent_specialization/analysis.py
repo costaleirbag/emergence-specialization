@@ -120,8 +120,7 @@ def overview_record(bundle: RunBundle) -> dict[str, Any]:
     final = bundle.checkpoints[-1]
     inferences = bundle.events_of_type("inference")
     errors = [event for event in inferences if event.get("error")]
-    recorded_usage = bundle.summary.get("usage")
-    recorded_usage = recorded_usage if isinstance(recorded_usage, dict) else {}
+    recorded_usage = usage_summary(bundle)
     return {
         "run_id": bundle.run_id,
         "condition": bundle.condition,
@@ -139,20 +138,22 @@ def overview_record(bundle: RunBundle) -> dict[str, Any]:
         "final_utilization_entropy": final.get("normalized_utilization_entropy"),
         "final_oracle_gain": final.get("oracle_gain"),
         "usage_status": recorded_usage.get("status", "unavailable"),
+        "reported_cost": recorded_usage.get("reported_cost"),
         "estimated_cost": recorded_usage.get("estimated_cost"),
     }
 
 
 def usage_summary(bundle: RunBundle) -> dict[str, Any]:
-    """Return run-level usage/cost accounting, including legacy-run fallback."""
-    recorded = bundle.summary.get("usage")
-    if isinstance(recorded, dict):
-        return recorded
+    """Return run-level usage/cost accounting, recomputed from raw events."""
     config = bundle.metadata.get("config", {})
     cost = config.get("cost", {}) if isinstance(config, dict) else {}
     cost = cost if isinstance(cost, dict) else {}
+    events = bundle.events_of_type("inference")
+    if not events:
+        recorded = bundle.summary.get("usage")
+        return recorded if isinstance(recorded, dict) else summarize_usage([])
     return summarize_usage(
-        [event.get("token_usage") for event in bundle.events_of_type("inference")],
+        [event.get("token_usage") for event in events],
         currency=str(cost.get("currency", "USD")),
         input_per_million_tokens=cost.get("input_per_million_tokens"),
         cached_input_per_million_tokens=cost.get("cached_input_per_million_tokens"),

@@ -525,7 +525,9 @@ class ExperimentRunner:
         print(f"routing counts: {json.dumps(summary['routing_counts'], sort_keys=True)}")
         print(f"memory counts: {json.dumps(summary['memory_counts'], sort_keys=True)}")
         usage = summary.get("usage") or {}
-        if usage.get("status") == "estimated":
+        if usage.get("status") == "provider_reported":
+            print(f"provider-reported cost: {usage['reported_cost']:.8f} (OMP currency unit)")
+        elif usage.get("status") == "estimated":
             print(f"estimated cost: {usage['estimated_cost']:.8f} {usage['currency']}")
         else:
             print(f"token usage/cost: {usage.get('status', 'unavailable')}")

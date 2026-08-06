@@ -157,7 +157,11 @@ Set rates from the provider's current billing page for the exact model and
 account before treating `summary.json`'s `estimated_cost` as meaningful. Raw
 usage remains attached to each inference event, while the run-level `usage`
 object reports coverage, totals, pricing, and an explicit status such as
-`estimated`, `pricing_not_configured`, or `unavailable`.
+`provider_reported`, `estimated`, `pricing_not_configured`, or `unavailable`.
+OMP 17.2.10 currently emits `input`, `output`, `cacheRead`, `totalTokens`, and
+`cost.total`; these are preserved and aggregated as `reported_cost` when all
+calls provide them. OMP does not include a currency code in that payload, so
+the report labels the amount as an OMP provider-reported currency unit.
 
 Raw JSONL is the scientific record. It intentionally stores tasks, the exact
 memory inserted into each prompt, prompt hashes, raw responses, parsed values,
