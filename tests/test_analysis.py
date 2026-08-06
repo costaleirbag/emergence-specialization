@@ -14,6 +14,7 @@ from emergent_specialization.analysis import (
     memory_rows,
     overview_record,
     round_rows,
+    usage_summary,
 )
 from emergent_specialization.config import (
     AgentSettings,
@@ -57,6 +58,7 @@ class AnalysisTests(unittest.TestCase):
         self.assertTrue(self.bundle.is_mock)
         self.assertEqual(set(self.bundle.input_hashes), {"metadata.json", "events.jsonl", "metrics.jsonl", "summary.json"})
         self.assertEqual(overview_record(self.bundle)["rounds"], 2)
+        self.assertEqual(usage_summary(self.bundle)["status"], "unavailable")
 
     def test_normalized_analysis_tables_have_expected_shapes(self) -> None:
         self.assertEqual(len(round_rows(self.bundle)), 2)

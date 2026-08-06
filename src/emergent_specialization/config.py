@@ -104,6 +104,32 @@ class LoggingSettings:
 
 
 @dataclass(frozen=True)
+class CostSettings:
+    """Optional provider pricing used only for transparent cost estimates.
+
+    Rates are expressed in the configured currency per one million tokens. A
+    run remains valid with all rates unset; its summary then reports usage and
+    explicitly marks monetary cost as unavailable.
+    """
+
+    currency: str = "USD"
+    input_per_million_tokens: float | None = None
+    cached_input_per_million_tokens: float | None = None
+    output_per_million_tokens: float | None = None
+
+    def __post_init__(self) -> None:
+        if not self.currency or not self.currency.strip():
+            raise ValueError("cost currency must not be empty")
+        for name, value in (
+            ("input_per_million_tokens", self.input_per_million_tokens),
+            ("cached_input_per_million_tokens", self.cached_input_per_million_tokens),
+            ("output_per_million_tokens", self.output_per_million_tokens),
+        ):
+            if value is not None and value < 0:
+                raise ValueError(f"{name} must be non-negative or null")
+
+
+@dataclass(frozen=True)
 class RunConfig:
     experiment: ExperimentSettings = field(default_factory=ExperimentSettings)
     environment: EnvironmentSettings = field(default_factory=EnvironmentSettings)
@@ -111,6 +137,7 @@ class RunConfig:
     router: RouterSettings = field(default_factory=RouterSettings)
     condition: ConditionSettings = field(default_factory=ConditionSettings)
     logging: LoggingSettings = field(default_factory=LoggingSettings)
+    cost: CostSettings = field(default_factory=CostSettings)
     source_path: str | None = None
     source_hash: str | None = None
 
@@ -160,6 +187,7 @@ def load_config(path: str | Path) -> RunConfig:
     router = _mapping(raw.get("router"), "router")
     condition = _mapping(raw.get("condition"), "condition")
     logging = _mapping(raw.get("logging"), "logging")
+    cost = _mapping(raw.get("cost"), "cost")
 
     if "checkpoints" in experiment:
         experiment["checkpoints"] = tuple(experiment["checkpoints"])
@@ -175,6 +203,7 @@ def load_config(path: str | Path) -> RunConfig:
         router=RouterSettings(**router),
         condition=ConditionSettings(**condition),
         logging=LoggingSettings(**logging),
+        cost=CostSettings(**cost),
         source_path=str(config_path),
         source_hash=hashlib.sha256(raw_text.encode("utf-8")).hexdigest(),
     )

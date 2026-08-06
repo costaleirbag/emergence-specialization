@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 
+from .costs import normalize_token_usage, summarize_usage
 
 REQUIRED_RUN_FILES = ("metadata.json", "events.jsonl", "metrics.jsonl", "summary.json")
 
@@ -119,6 +120,8 @@ def overview_record(bundle: RunBundle) -> dict[str, Any]:
     final = bundle.checkpoints[-1]
     inferences = bundle.events_of_type("inference")
     errors = [event for event in inferences if event.get("error")]
+    recorded_usage = bundle.summary.get("usage")
+    recorded_usage = recorded_usage if isinstance(recorded_usage, dict) else {}
     return {
         "run_id": bundle.run_id,
         "condition": bundle.condition,
@@ -135,7 +138,26 @@ def overview_record(bundle: RunBundle) -> dict[str, Any]:
         "final_normalized_mi": final.get("normalized_task_agent_mutual_information"),
         "final_utilization_entropy": final.get("normalized_utilization_entropy"),
         "final_oracle_gain": final.get("oracle_gain"),
+        "usage_status": recorded_usage.get("status", "unavailable"),
+        "estimated_cost": recorded_usage.get("estimated_cost"),
     }
+
+
+def usage_summary(bundle: RunBundle) -> dict[str, Any]:
+    """Return run-level usage/cost accounting, including legacy-run fallback."""
+    recorded = bundle.summary.get("usage")
+    if isinstance(recorded, dict):
+        return recorded
+    config = bundle.metadata.get("config", {})
+    cost = config.get("cost", {}) if isinstance(config, dict) else {}
+    cost = cost if isinstance(cost, dict) else {}
+    return summarize_usage(
+        [event.get("token_usage") for event in bundle.events_of_type("inference")],
+        currency=str(cost.get("currency", "USD")),
+        input_per_million_tokens=cost.get("input_per_million_tokens"),
+        cached_input_per_million_tokens=cost.get("cached_input_per_million_tokens"),
+        output_per_million_tokens=cost.get("output_per_million_tokens"),
+    )
 
 
 def round_rows(bundle: RunBundle) -> list[dict[str, Any]]:
@@ -340,14 +362,7 @@ def inference_rows(bundle: RunBundle) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for event in bundle.events_of_type("inference"):
         usage = event.get("token_usage") or {}
-        total_tokens = None
-        if isinstance(usage, dict):
-            total_tokens = usage.get("total_tokens") or usage.get("totalTokens")
-            if total_tokens is None:
-                inputs = usage.get("input_tokens") or usage.get("inputTokens")
-                outputs = usage.get("output_tokens") or usage.get("outputTokens")
-                if isinstance(inputs, (int, float)) and isinstance(outputs, (int, float)):
-                    total_tokens = inputs + outputs
+        normalized = normalize_token_usage(usage if isinstance(usage, dict) else None) or {}
         rows.append(
             {
                 "run_id": bundle.run_id,
@@ -360,7 +375,11 @@ def inference_rows(bundle: RunBundle) -> list[dict[str, Any]]:
                 "agent_id": event.get("agent_id"),
                 "attempt": event.get("attempt"),
                 "latency_s": event.get("latency_s"),
-                "total_tokens": total_tokens,
+                "input_tokens": normalized.get("input_tokens"),
+                "cached_input_tokens": normalized.get("cached_input_tokens"),
+                "output_tokens": normalized.get("output_tokens"),
+                "reasoning_tokens": normalized.get("reasoning_tokens"),
+                "total_tokens": normalized.get("total_tokens"),
                 "error": event.get("error"),
             }
         )

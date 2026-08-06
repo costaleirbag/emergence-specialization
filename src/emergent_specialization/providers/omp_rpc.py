@@ -121,7 +121,12 @@ class OMPBackend:
             raw = await asyncio.wait_for(
                 self._run_rpc_turn(process, user_prompt, stderr_parts), timeout=self.timeout_s
             )
-            return BackendResponse(raw_response=raw, latency_s=time.perf_counter() - started)
+            response_text, token_usage = raw
+            return BackendResponse(
+                raw_response=response_text,
+                latency_s=time.perf_counter() - started,
+                token_usage=token_usage,
+            )
         except TimeoutError:
             return BackendResponse(
                 raw_response=None,
@@ -148,7 +153,7 @@ class OMPBackend:
         process: asyncio.subprocess.Process,
         user_prompt: str,
         stderr_parts: list[str],
-    ) -> str:
+    ) -> tuple[str, dict[str, Any] | None]:
         assert process.stdin is not None
         assert process.stdout is not None
         assert process.stderr is not None
@@ -159,6 +164,7 @@ class OMPBackend:
 
         stderr_task = asyncio.create_task(drain_stderr())
         assistant_text: str | None = None
+        token_usage: dict[str, Any] | None = None
         try:
             ready = await self._read_frame(process.stdout)
             if ready.get("type") != "ready":
@@ -170,6 +176,11 @@ class OMPBackend:
 
             while True:
                 frame = await self._read_frame(process.stdout)
+                frame_usage = self._extract_token_usage(frame)
+                if frame_usage is not None:
+                    # OMP may emit a usage snapshot more than once. Keep the
+                    # latest values without summing cumulative snapshots.
+                    token_usage = {**(token_usage or {}), **frame_usage}
                 frame_type = frame.get("type")
                 if frame_type == "message_end":
                     candidate = self._extract_assistant_text(frame)
@@ -180,7 +191,7 @@ class OMPBackend:
                 elif frame_type == "agent_end":
                     if assistant_text is None:
                         raise RuntimeError("OMP agent completed without an assistant text message")
-                    return assistant_text
+                    return assistant_text, token_usage
         finally:
             if not process.stdin.is_closing():
                 process.stdin.close()
@@ -229,3 +240,27 @@ class OMPBackend:
 
         visit(frame)
         return candidates[-1] if candidates else None
+
+    @staticmethod
+    def _extract_token_usage(frame: dict[str, Any]) -> dict[str, Any] | None:
+        """Find a provider usage object without assuming one OMP frame shape."""
+        usage_keys = {"input_tokens", "prompt_tokens", "output_tokens", "completion_tokens", "total_tokens",
+                      "inputTokens", "promptTokens", "outputTokens", "completionTokens", "totalTokens"}
+        candidates: list[dict[str, Any]] = []
+
+        def visit(value: Any) -> None:
+            if isinstance(value, dict):
+                for key in ("usage", "token_usage", "tokenUsage"):
+                    nested = value.get(key)
+                    if isinstance(nested, dict):
+                        candidates.append(nested)
+                if usage_keys.intersection(value):
+                    candidates.append(value)
+                for child in value.values():
+                    visit(child)
+            elif isinstance(value, list):
+                for child in value:
+                    visit(child)
+
+        visit(frame)
+        return dict(candidates[-1]) if candidates else None

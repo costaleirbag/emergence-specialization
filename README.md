@@ -84,6 +84,25 @@ They are intentionally not launched automatically.
 
 Use `--num-rounds 10` and `--seed 2` for non-persistent overrides.
 
+### DeepSeek through the local Bitwarden CLI
+
+When DeepSeek credentials are supplied by the local Bitwarden CLI, run a real
+experiment through the repository launcher rather than setting
+`omp_executable` to a credential-fetching OMP wrapper. The experiment starts a
+fresh OMP process for every completion, so a wrapper at that boundary would
+query Bitwarden once per call.
+
+```bash
+scripts/run-deepseek-experiment.sh --config configs/smoke_real_private.yaml
+```
+
+The launcher obtains exactly one Bitwarden item named `DeepSeek API`, syncs the
+vault, retrieves its Password, locks Bitwarden before starting Python, and then
+passes only `DEEPSEEK_API_KEY` to the experiment process tree for that one
+execution. It never writes a key to a file or passes `BW_SESSION` to Python or
+OMP. The smoke config is intentionally two rounds with no checkpoints, so it
+is an integration check rather than a scientific pilot.
+
 ## Experimental controls
 
 - Four agents begin with an identical model ID, system prompt, decoding intent,
@@ -115,7 +134,30 @@ Each run creates `data/runs/<run-id>/` containing:
 - `events.jsonl`: every inference attempt, parse failure/retry, round, and
   checkpoint event;
 - `metrics.jsonl`: checkpoint behavioral matrices and derived metrics;
-- `summary.json`: final routing, memory counts, and metrics.
+- `summary.json`: final routing, memory counts, metrics, and token/cost
+  accounting when the provider exposes usage.
+
+### Token usage and cost accounting
+
+The OMP adapter records a provider usage payload when an RPC frame exposes one.
+If OMP does not expose usage, the run summary explicitly reports
+`status: unavailable`; the harness never estimates tokens from characters or
+silently invents a monetary total. Monetary values are estimates based on rates
+you provide in the YAML config, expressed per million tokens:
+
+```yaml
+cost:
+  currency: USD
+  input_per_million_tokens: null
+  cached_input_per_million_tokens: null
+  output_per_million_tokens: null
+```
+
+Set rates from the provider's current billing page for the exact model and
+account before treating `summary.json`'s `estimated_cost` as meaningful. Raw
+usage remains attached to each inference event, while the run-level `usage`
+object reports coverage, totals, pricing, and an explicit status such as
+`estimated`, `pricing_not_configured`, or `unavailable`.
 
 Raw JSONL is the scientific record. It intentionally stores tasks, the exact
 memory inserted into each prompt, prompt hashes, raw responses, parsed values,

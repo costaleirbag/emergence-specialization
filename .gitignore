@@ -5,5 +5,7 @@ __pycache__/
 .venv/
 data/runs/*
 !data/runs/.gitkeep
+data/smoke_runs/*
+!data/smoke_runs/.gitkeep
 reports/*
 !reports/.gitkeep

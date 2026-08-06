@@ -35,6 +35,7 @@ from .analysis import (
     overview_record,
     round_rows,
     routing_rows,
+    usage_summary,
 )
 
 
@@ -123,7 +124,15 @@ class RunReport(_BaseReport):
         )
         return self.save_table(frame, "run-overview")
 
+    def usage(self) -> pd.DataFrame:
+        summary = usage_summary(self.bundle)
+        frame = pd.DataFrame(
+            [{"field": key.replace("_", " ").title(), "value": value} for key, value in summary.items()]
+        )
+        return self.save_table(frame, "usage-summary")
+
     def export_tables(self) -> pd.DataFrame:
+        usage_frame = self.usage()
         tables = {
             "rounds": self.rounds,
             "candidates": self.candidates,
@@ -135,6 +144,7 @@ class RunReport(_BaseReport):
             "behavioral-distances": self.distances,
             "memory": self.memory,
             "inferences": self.inferences,
+            "usage-summary": usage_frame,
         }
         records = []
         for name, frame in tables.items():
@@ -316,7 +326,7 @@ class RunReport(_BaseReport):
                 retries=("attempt", lambda values: int((pd.Series(values).fillna(0) > 0).sum())),
                 median_latency_s=("latency_s", "median"),
                 p95_latency_s=("latency_s", lambda values: pd.Series(values).dropna().quantile(0.95)),
-                total_tokens=("total_tokens", "sum"),
+                total_tokens=("total_tokens", lambda values: values.sum(min_count=1)),
             )
             .reset_index()
         )

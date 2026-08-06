@@ -15,6 +15,7 @@ from typing import Any, Iterable, Sequence
 
 from .agents import ExperimentalAgent, assert_initial_symmetry, stable_hash
 from .config import RunConfig, load_config
+from .costs import summarize_usage
 from .environment import HiddenWorldEnvironment
 from .logging import RunLogger
 from .memory import MemoryPolicy
@@ -82,6 +83,7 @@ class ExperimentRunner:
         )
         self.semaphore = asyncio.Semaphore(config.experiment.max_concurrency)
         self.route_history: list[dict[str, Any]] = []
+        self.token_usages: list[dict[str, Any] | None] = []
         self.previous_probe_routing: list[str | None] | None = None
         self.last_metrics: dict[str, Any] | None = None
 
@@ -188,6 +190,7 @@ class ExperimentRunner:
     def _log_inferences(self, logger: RunLogger, results: Iterable[SolveResult]) -> None:
         for result in results:
             for record in result.records:
+                self.token_usages.append(record.token_usage)
                 logger.event(
                     "inference",
                     {
@@ -483,6 +486,13 @@ class ExperimentRunner:
                 "memory_counts": {agent.agent_id: len(agent.memory) for agent in self.agents},
                 "routing_counts": dict(Counter(item["selected_agent_id"] for item in self.route_history)),
                 "final_metrics": self.last_metrics,
+                "usage": summarize_usage(
+                    self.token_usages,
+                    currency=self.config.cost.currency,
+                    input_per_million_tokens=self.config.cost.input_per_million_tokens,
+                    cached_input_per_million_tokens=self.config.cost.cached_input_per_million_tokens,
+                    output_per_million_tokens=self.config.cost.output_per_million_tokens,
+                ),
             }
             logger.write_summary(summary)
             if self.config.experiment.console_summary:
@@ -496,6 +506,13 @@ class ExperimentRunner:
                     "status": "failed",
                     "error": f"{type(exc).__name__}: {exc}",
                     "memory_counts": {agent.agent_id: len(agent.memory) for agent in self.agents},
+                    "usage": summarize_usage(
+                        self.token_usages,
+                        currency=self.config.cost.currency,
+                        input_per_million_tokens=self.config.cost.input_per_million_tokens,
+                        cached_input_per_million_tokens=self.config.cost.cached_input_per_million_tokens,
+                        output_per_million_tokens=self.config.cost.output_per_million_tokens,
+                    ),
                 }
             )
             raise
@@ -507,6 +524,11 @@ class ExperimentRunner:
         print(f"run: {summary['run_id']}")
         print(f"routing counts: {json.dumps(summary['routing_counts'], sort_keys=True)}")
         print(f"memory counts: {json.dumps(summary['memory_counts'], sort_keys=True)}")
+        usage = summary.get("usage") or {}
+        if usage.get("status") == "estimated":
+            print(f"estimated cost: {usage['estimated_cost']:.8f} {usage['currency']}")
+        else:
+            print(f"token usage/cost: {usage.get('status', 'unavailable')}")
         if metrics:
             print(f"normalized utilization entropy: {metrics['normalized_utilization_entropy']:.4f}")
             print(f"normalized task-agent MI: {metrics['normalized_task_agent_mutual_information']:.4f}")

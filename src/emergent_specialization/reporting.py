@@ -81,6 +81,7 @@ def build_run_notebook(run_dir: Path, report_dir: Path) -> Any:
         _figure_cell("plot_probe_behavior"),
         _figure_cell("plot_behavioral_structure"),
         _markdown_cell("## Inference health and auditability"),
+        _code_cell("display(report.usage())"),
         _code_cell("display(report.inference_health())"),
         _figure_cell("plot_inference_health"),
         _markdown_cell("## Exported analysis tables"),
