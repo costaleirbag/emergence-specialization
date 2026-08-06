@@ -1,0 +1,294 @@
+{
+  "content_sha256": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
+  "format": "emergent-specialization-probe-set-v1",
+  "generation_seed": 20260806,
+  "per_world": 10,
+  "tasks": [
+    {
+      "correct_answer": 3,
+      "task_id": "probe-ALPHA-0",
+      "world": "ALPHA",
+      "x": 11,
+      "y": 8
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "probe-ALPHA-1",
+      "world": "ALPHA",
+      "x": 13,
+      "y": 11
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "probe-ALPHA-2",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 19
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "probe-ALPHA-3",
+      "world": "ALPHA",
+      "x": 20,
+      "y": 18
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "probe-ALPHA-4",
+      "world": "ALPHA",
+      "x": 1,
+      "y": 14
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "probe-ALPHA-5",
+      "world": "ALPHA",
+      "x": 8,
+      "y": 13
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "probe-ALPHA-6",
+      "world": "ALPHA",
+      "x": 14,
+      "y": 16
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "probe-ALPHA-7",
+      "world": "ALPHA",
+      "x": 8,
+      "y": 1
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "probe-ALPHA-8",
+      "world": "ALPHA",
+      "x": 5,
+      "y": 10
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "probe-ALPHA-9",
+      "world": "ALPHA",
+      "x": 5,
+      "y": 12
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "probe-BETA-0",
+      "world": "BETA",
+      "x": 7,
+      "y": 17
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "probe-BETA-1",
+      "world": "BETA",
+      "x": 3,
+      "y": 3
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "probe-BETA-2",
+      "world": "BETA",
+      "x": 9,
+      "y": 1
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "probe-BETA-3",
+      "world": "BETA",
+      "x": 10,
+      "y": 0
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "probe-BETA-4",
+      "world": "BETA",
+      "x": 8,
+      "y": 13
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "probe-BETA-5",
+      "world": "BETA",
+      "x": 7,
+      "y": 6
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "probe-BETA-6",
+      "world": "BETA",
+      "x": 1,
+      "y": 5
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "probe-BETA-7",
+      "world": "BETA",
+      "x": 17,
+      "y": 12
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "probe-BETA-8",
+      "world": "BETA",
+      "x": 7,
+      "y": 16
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "probe-BETA-9",
+      "world": "BETA",
+      "x": 7,
+      "y": 5
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "probe-GAMMA-0",
+      "world": "GAMMA",
+      "x": 6,
+      "y": 15
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "probe-GAMMA-1",
+      "world": "GAMMA",
+      "x": 4,
+      "y": 14
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "probe-GAMMA-2",
+      "world": "GAMMA",
+      "x": 4,
+      "y": 8
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "probe-GAMMA-3",
+      "world": "GAMMA",
+      "x": 4,
+      "y": 5
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "probe-GAMMA-4",
+      "world": "GAMMA",
+      "x": 11,
+      "y": 8
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "probe-GAMMA-5",
+      "world": "GAMMA",
+      "x": 15,
+      "y": 1
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "probe-GAMMA-6",
+      "world": "GAMMA",
+      "x": 2,
+      "y": 11
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "probe-GAMMA-7",
+      "world": "GAMMA",
+      "x": 11,
+      "y": 20
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "probe-GAMMA-8",
+      "world": "GAMMA",
+      "x": 14,
+      "y": 14
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "probe-GAMMA-9",
+      "world": "GAMMA",
+      "x": 16,
+      "y": 20
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "probe-DELTA-0",
+      "world": "DELTA",
+      "x": 16,
+      "y": 5
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "probe-DELTA-1",
+      "world": "DELTA",
+      "x": 5,
+      "y": 2
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "probe-DELTA-2",
+      "world": "DELTA",
+      "x": 6,
+      "y": 9
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "probe-DELTA-3",
+      "world": "DELTA",
+      "x": 6,
+      "y": 2
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "probe-DELTA-4",
+      "world": "DELTA",
+      "x": 9,
+      "y": 7
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "probe-DELTA-5",
+      "world": "DELTA",
+      "x": 6,
+      "y": 16
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "probe-DELTA-6",
+      "world": "DELTA",
+      "x": 15,
+      "y": 0
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "probe-DELTA-7",
+      "world": "DELTA",
+      "x": 12,
+      "y": 15
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "probe-DELTA-8",
+      "world": "DELTA",
+      "x": 17,
+      "y": 9
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "probe-DELTA-9",
+      "world": "DELTA",
+      "x": 4,
+      "y": 15
+    }
+  ],
+  "worlds": [
+    "ALPHA",
+    "BETA",
+    "GAMMA",
+    "DELTA"
+  ]
+}

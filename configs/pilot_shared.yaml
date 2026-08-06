@@ -1,0 +1,33 @@
+experiment:
+  num_agents: 4
+  num_rounds: 20
+  checkpoints: [0, 20]
+  seed: 1
+  max_concurrency: 4
+  technical_retries: 1
+  console_summary: true
+
+environment:
+  worlds: [ALPHA, BETA, GAMMA, DELTA]
+  x_min: 0
+  x_max: 20
+
+agent:
+  backend: omp
+  model: deepseek/deepseek-v4-flash
+  thinking: "off"
+  memory_strategy: recent_k
+  memory_k: 8
+  omp_executable: omp
+  omp_timeout_s: 120
+
+router:
+  strategy: confidence
+  epsilon: 0.0
+
+condition:
+  memory_mode: shared
+
+logging:
+  output_dir: data/runs
+  probe_set_path: data/probe_set.json

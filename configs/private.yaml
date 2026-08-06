@@ -1,0 +1,38 @@
+experiment:
+  num_agents: 4
+  num_rounds: 80
+  checkpoints: [0, 20, 40, 60, 80]
+  seed: 1
+  max_concurrency: 4
+  technical_retries: 1
+  console_summary: true
+
+environment:
+  worlds: [ALPHA, BETA, GAMMA, DELTA]
+  x_min: 0
+  x_max: 20
+
+agent:
+  backend: omp
+  model: deepseek/deepseek-v4-flash
+  thinking: "off"
+  memory_strategy: recent_k
+  memory_k: 8
+  omp_executable: omp
+  omp_timeout_s: 120
+  # OMP 17.2.10 does not document controls for these; they are recorded so a
+  # future direct backend can use the exact same experimental config.
+  temperature: null
+  top_p: null
+  max_tokens: null
+
+router:
+  strategy: confidence
+  epsilon: 0.0
+
+condition:
+  memory_mode: private
+
+logging:
+  output_dir: data/runs
+  probe_set_path: data/probe_set.json
