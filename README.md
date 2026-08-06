@@ -24,12 +24,14 @@ routing, feedback, memory, checkpoints, random seeds, and all measurements.
 
 ## Setup
 
-Requires Python 3.11+ and PyYAML.
+Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 
 ```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install -e .
+uv sync
 ```
+
+`uv sync` creates/updates the project environment and lockfile. No manual
+`.venv` activation is needed; prefix project commands with `uv run`.
 
 Check the installed OMP without printing credentials:
 
@@ -47,27 +49,27 @@ silently substitutes another model.
 Run the automated test suite (it never contacts DeepSeek):
 
 ```bash
-PYTHONPATH=src python -m unittest discover -s tests -v
+uv run python -m unittest discover -s tests -v
 ```
 
 Run the complete loop with the deterministic fake backend, without any model
 calls:
 
 ```bash
-PYTHONPATH=src python -m emergent_specialization.experiment --config configs/pilot_private.yaml --dry-run
+uv run python -m emergent_specialization.experiment --config configs/pilot_private.yaml --dry-run
 ```
 
 After confirming the local OMP runtime and model availability, run a 20-round
 pilot under private feedback:
 
 ```bash
-PYTHONPATH=src python -m emergent_specialization.experiment --config configs/pilot_private.yaml
+uv run python -m emergent_specialization.experiment --config configs/pilot_private.yaml
 ```
 
 The shared-memory control is identical except for its feedback condition:
 
 ```bash
-PYTHONPATH=src python -m emergent_specialization.experiment --config configs/pilot_shared.yaml
+uv run python -m emergent_specialization.experiment --config configs/pilot_shared.yaml
 ```
 
 The 20-round pilots make **400** DeepSeek calls each: 20 interaction rounds ×
