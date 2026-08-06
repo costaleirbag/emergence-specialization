@@ -6,6 +6,7 @@ import argparse
 import asyncio
 import json
 import random
+import time
 import uuid
 from collections import Counter
 from dataclasses import asdict, dataclass
@@ -42,6 +43,41 @@ class SolveResult:
     records: tuple[InferenceRecord, ...]
     memory_inserted: tuple[dict[str, object], ...]
     error: str | None = None
+
+
+class _ConsoleProgress:
+    """Small dependency-free progress display for long concurrent batches."""
+
+    def __init__(self, label: str, total: int, *, enabled: bool) -> None:
+        self.label = label
+        self.total = total
+        self.enabled = enabled
+        self.completed = 0
+        self.started = time.perf_counter()
+
+    def start(self) -> None:
+        if self.enabled:
+            self._render()
+
+    def advance(self) -> None:
+        self.completed += 1
+        if self.enabled:
+            self._render()
+
+    def finish(self) -> None:
+        if self.enabled:
+            self.completed = self.total
+            self._render()
+            print(flush=True)
+
+    def _render(self) -> None:
+        elapsed = time.perf_counter() - self.started
+        print(
+            f"\r{self.label}: {self.completed}/{self.total} completions "
+            f"({elapsed:.1f}s)",
+            end="",
+            flush=True,
+        )
 
 
 def make_backend(config: RunConfig) -> LLMBackend:
@@ -206,6 +242,12 @@ class ExperimentRunner:
     ) -> dict[str, Any]:
         """Evaluate frozen snapshots; this function never calls ``observe``."""
         memory_before = {agent.agent_id: tuple(agent.memory) for agent in self.agents}
+        progress = _ConsoleProgress(
+            f"CHECKPOINT {checkpoint}: probe evaluation",
+            len(probes) * len(self.agents),
+            enabled=self.config.experiment.console_summary,
+        )
+        progress.start()
         jobs = [
             self._solve(
                 agent=agent,
@@ -219,7 +261,16 @@ class ExperimentRunner:
             for probe_index, task in enumerate(probes)
             for agent in self.agents
         ]
-        flat_results = list(await asyncio.gather(*jobs))
+        async def run_probe_job(index: int, job: Any) -> tuple[int, SolveResult]:
+            result = await job
+            progress.advance()
+            return index, result
+
+        try:
+            indexed_results = await asyncio.gather(*(run_probe_job(index, job) for index, job in enumerate(jobs)))
+        finally:
+            progress.finish()
+        flat_results = [result for _, result in sorted(indexed_results)]
         self._log_inferences(logger, flat_results)
         if any(tuple(agent.memory) != memory_before[agent.agent_id] for agent in self.agents):
             raise AssertionError("Probe evaluation mutated an agent memory")
@@ -413,6 +464,21 @@ class ExperimentRunner:
             },
         )
         try:
+            if self.config.experiment.console_summary:
+                nominal_interactions = self.config.experiment.num_rounds * len(self.agents)
+                nominal_probes = len(self.config.experiment.checkpoints) * len(probes) * len(self.agents)
+                nominal_total = nominal_interactions + nominal_probes
+                max_total = nominal_total * (self.config.experiment.technical_retries + 1)
+                print("\nEXPERIMENT PLAN")
+                print(f"model: {self.config.agent.model} | condition: {self.config.condition.memory_mode}")
+                print(
+                    f"nominal completions: {nominal_total} "
+                    f"({nominal_interactions} interaction + {nominal_probes} probe)"
+                )
+                print(
+                    f"retry ceiling: {max_total} physical completions "
+                    f"(technical_retries={self.config.experiment.technical_retries})"
+                )
             if 0 in self.config.experiment.checkpoints:
                 await self._evaluate_checkpoint(
                     checkpoint=0, probes=probes, probe_set_hash=probe_set_hash, logger=logger
@@ -420,6 +486,12 @@ class ExperimentRunner:
             for round_id in range(1, self.config.experiment.num_rounds + 1):
                 task = self.environment.sample_task(self.task_rng, task_id=f"round-{round_id}")
                 memory_counts_before = {agent.agent_id: len(agent.memory) for agent in self.agents}
+                if self.config.experiment.console_summary:
+                    print(
+                        f"\nROUND {round_id}/{self.config.experiment.num_rounds} — "
+                        f"running {len(self.agents)} interaction completions...",
+                        flush=True,
+                    )
                 results = list(
                     await asyncio.gather(
                         *(

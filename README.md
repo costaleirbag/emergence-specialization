@@ -82,6 +82,13 @@ The 20-round pilots make **400** DeepSeek calls each: 20 interaction rounds ×
 4 agents (80), plus 40 fixed probes × 4 agents at checkpoints 0 and 20 (320).
 They are intentionally not launched automatically.
 
+Real runs print an experiment plan, live completion counts for each probe
+checkpoint, and a progress line before each interaction round. The progress
+display is terminal-only and does not change prompts, scheduling semantics,
+random seeds, or the raw JSONL record. A quiet terminal during checkpoint
+evaluation is therefore replaced by a visible `completed/total completions`
+counter.
+
 Use `--num-rounds 10` and `--seed 2` for non-persistent overrides.
 
 ### DeepSeek through the local Bitwarden CLI
