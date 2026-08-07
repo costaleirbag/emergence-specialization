@@ -24,13 +24,26 @@ from .probes import load_probe_set
 
 DEFAULT_PRIVATE = "configs/research/replication_private.yaml"
 DEFAULT_SHARED = "configs/research/replication_shared.yaml"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _resolve_config_path(value: str) -> Path:
+    path = Path(value).expanduser()
+    return path if path.is_absolute() else (Path.cwd() / path).resolve()
+
+
+def _resolve_probe_path(config_path: Path, value: str) -> Path:
+    path = Path(value).expanduser()
+    return path if path.is_absolute() else (config_path.parent.parent.parent / path).resolve()
 
 
 def _offline_report(private_path: str, shared_path: str) -> dict[str, Any]:
-    private = load_config(private_path)
-    shared = load_config(shared_path)
-    private_probes, private_hash = load_probe_set(private.logging.probe_set_path)
-    shared_probes, shared_hash = load_probe_set(shared.logging.probe_set_path)
+    private_file = _resolve_config_path(private_path)
+    shared_file = _resolve_config_path(shared_path)
+    private = load_config(private_file)
+    shared = load_config(shared_file)
+    private_probes, private_hash = load_probe_set(_resolve_probe_path(private_file, private.logging.probe_set_path))
+    shared_probes, shared_hash = load_probe_set(_resolve_probe_path(shared_file, shared.logging.probe_set_path))
     differences = []
     for label, left, right in (
         ("model", private.agent.model, shared.agent.model),
@@ -49,8 +62,8 @@ def _offline_report(private_path: str, shared_path: str) -> dict[str, Any]:
         "model_calls": 0,
         "created_at_utc": datetime.now(UTC).isoformat(),
         "configs": {
-            "private": str(Path(private_path).resolve()),
-            "shared": str(Path(shared_path).resolve()),
+            "private": str(private_file),
+            "shared": str(shared_file),
         },
         "direct_backend": private.agent.backend == "deepseek_direct" and shared.agent.backend == "deepseek_direct",
         "model": private.agent.model,
@@ -64,7 +77,7 @@ def _offline_report(private_path: str, shared_path: str) -> dict[str, Any]:
 
 
 async def _one_live_call(config_path: str, output_dir: Path) -> dict[str, Any]:
-    config = load_config(config_path)
+    config = load_config(_resolve_config_path(config_path))
     if config.agent.backend != "deepseek_direct":
         raise ValueError("doctor requires a deepseek_direct config")
     store = CredentialStore(config.runtime.credential_service, config.runtime.credential_account)
@@ -123,8 +136,8 @@ async def _one_live_call(config_path: str, output_dir: Path) -> dict[str, Any]:
 
 def main(argv: Iterable[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Validate DeepSeek Direct without a model call by default")
-    parser.add_argument("--config", default=DEFAULT_PRIVATE)
-    parser.add_argument("--shared-config", default=DEFAULT_SHARED)
+    parser.add_argument("--config", default=str(REPO_ROOT / DEFAULT_PRIVATE))
+    parser.add_argument("--shared-config", default=str(REPO_ROOT / DEFAULT_SHARED))
     parser.add_argument("--confirm-real", action="store_true", help="Permit exactly one live completion")
     parser.add_argument("--output-dir", default="reports/infrastructure-doctor")
     args = parser.parse_args(list(argv) if argv is not None else None)
