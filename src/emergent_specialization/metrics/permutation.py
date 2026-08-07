@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import itertools
 import math
+from collections import Counter
 from typing import Mapping, Sequence
 
 from .information import entropy
@@ -119,6 +120,37 @@ def ensemble_symmetry_within_run_asymmetry(
         "label_usage_entropy": label_entropy,
         "normalized_label_usage_entropy": label_entropy / math.log2(len(set(top_labels))) if len(set(top_labels)) > 1 else 0.0,
     }
+
+
+def argmax_label_counts(values_by_run: Sequence[Mapping[str, float]]) -> dict[str, int]:
+    """Count which opaque label occupies an argmax position across runs."""
+    counts: Counter[str] = Counter()
+    for values in values_by_run:
+        if not values:
+            continue
+        maximum = max(float(value) for value in values.values())
+        for agent_id in sorted(agent for agent, value in values.items() if float(value) == maximum):
+            counts[agent_id] += 1
+    return dict(sorted(counts.items()))
+
+
+def world_argmax_label_counts(
+    profiles_by_run: Sequence[Mapping[str, Mapping[str, float]]]
+) -> dict[str, dict[str, int]]:
+    """Count top competence labels separately for each world across runs."""
+    worlds = sorted({world for profiles in profiles_by_run for profile in profiles.values() for world in profile})
+    output: dict[str, dict[str, int]] = {}
+    for world in worlds:
+        counts: Counter[str] = Counter()
+        for profiles in profiles_by_run:
+            values = {agent_id: float(profile.get(world, 0.0)) for agent_id, profile in profiles.items()}
+            if not values:
+                continue
+            maximum = max(values.values())
+            for agent_id in sorted(agent for agent, value in values.items() if value == maximum):
+                counts[agent_id] += 1
+        output[world] = dict(sorted(counts.items()))
+    return output
 
 
 def role_profile_stability(

@@ -21,6 +21,7 @@ import yaml
 
 from .config import RunConfig, load_config
 from .agents import stable_hash
+from .health import run_health
 from .logging import git_commit
 from .probes import load_probe_set
 
@@ -159,7 +160,13 @@ def _completed_match(row: PlannedRun, output_root: Path) -> Path | None:
             and summary.get("seed") == row.seed
             and config.get("source_hash") == row.config_hash
         ):
-            return run_dir
+            # A completed process is not necessarily a scientifically usable
+            # run. Only a strict healthy artifact is resumable/skippable.
+            try:
+                if run_health(run_dir).get("health_flag") == "healthy":
+                    return run_dir
+            except (OSError, ValueError, KeyError):
+                continue
     return None
 
 

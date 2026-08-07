@@ -33,7 +33,9 @@ from emergent_specialization.metrics.information import mi_null_diagnostic
 from emergent_specialization.metrics.online import online_observables
 from emergent_specialization.metrics.permutation import (
     align_competence_profiles,
+    argmax_label_counts,
     ensemble_symmetry_within_run_asymmetry,
+    world_argmax_label_counts,
     within_run_asymmetry,
 )
 from emergent_specialization.probes import generate_probe_payload, write_probe_set
@@ -229,6 +231,14 @@ class PermutationAndMIDiagnosticsTests(unittest.TestCase):
         summary = ensemble_symmetry_within_run_asymmetry([run, run])
         self.assertGreater(summary["mean_within_run_asymmetry"], 0.0)
         self.assertGreaterEqual(summary["label_usage_entropy"], 0.0)
+
+    def test_raw_label_argmax_counts_are_available_as_exchangeability_sanity_checks(self) -> None:
+        self.assertEqual(argmax_label_counts([{"agent_0": 2, "agent_1": 1}, {"agent_1": 3, "agent_0": 1}]), {"agent_0": 1, "agent_1": 1})
+        profiles = [
+            {"agent_0": {"ALPHA": 1.0}, "agent_1": {"ALPHA": 0.0}},
+            {"agent_0": {"ALPHA": 0.0}, "agent_1": {"ALPHA": 1.0}},
+        ]
+        self.assertEqual(world_argmax_label_counts(profiles)["ALPHA"], {"agent_0": 1, "agent_1": 1})
 
     def test_mi_null_is_seeded_and_explicitly_diagnostic(self) -> None:
         first = mi_null_diagnostic(["A", "A", "B", "B"], ["x", "x", "y", "y"], permutations=20, seed=4)
