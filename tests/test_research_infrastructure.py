@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 from emergent_specialization.aggregate import aggregate_runs
-from emergent_specialization.batch import nominal_call_counts, plan_batch
+from emergent_specialization.batch import nominal_call_counts, plan_batch, plan_manifest, run_batch
 from emergent_specialization.config import (
     AgentSettings,
     ConditionSettings,
@@ -101,6 +101,32 @@ class CheckpointAndFeedbackTests(unittest.TestCase):
         self.assertEqual(sum(len(agent.memory) for agent in private.agents), 2)
         self.assertEqual([len(agent.memory) for agent in shared.agents], [2, 2, 2, 2])
 
+    def test_legacy_private_shared_pair_keeps_task_sequence_identical(self) -> None:
+        def execute(mode: str) -> list[dict[str, object]]:
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                probes = root / "probes.json"
+                write_probe_set(probes, generate_probe_payload(HiddenWorldEnvironment(), per_world=1))
+                config = RunConfig(
+                    experiment=ExperimentSettings(
+                        num_agents=4, num_rounds=4, checkpoints=(), seed=11,
+                        task_seed=31, router_seed=41, technical_retries=0, console_summary=False,
+                    ),
+                    agent=AgentSettings(backend="mock"),
+                    condition=ConditionSettings(memory_mode=mode),
+                    logging=LoggingSettings(output_dir=str(root / "runs"), probe_set_path=str(probes)),
+                )
+                run_dir = asyncio.run(ExperimentRunner(config, backend=MockBackend()).run())
+                return [
+                    json.loads(line)
+                    for line in (run_dir / "events.jsonl").read_text().splitlines()
+                    if json.loads(line).get("event") == "round_complete"
+                ]
+
+        private = execute("private")
+        shared = execute("shared")
+        self.assertEqual([event["task"] for event in private], [event["task"] for event in shared])
+
 
 class OnlineAndBatchTests(unittest.TestCase):
     def test_online_observables_are_cumulative_and_probe_free(self) -> None:
@@ -124,6 +150,22 @@ class OnlineAndBatchTests(unittest.TestCase):
         self.assertEqual(rows[-1]["memory_counts"], {"agent_0": 1, "agent_1": 1})
         self.assertAlmostEqual(rows[-1]["cumulative_accuracy"], 0.5)
         self.assertEqual(rows[-1]["routing_concentration"], 0.5)
+
+    def test_online_mi_null_is_opt_in_after_minimum_sample(self) -> None:
+        events = []
+        for index in range(8):
+            events.append(
+                {
+                    "event": "round_complete", "round": index + 1,
+                    "task": {"world": "ALPHA" if index < 4 else "BETA"},
+                    "selected_agent_id": "agent_0" if index % 2 == 0 else "agent_1",
+                    "selected_correct": True, "feedback_recipients": ["agent_0"],
+                    "candidates": {"agent_0": {"confidence": 0.8}, "agent_1": {"confidence": 0.2}},
+                }
+            )
+        rows = online_observables(events, num_agents=2, mi_permutations=10, mi_min_samples=8)
+        self.assertNotIn("mi_null_diagnostic", rows[0])
+        self.assertIn("mi_null_diagnostic", rows[-1])
 
     def test_batch_plan_counts_nominal_and_retry_ceiling(self) -> None:
         root = Path(__file__).resolve().parents[1]
@@ -149,6 +191,28 @@ class OnlineAndBatchTests(unittest.TestCase):
             rows = plan_batch(batch)
             self.assertEqual(len(rows), 2)
             self.assertEqual(rows[0].nominal_calls, 2 * 3 + 3 * 4 * 2)
+
+    def test_batch_manifest_contains_reproducibility_fields_and_run_requires_confirmation(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        config = root / "configs" / "research" / "replication_private.yaml"
+        batch = root / "configs" / "research" / "batches" / "private_shared_replication_5seeds.yaml"
+        rows = plan_batch(batch)
+        manifest = plan_manifest(batch, rows)
+        self.assertEqual(len(manifest["runs"]), 10)
+        self.assertIn("git_commit", manifest)
+        self.assertIn("system_prompt_hash", manifest["runs"][0])
+        with self.assertRaises(ValueError):
+            run_batch(rows[:1], output_root=root / "data" / "runs" / "replication")
+
+    def test_aggregate_exposes_paired_delta_hse_field(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        private = root / "data" / "runs" / "private-seed1-20260806T231032Z-ff928a0b"
+        shared = root / "data" / "runs" / "shared-seed1-20260807T002355Z-557768c8"
+        if not private.exists() or not shared.exists():
+            self.skipTest("recorded real runs are not present")
+        result = aggregate_runs([private, shared])
+        self.assertEqual(len(result["paired_delta_hse"]), 2)
+        self.assertIn("paired_difference_right_minus_left", result["paired_delta_hse"][0])
 
 
 class PermutationAndMIDiagnosticsTests(unittest.TestCase):

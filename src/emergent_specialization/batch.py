@@ -10,6 +10,9 @@ from __future__ import annotations
 import argparse
 import json
 import shlex
+import shutil
+import subprocess
+import hashlib
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -17,6 +20,8 @@ from typing import Any, Iterable
 import yaml
 
 from .config import RunConfig, load_config
+from .agents import stable_hash
+from .logging import git_commit
 from .probes import load_probe_set
 
 
@@ -34,6 +39,15 @@ class PlannedRun:
     max_physical_calls: int
     output_dir: str
     command: str
+    config_hash: str | None
+    probe_set_hash: str
+    system_prompt_hash: str
+    task_seed: int
+    router_seed: int
+    feedback_seed: int
+    model: str
+    backend: str
+    omp_version_expected: str
 
 
 def nominal_call_counts(config: RunConfig, probe_count: int) -> dict[str, int]:
@@ -57,6 +71,17 @@ def _resolve_config(path: str, base: Path) -> Path:
     return candidate
 
 
+def _omp_version() -> str:
+    executable = shutil.which("omp")
+    if not executable:
+        return "unavailable (omp not on PATH during planning)"
+    try:
+        result = subprocess.run([executable, "--version"], capture_output=True, text=True, timeout=10, check=False)
+    except (OSError, subprocess.TimeoutExpired):
+        return "unavailable (version check failed)"
+    return result.stdout.strip() if result.returncode == 0 else f"unavailable (exit {result.returncode})"
+
+
 def plan_batch(path: str | Path) -> list[PlannedRun]:
     batch_path = Path(path).expanduser().resolve()
     raw = yaml.safe_load(batch_path.read_text(encoding="utf-8")) or {}
@@ -77,16 +102,20 @@ def plan_batch(path: str | Path) -> list[PlannedRun]:
     for config_value in config_paths:
         config_path = _resolve_config(str(config_value), batch_path.parent)
         base_config = load_config(config_path)
-        probes, _ = load_probe_set(base_config.logging.probe_set_path)
+        probes, probe_set_hash = load_probe_set(base_config.logging.probe_set_path)
         counts = nominal_call_counts(base_config, len(probes))
         condition = base_config.condition.memory_mode
+        task_seed = base_config.experiment.task_seed if base_config.experiment.task_seed is not None else base_config.experiment.seed
+        router_seed = base_config.experiment.router_seed if base_config.experiment.router_seed is not None else base_config.experiment.seed + 1
+        feedback_seed = base_config.experiment.feedback_seed if base_config.experiment.feedback_seed is not None else base_config.experiment.seed + 2
+        omp_version = _omp_version()
         for seed in seeds:
             destination = output_root / f"{condition}-seed{seed}"
             command = " ".join(
                 shlex.quote(part)
                 for part in (
-                    "uv", "run", "python", "-m", "emergent_specialization.experiment",
-                    "--config", str(config_path), "--seed", str(seed), "--output-dir", str(output_root),
+                    "./scripts/run-deepseek-experiment.sh", "--config", str(config_path),
+                    "--seed", str(seed), "--output-dir", str(output_root),
                 )
             )
             planned.append(
@@ -100,27 +129,115 @@ def plan_batch(path: str | Path) -> list[PlannedRun]:
                     **counts,
                     output_dir=str(destination),
                     command=command,
+                    config_hash=base_config.source_hash,
+                    probe_set_hash=probe_set_hash,
+                    system_prompt_hash=stable_hash(base_config.agent.system_prompt),
+                    task_seed=seed if base_config.experiment.task_seed is None else base_config.experiment.task_seed,
+                    router_seed=seed + 1 if base_config.experiment.router_seed is None else base_config.experiment.router_seed,
+                    feedback_seed=seed + 2 if base_config.experiment.feedback_seed is None else base_config.experiment.feedback_seed,
+                    model=base_config.agent.model,
+                    backend=base_config.agent.backend,
+                    omp_version_expected=omp_version,
                 )
             )
     return planned
 
 
+def _completed_match(row: PlannedRun, output_root: Path) -> Path | None:
+    for run_dir in sorted(output_root.glob("*") if output_root.exists() else ()):
+        if not run_dir.is_dir() or not (run_dir / "summary.json").is_file() or not (run_dir / "metadata.json").is_file():
+            continue
+        try:
+            summary = json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
+            metadata = json.loads((run_dir / "metadata.json").read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        config = metadata.get("config", {})
+        if (
+            summary.get("status") == "completed"
+            and summary.get("condition") == row.condition
+            and summary.get("seed") == row.seed
+            and config.get("source_hash") == row.config_hash
+        ):
+            return run_dir
+    return None
+
+
+def run_batch(
+    planned: Iterable[PlannedRun],
+    *,
+    output_root: str | Path,
+    only_seed: int | None = None,
+    only_condition: str | None = None,
+    confirm_real: bool = False,
+) -> list[str]:
+    """Run selected planned commands sequentially, skipping completed matches."""
+    if not confirm_real:
+        raise ValueError("real batch execution requires --confirm-real")
+    root = Path(output_root)
+    completed: list[str] = []
+    for row in planned:
+        if only_seed is not None and row.seed != only_seed:
+            continue
+        if only_condition is not None and row.condition != only_condition:
+            continue
+        existing = _completed_match(row, root)
+        if existing is not None:
+            print(f"SKIP completed: {existing}")
+            completed.append(str(existing))
+            continue
+        subprocess.run(shlex.split(row.command), check=True)
+    return completed
+
+
+def plan_manifest(path: str | Path, planned: Iterable[PlannedRun]) -> dict[str, Any]:
+    batch_path = Path(path).expanduser().resolve()
+    rows = [asdict(row) for row in planned]
+    return {
+        "schema_version": 1,
+        "batch_config": str(batch_path),
+        "batch_config_hash": hashlib.sha256(batch_path.read_bytes()).hexdigest(),
+        "git_commit": git_commit(),
+        "expected_omp_version": rows[0]["omp_version_expected"] if rows else "unavailable",
+        "runs": rows,
+    }
+
+
 def main(argv: Iterable[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Plan a multi-seed experiment batch (no execution)")
     parser.add_argument("--config", required=True, help="Batch YAML path")
-    parser.add_argument("--plan", action="store_true", help="Print the dry plan")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--plan", action="store_true", help="Print the dry plan (default)")
+    mode.add_argument("--run", action="store_true", help="Run selected commands sequentially")
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON")
-    parser.add_argument("--execute", action="store_true", help="Rejected: this command is planning-only")
+    parser.add_argument("--confirm-real", action="store_true", help="Required safety acknowledgement for --run")
+    parser.add_argument("--only-seed", type=int, help="Restrict --run to one seed")
+    parser.add_argument("--only-condition", choices=["private", "shared"], help="Restrict --run to one condition")
     args = parser.parse_args(list(argv) if argv is not None else None)
-    if args.execute:
-        parser.error("batch execution is intentionally not implemented; run a generated command explicitly")
-    if not args.plan:
-        parser.error("planning is the default safety boundary; pass --plan")
-    rows = [asdict(row) for row in plan_batch(args.config)]
+    planned = plan_batch(args.config)
+    if args.run:
+        if not args.confirm_real:
+            parser.error("--run requires --confirm-real; planning remains the safe default")
+        batch_path = Path(args.config).expanduser().resolve()
+        raw = yaml.safe_load(batch_path.read_text(encoding="utf-8")) or {}
+        output_root = Path(str(raw.get("output_dir", "data/runs"))).expanduser()
+        if not output_root.is_absolute():
+            output_root = (Path.cwd() / output_root).resolve()
+        run_batch(
+            planned,
+            output_root=output_root,
+            only_seed=args.only_seed,
+            only_condition=args.only_condition,
+            confirm_real=args.confirm_real,
+        )
+        return
+    rows = [asdict(row) for row in planned]
     if args.json:
-        print(json.dumps(rows, indent=2, sort_keys=True))
+        print(json.dumps(plan_manifest(args.config, planned), indent=2, sort_keys=True))
         return
     print("BATCH PLAN (no model calls)")
+    print(f"git_commit={git_commit()}")
+    print(f"expected omp={rows[0]['omp_version_expected'] if rows else 'unavailable'}")
     for row in rows:
         print(
             f"seed={row['seed']} condition={row['condition']} rounds={row['rounds']} "

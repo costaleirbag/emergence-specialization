@@ -1,0 +1,7 @@
+# Plan only by default. The batch module never runs a provider without --run
+# --confirm-real, and each individual command uses the secure Bitwarden launcher.
+seeds: [1, 2, 3, 4, 5]
+configs:
+  - configs/research/replication_private.yaml
+  - configs/research/replication_shared.yaml
+output_dir: data/runs/replication

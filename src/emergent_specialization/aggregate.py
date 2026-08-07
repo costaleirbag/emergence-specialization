@@ -51,6 +51,7 @@ def aggregate_runs(run_dirs: Iterable[str | Path]) -> dict[str, Any]:
     }
     conditions = sorted({bundle.condition for bundle in bundles})
     paired_differences: list[dict[str, Any]] = []
+    paired_delta_hse: list[dict[str, Any]] = []
     if len(conditions) >= 2:
         left, right = conditions[:2]
         seeds = sorted({bundle.seed for bundle in bundles if bundle.seed is not None})
@@ -61,6 +62,8 @@ def aggregate_runs(run_dirs: Iterable[str | Path]) -> dict[str, Any]:
                 continue
             left_rows = {int(row["checkpoint"]): row for row in checkpoint_rows(left_bundle)}
             right_rows = {int(row["checkpoint"]): row for row in checkpoint_rows(right_bundle)}
+            left_baseline = left_rows.get(0, {}).get("normalized_hse")
+            right_baseline = right_rows.get(0, {}).get("normalized_hse")
             for checkpoint in sorted(set(left_rows) & set(right_rows)):
                 for metric in CHECKPOINT_SCALARS:
                     left_value = left_rows[checkpoint].get(metric)
@@ -78,12 +81,29 @@ def aggregate_runs(run_dirs: Iterable[str | Path]) -> dict[str, Any]:
                                 "right_minus_left": float(right_value) - float(left_value),
                             }
                         )
+                left_hse = left_rows[checkpoint].get("normalized_hse")
+                right_hse = right_rows[checkpoint].get("normalized_hse")
+                if all(isinstance(value, (int, float)) for value in (left_hse, right_hse, left_baseline, right_baseline)):
+                    left_delta = float(left_hse) - float(left_baseline)
+                    right_delta = float(right_hse) - float(right_baseline)
+                    paired_delta_hse.append(
+                        {
+                            "seed": seed,
+                            "checkpoint": checkpoint,
+                            "left_condition": left,
+                            "right_condition": right,
+                            "private_or_left_delta_normalized_hse": left_delta,
+                            "shared_or_right_delta_normalized_hse": right_delta,
+                            "paired_difference_right_minus_left": right_delta - left_delta,
+                        }
+                    )
     return {
         "schema_version": 1,
         "runs": [overview_record(bundle) for bundle in bundles],
         "conditions": conditions,
         "checkpoint_summary": checkpoint_summary,
         "paired_differences": paired_differences,
+        "paired_delta_hse": paired_delta_hse,
     }
 
 

@@ -16,6 +16,13 @@ class RouterTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(first.tied_agent_ids, ("agent_0", "agent_1"))
 
+    def test_tie_selection_is_independent_of_response_iteration_order(self) -> None:
+        responses = [AgentResponse(f"agent_{index}", 1, 0.5) for index in range(4)]
+        router = ConfidenceRouter()
+        forward = router.select(responses, random.Random(19))
+        reverse = router.select(list(reversed(responses)), random.Random(19))
+        self.assertEqual(forward, reverse)
+
     def test_higher_confidence_wins_without_exploration(self) -> None:
         responses = [AgentResponse("agent_0", 1, 0.2), AgentResponse("agent_1", 2, 0.8)]
         decision = ConfidenceRouter().select(responses, random.Random(1))

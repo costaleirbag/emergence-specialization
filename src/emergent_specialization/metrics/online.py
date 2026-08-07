@@ -14,7 +14,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 
-from .information import normalized_mutual_information, normalized_utilization_entropy
+from .information import mi_null_diagnostic, normalized_mutual_information, normalized_utilization_entropy
 
 
 def gini(values: Sequence[float]) -> float:
@@ -41,7 +41,8 @@ def _variance(values: Sequence[float]) -> float | None:
 
 
 def online_observables(
-    events: Iterable[dict[str, Any]], *, num_agents: int | None = None, rolling_window: int = 5
+    events: Iterable[dict[str, Any]], *, num_agents: int | None = None, rolling_window: int = 5,
+    mi_permutations: int | None = None, mi_min_samples: int = 8, mi_seed: int = 0,
 ) -> list[dict[str, Any]]:
     """Build one cheap macrostate row after each completed interaction round.
 
@@ -51,6 +52,8 @@ def online_observables(
     """
     if rolling_window < 1:
         raise ValueError("rolling_window must be positive")
+    if mi_permutations is not None and mi_permutations < 1:
+        raise ValueError("mi_permutations must be positive when supplied")
     rounds = sorted(
         (event for event in events if event.get("event") == "round_complete"),
         key=lambda event: int(event["round"]),
@@ -112,44 +115,48 @@ def online_observables(
         }
         switch = previous_agent is not None and selected_agent != previous_agent
         previous_agent = selected_agent
-        rows.append(
-            {
-                "phase": "online",
-                "round": round_id,
-                "world": world,
-                "selected_agent": selected_agent,
-                "selected_correct": correct,
-                "cumulative_accuracy": sum(correctness) / len(correctness),
-                "rolling_accuracy": sum(recent) / len(recent),
-                "mean_candidate_confidence": _mean(confidences),
-                "candidate_confidence_variance": _variance(confidences),
-                "selected_confidence": float(selected_confidence) if selected_confidence is not None else None,
-                "confidence_margin": margin,
-                "routing_counts": dict(routing_counts),
-                "routing_distribution": route_distribution,
-                "normalized_utilization_entropy": normalized_utilization_entropy(selected, num_agents),
-                "routing_concentration": max(route_distribution.values(), default=0.0),
-                "effective_utilized_agents": (
-                    2 ** (-sum(p * math.log2(p) for p in route_distribution.values() if p > 0))
-                    if route_distribution
-                    else 0.0
-                ),
-                "normalized_task_agent_mutual_information": normalized_mutual_information(worlds, selected),
-                "memory_counts": dict(memory_counts),
-                "memory_total": sum(memory_counts.values()),
-                "memory_gini": gini(list(memory_counts.values())),
-                "selected_agent_switch": switch,
-                "selected_agent_switch_rate": sum(
-                    1 for before, after in zip(selected, selected[1:]) if before != after
-                )
-                / max(1, len(selected) - 1),
-            }
-        )
+        row = {
+            "phase": "online",
+            "round": round_id,
+            "world": world,
+            "selected_agent": selected_agent,
+            "selected_correct": correct,
+            "cumulative_accuracy": sum(correctness) / len(correctness),
+            "rolling_accuracy": sum(recent) / len(recent),
+            "mean_candidate_confidence": _mean(confidences),
+            "candidate_confidence_variance": _variance(confidences),
+            "selected_confidence": float(selected_confidence) if selected_confidence is not None else None,
+            "confidence_margin": margin,
+            "routing_counts": dict(routing_counts),
+            "routing_distribution": route_distribution,
+            "normalized_utilization_entropy": normalized_utilization_entropy(selected, num_agents),
+            "routing_concentration": max(route_distribution.values(), default=0.0),
+            "effective_utilized_agents": (
+                2 ** (-sum(p * math.log2(p) for p in route_distribution.values() if p > 0))
+                if route_distribution
+                else 0.0
+            ),
+            "normalized_task_agent_mutual_information": normalized_mutual_information(worlds, selected),
+            "memory_counts": dict(memory_counts),
+            "memory_total": sum(memory_counts.values()),
+            "memory_gini": gini(list(memory_counts.values())),
+            "selected_agent_switch": switch,
+            "selected_agent_switch_rate": sum(
+                1 for before, after in zip(selected, selected[1:]) if before != after
+            )
+            / max(1, len(selected) - 1),
+        }
+        if mi_permutations is not None and len(worlds) >= mi_min_samples:
+            row["mi_null_diagnostic"] = mi_null_diagnostic(
+                worlds, selected, permutations=mi_permutations, seed=mi_seed
+            )
+        rows.append(row)
     return rows
 
 
 def write_online_metrics(
-    run_dir: str | Path, output: str | Path | None = None, *, rolling_window: int = 5
+    run_dir: str | Path, output: str | Path | None = None, *, rolling_window: int = 5,
+    mi_permutations: int | None = None, mi_min_samples: int = 8, mi_seed: int = 0,
 ) -> Path:
     """Read a run's raw events and write a derived JSONL trajectory."""
     root = Path(run_dir)
@@ -160,7 +167,14 @@ def write_online_metrics(
     ]
     metadata = json.loads((root / "metadata.json").read_text(encoding="utf-8"))
     configured_agents = metadata.get("config", {}).get("experiment", {}).get("num_agents")
-    rows = online_observables(events, num_agents=int(configured_agents) if configured_agents else None, rolling_window=rolling_window)
+    rows = online_observables(
+        events,
+        num_agents=int(configured_agents) if configured_agents else None,
+        rolling_window=rolling_window,
+        mi_permutations=mi_permutations,
+        mi_min_samples=mi_min_samples,
+        mi_seed=mi_seed,
+    )
     destination = Path(output) if output is not None else root / "online_metrics.jsonl"
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text("".join(json.dumps(row, sort_keys=True) + "\n" for row in rows), encoding="utf-8")
@@ -172,8 +186,18 @@ def main(argv: Iterable[str] | None = None) -> None:
     parser.add_argument("--run", required=True, help="Completed run directory")
     parser.add_argument("--output", help="Output JSONL path (default: <run>/online_metrics.jsonl)")
     parser.add_argument("--rolling-window", type=int, default=5)
+    parser.add_argument("--mi-permutations", type=int, help="Optional seeded MI null permutations")
+    parser.add_argument("--mi-min-samples", type=int, default=8)
+    parser.add_argument("--mi-seed", type=int, default=0)
     args = parser.parse_args(list(argv) if argv is not None else None)
-    destination = write_online_metrics(args.run, args.output, rolling_window=args.rolling_window)
+    destination = write_online_metrics(
+        args.run,
+        args.output,
+        rolling_window=args.rolling_window,
+        mi_permutations=args.mi_permutations,
+        mi_min_samples=args.mi_min_samples,
+        mi_seed=args.mi_seed,
+    )
     print(f"Wrote online trajectory: {destination}")
 
 
