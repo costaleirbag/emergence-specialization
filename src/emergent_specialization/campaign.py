@@ -253,7 +253,7 @@ def create_manifest(*, force: bool = False) -> dict[str, Any]:
         "budget": {
             "hard_observed_cost_cap_usd": HARD_COST_CAP_USD,
             "observed_campaign_cost_usd": 0.0,
-            "physical_attempt_ceiling": sum(row.max_physical_calls for row in rows),
+            "physical_attempt_ceiling": sum(row.max_physical_calls for row in rows if row.status != "reused"),
         },
         "forecast": forecast,
         "stage_counts": _stage_counts(rows),
