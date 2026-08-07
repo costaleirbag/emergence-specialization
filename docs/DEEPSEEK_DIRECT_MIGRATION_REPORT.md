@@ -7,8 +7,9 @@ through a long-lived OpenAI-compatible client. OMP remains available for
 historical artifacts and legacy smoke/pilot reproduction, but is no longer the
 primary backend for `configs/research/replication_*.yaml`.
 
-**DEEPSEEK DIRECT MIGRATION READY: YES, subject to the human credential/doctor
-gate below.** No model call was made during this migration session.
+**DEEPSEEK DIRECT MIGRATION READY: YES.** The implementation and test phase
+made no model calls; after that gate, the explicitly authorized one-call doctor
+was executed successfully (recorded below). No scientific experiment was run.
 
 Starting audited HEAD: `a481b4bc0fae286bf14671193dd6e5f8727abb4d`  
 Branch: `research/developmental-dynamics`  
@@ -211,7 +212,19 @@ uv run python -m emergent_specialization.credentials delete
 - Offline doctor and benchmark plan: passed; reported zero model calls.
 - Batch planner for seed 1: 2 planned runs, 560 logical completions/run, 700
   physical-attempt ceiling.
-- Direct, OMP, Bitwarden, Keychain secret, and paid inference calls: **0**.
+- OMP, Bitwarden, and paid scientific inference calls: **0**.
+- Keychain credential reads: **1**, only for the authorized doctor completion;
+  the key value was never printed or persisted.
+
+## Authorized one-call doctor result
+
+After the offline validation, one explicitly authorized doctor completion was
+run with `--confirm-real`. It used the Keychain credential, returned the exact
+configured model `deepseek-v4-flash`, parsed successfully, and produced no
+retry/error. Latency was 3.282 seconds; usage was 59 input tokens (0 cache-hit,
+59 cache-miss), 14 output tokens, 73 total. The artifact is
+`reports/infrastructure-doctor/doctor.json` and is marked **NOT SCIENTIFIC
+DATA**. This was the only real model call in the session.
 
 Before the first real pair, the human should run the offline doctor, optionally
 the one-call doctor/benchmark, then freeze this commit and the runtime settings.
