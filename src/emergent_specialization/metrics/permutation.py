@@ -4,11 +4,9 @@ from __future__ import annotations
 
 import itertools
 import math
-from collections import Counter
 from typing import Mapping, Sequence
 
-from .behavioral import competence_matrix
-from .information import entropy, normalized_utilization_entropy
+from .information import entropy
 
 
 def routing_mass_order(routing_counts: Mapping[str, int | float]) -> tuple[str, ...]:
