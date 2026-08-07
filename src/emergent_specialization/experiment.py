@@ -18,6 +18,7 @@ from .agents import ExperimentalAgent, assert_initial_symmetry, stable_hash
 from .config import RunConfig, load_config
 from .costs import summarize_usage
 from .environment import HiddenWorldEnvironment
+from .interventions import InterventionSpec, apply_memory_intervention
 from .logging import RunLogger
 from .memory import MemoryPolicy
 from .metrics.behavioral import competence_matrix
@@ -107,7 +108,12 @@ class ExperimentRunner:
         self.memory_policy = MemoryPolicy(config.agent.memory_strategy, config.agent.memory_k)
         self.router = ConfidenceRouter(config.router.epsilon)
         self.agents = [ExperimentalAgent(f"agent_{index}") for index in range(config.experiment.num_agents)]
-        assert_initial_symmetry(self.agents, config.agent.system_prompt)
+        self._apply_initial_conditions()
+        assert_initial_symmetry(
+            self.agents,
+            config.agent.system_prompt,
+            require_empty_memory=not bool(config.initial_conditions.experiences),
+        )
         self.agent_by_id = {agent.agent_id: agent for agent in self.agents}
         self.task_rng = random.Random(
             config.experiment.task_seed if config.experiment.task_seed is not None else config.experiment.seed
@@ -127,6 +133,30 @@ class ExperimentRunner:
         self.token_usages: list[dict[str, Any] | None] = []
         self.previous_probe_routing: list[str | None] | None = None
         self.last_metrics: dict[str, Any] | None = None
+        self.intervention_specs = [InterventionSpec.from_mapping(item) for item in config.interventions]
+
+    def _apply_initial_conditions(self) -> None:
+        for item in self.config.initial_conditions.experiences:
+            agent_id = str(item["agent"])
+            agent = next((candidate for candidate in self.agents if candidate.agent_id == agent_id), None)
+            if agent is None:
+                raise ValueError(f"initial condition references unknown agent: {agent_id}")
+            values = {key: item[key] for key in ("round_id", "world", "x", "y", "prediction", "confidence", "correct_answer", "was_correct") if key in item}
+            values.setdefault("round_id", 0)
+            agent.observe(Experience(**values))
+
+    def _apply_scheduled_interventions(self, round_id: int, logger: RunLogger) -> None:
+        for spec in self.intervention_specs:
+            if spec.trigger_round != round_id:
+                continue
+            if spec.operation.startswith("memory_"):
+                payload = apply_memory_intervention(self.agents, spec)
+                logger.event("intervention", payload)
+            else:
+                raise RuntimeError(
+                    "population interventions are not wired into the fixed-N ExperimentRunner; "
+                    "use PopulationState explicitly"
+                )
 
     @property
     def agent_ids(self) -> list[str]:
@@ -389,8 +419,8 @@ class ExperimentRunner:
         )
         policy = self.config.effective_feedback
         mode = policy.mode
-        if mode == "probabilistic":
-            mode = "private" if self.feedback_rng.random() < (policy.private_probability or 0.0) else "shared"
+        if mode == "probabilistic" or policy.schedule:
+            mode = "private" if self.feedback_rng.random() < policy.probability_at(round_id) else "shared"
         if mode == "private":
             recipient = self.agent_by_id[selected.agent_id]
             recipient.observe(experience)
@@ -459,7 +489,8 @@ class ExperimentRunner:
                 "scientific_controls": {
                     "agent_ids_are_host_side_only": True,
                     "same_system_prompt": True,
-                    "empty_initial_memory": True,
+                    "empty_initial_memory": not bool(self.config.initial_conditions.experiences),
+                    "initial_condition_count": len(self.config.initial_conditions.experiences),
                     "provider_session_independent": self.config.agent.backend == "omp",
                     "probe_updates_memory": False,
                     "hidden_rules_in_model_prompt": False,
@@ -477,6 +508,17 @@ class ExperimentRunner:
                 "num_rounds": self.config.experiment.num_rounds,
             },
         )
+        if self.config.initial_conditions.experiences:
+            logger.event(
+                "initial_condition",
+                {
+                    "experiences": [
+                        {"agent": agent.agent_id, **experience.prompt_dict()}
+                        for agent in self.agents
+                        for experience in agent.memory
+                    ]
+                },
+            )
         try:
             if self.config.experiment.console_summary:
                 nominal_interactions = self.config.experiment.num_rounds * len(self.agents)
@@ -498,6 +540,7 @@ class ExperimentRunner:
                     checkpoint=0, probes=probes, probe_set_hash=probe_set_hash, logger=logger
                 )
             for round_id in range(1, self.config.experiment.num_rounds + 1):
+                self._apply_scheduled_interventions(round_id, logger)
                 task = self.environment.sample_task(self.task_rng, task_id=f"round-{round_id}")
                 memory_counts_before = {agent.agent_id: len(agent.memory) for agent in self.agents}
                 if self.config.experiment.console_summary:

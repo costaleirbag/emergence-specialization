@@ -1,0 +1,25 @@
+# One declared experience breaks initial memory symmetry; use only as a matched
+# sensitivity condition against an empty-memory baseline.
+experiment:
+  num_agents: 4
+  num_rounds: 20
+  checkpoints: [0, 10, 20]
+  seed: 1
+condition:
+  memory_mode: private
+initial_conditions:
+  experiences:
+    - agent: agent_0
+      round_id: 0
+      world: ALPHA
+      x: 1
+      y: 2
+      prediction: 3
+      confidence: 0.7
+      correct_answer: 3
+      was_correct: true
+agent:
+  backend: mock
+logging:
+  output_dir: data/research_runs
+  probe_set_path: data/probe_set.json

@@ -70,7 +70,9 @@ def plan_batch(path: str | Path) -> list[PlannedRun]:
         raise ValueError("batch configs must be a non-empty list")
     output_root = Path(str(raw.get("output_dir", "data/runs"))).expanduser()
     if not output_root.is_absolute():
-        output_root = (batch_path.parent / output_root).resolve()
+        # Commands are printed for execution from the repository root, so keep
+        # relative output semantics consistent with the experiment CLI.
+        output_root = (Path.cwd() / output_root).resolve()
     planned: list[PlannedRun] = []
     for config_value in config_paths:
         config_path = _resolve_config(str(config_value), batch_path.parent)

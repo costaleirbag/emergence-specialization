@@ -109,6 +109,7 @@ class FeedbackSettings:
 
     mode: str = "private"
     private_probability: float | None = None
+    schedule: tuple[tuple[int, float], ...] = ()
 
     def __post_init__(self) -> None:
         if self.mode not in {"private", "shared", "probabilistic", "none"}:
@@ -120,6 +121,12 @@ class FeedbackSettings:
                 raise ValueError("private_probability must be in [0, 1]")
         elif self.private_probability is not None and not 0.0 <= self.private_probability <= 1.0:
             raise ValueError("private_probability must be in [0, 1]")
+        if tuple(sorted(self.schedule)) != self.schedule:
+            raise ValueError("feedback schedule must be sorted by round")
+        if len({round_id for round_id, _ in self.schedule}) != len(self.schedule):
+            raise ValueError("feedback schedule must not repeat a round")
+        if any(round_id < 1 or not 0.0 <= probability <= 1.0 for round_id, probability in self.schedule):
+            raise ValueError("feedback schedule rounds must be positive and probabilities in [0, 1]")
 
     @classmethod
     def from_legacy(cls, memory_mode: str) -> "FeedbackSettings":
@@ -129,6 +136,20 @@ class FeedbackSettings:
         if self.mode == "probabilistic":
             return f"probabilistic-p{self.private_probability:g}"
         return self.mode
+
+    def probability_at(self, round_id: int) -> float:
+        """Return the last scheduled private probability at a round."""
+        if self.mode == "probabilistic":
+            current = self.private_probability or 0.0
+        elif self.mode == "private":
+            current = 1.0
+        else:
+            current = 0.0
+        for start, probability in self.schedule:
+            if start > round_id:
+                break
+            current = probability
+        return current
 
 
 @dataclass(frozen=True)
@@ -164,6 +185,24 @@ class CostSettings:
 
 
 @dataclass(frozen=True)
+class InitialConditionSettings:
+    """Optional explicit memory perturbations for sensitivity experiments."""
+
+    experiences: tuple[dict[str, Any], ...] = ()
+
+    def __post_init__(self) -> None:
+        required = {"world", "x", "y", "prediction", "confidence", "correct_answer", "was_correct"}
+        for item in self.experiences:
+            if not isinstance(item, dict):
+                raise ValueError("initial condition experiences must be mappings")
+            if "agent" not in item:
+                raise ValueError("initial condition experience requires an agent")
+            missing = required - set(item)
+            if missing:
+                raise ValueError(f"initial condition experience is missing: {sorted(missing)}")
+
+
+@dataclass(frozen=True)
 class RunConfig:
     experiment: ExperimentSettings = field(default_factory=ExperimentSettings)
     environment: EnvironmentSettings = field(default_factory=EnvironmentSettings)
@@ -171,6 +210,8 @@ class RunConfig:
     router: RouterSettings = field(default_factory=RouterSettings)
     condition: ConditionSettings = field(default_factory=ConditionSettings)
     feedback: FeedbackSettings | None = None
+    initial_conditions: InitialConditionSettings = field(default_factory=InitialConditionSettings)
+    interventions: tuple[dict[str, Any], ...] = ()
     logging: LoggingSettings = field(default_factory=LoggingSettings)
     cost: CostSettings = field(default_factory=CostSettings)
     source_path: str | None = None
@@ -200,7 +241,7 @@ class RunConfig:
                 checkpoints = tuple(sorted((*checkpoints, num_rounds)))
             experiment = replace(experiment, num_rounds=num_rounds, checkpoints=checkpoints)
         if seed is not None:
-            experiment = replace(experiment, seed=seed, task_seed=None, router_seed=None)
+            experiment = replace(experiment, seed=seed, task_seed=None, router_seed=None, feedback_seed=None)
         agent = replace(self.agent, backend=backend) if backend is not None else self.agent
         logging = replace(self.logging, output_dir=output_dir) if output_dir is not None else self.logging
         return replace(self, experiment=experiment, agent=agent, logging=logging)
@@ -257,6 +298,8 @@ def load_config(path: str | Path) -> RunConfig:
     router = _mapping(raw.get("router"), "router")
     condition = _mapping(raw.get("condition"), "condition")
     feedback = _mapping(raw.get("feedback"), "feedback")
+    initial_conditions = _mapping(raw.get("initial_conditions"), "initial_conditions")
+    interventions_raw = raw.get("interventions", [])
     logging = _mapping(raw.get("logging"), "logging")
     cost = _mapping(raw.get("cost"), "cost")
 
@@ -266,6 +309,18 @@ def load_config(path: str | Path) -> RunConfig:
         )
     if "worlds" in environment:
         environment["worlds"] = tuple(environment["worlds"])
+    if "schedule" in feedback:
+        if not isinstance(feedback["schedule"], list):
+            raise ValueError("feedback.schedule must be a list of [round, probability] pairs")
+        feedback["schedule"] = tuple((int(item[0]), float(item[1])) for item in feedback["schedule"])
+    if "experiences" in initial_conditions:
+        if not isinstance(initial_conditions["experiences"], list):
+            raise ValueError("initial_conditions.experiences must be a list")
+        initial_conditions["experiences"] = tuple(dict(item) for item in initial_conditions["experiences"])
+    if interventions_raw is None:
+        interventions_raw = []
+    if not isinstance(interventions_raw, list) or any(not isinstance(item, dict) for item in interventions_raw):
+        raise ValueError("interventions must be a list of mappings")
 
     import hashlib
 
@@ -276,6 +331,8 @@ def load_config(path: str | Path) -> RunConfig:
         router=RouterSettings(**router),
         condition=ConditionSettings(**condition),
         feedback=FeedbackSettings(**feedback) if feedback else None,
+        initial_conditions=InitialConditionSettings(**initial_conditions),
+        interventions=tuple(dict(item) for item in interventions_raw),
         logging=LoggingSettings(**logging),
         cost=CostSettings(**cost),
         source_path=str(config_path),

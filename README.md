@@ -241,3 +241,36 @@ heatmaps, controlled-memory growth, round dynamics, confidence diagnostics,
 probe success rasters, behavioral distance/dendrograms, and inference health.
 The comparison report emphasizes permutation-invariant metrics so raw agent
 labels are not averaged across seeds without alignment.
+
+## Research infrastructure (offline)
+
+The next-phase tooling is opt-in and does not change the legacy private/shared
+baseline:
+
+```bash
+# derive cheap, probe-free observables from an existing run
+uv run python -m emergent_specialization.metrics.online \
+  --run data/runs/<run-id>
+
+# expand a multi-seed plan; this prints commands but executes none
+uv run python -m emergent_specialization.batch \
+  --config configs/research/batches/private_shared_seeds.yaml --plan
+
+# aggregate completed runs without changing their raw artifacts
+uv run python -m emergent_specialization.aggregate \
+  data/runs/<private-1> data/runs/<shared-1> \
+  --output reports/aggregate/summary.json
+```
+
+Checkpoint schedules accept either the existing explicit list or
+`checkpoints: {every: 5}`. A regular schedule includes checkpoints 0 and the
+final round; `[]` remains a valid interaction-only schedule. The online layer
+uses only `round_complete` events. HSE and competence remain expensive,
+probe-derived observables.
+
+Future examples live under `configs/research/`. Memory interventions are
+explicitly logged and tested; dynamic population operations currently remain a
+`PopulationState` scaffold because the baseline metric schemas assume fixed N.
+See [docs/research_agenda.md](docs/research_agenda.md),
+[docs/experimental_protocol.md](docs/experimental_protocol.md), and
+[docs/interventions.md](docs/interventions.md).

@@ -13,6 +13,7 @@ from emergent_specialization.config import (
     ConditionSettings,
     ExperimentSettings,
     FeedbackSettings,
+    InitialConditionSettings,
     LoggingSettings,
     RunConfig,
     load_config,
@@ -20,6 +21,14 @@ from emergent_specialization.config import (
 )
 from emergent_specialization.environment import HiddenWorldEnvironment
 from emergent_specialization.experiment import ExperimentRunner
+from emergent_specialization.interventions import (
+    InterventionSpec,
+    PopulationState,
+    apply_memory_intervention,
+    apply_population_intervention,
+)
+from emergent_specialization.agents import ExperimentalAgent
+from emergent_specialization.models import Experience
 from emergent_specialization.metrics.information import mi_null_diagnostic
 from emergent_specialization.metrics.online import online_observables
 from emergent_specialization.metrics.permutation import (
@@ -53,6 +62,9 @@ class CheckpointAndFeedbackTests(unittest.TestCase):
     def test_probabilistic_endpoints_are_exact(self) -> None:
         self.assertEqual(FeedbackSettings("probabilistic", 0.0).mode, "probabilistic")
         self.assertEqual(FeedbackSettings("probabilistic", 1.0).private_probability, 1.0)
+        scheduled = FeedbackSettings("probabilistic", 0.2, ((3, 0.8),))
+        self.assertAlmostEqual(scheduled.probability_at(2), 0.2)
+        self.assertAlmostEqual(scheduled.probability_at(3), 0.8)
 
     def _run(self, feedback: FeedbackSettings) -> ExperimentRunner:
         temp_dir = tempfile.TemporaryDirectory()
@@ -147,3 +159,50 @@ class PermutationAndMIDiagnosticsTests(unittest.TestCase):
         second = mi_null_diagnostic(["A", "A", "B", "B"], ["x", "x", "y", "y"], permutations=20, seed=4)
         self.assertEqual(first, second)
         self.assertIn("excess_mi", first)
+
+
+class InterventionTests(unittest.TestCase):
+    def _experience(self, round_id: int, world: str = "ALPHA") -> Experience:
+        return Experience(round_id, world, round_id, 1, 2, 0.7, 3, True)
+
+    def test_memory_swap_erase_and_clone_are_auditable(self) -> None:
+        left = ExperimentalAgent("agent_0", [self._experience(1), self._experience(2, "BETA")])
+        right = ExperimentalAgent("agent_1", [self._experience(3)])
+        payload = apply_memory_intervention(
+            [left, right], InterventionSpec(1, "memory_swap", "agent_0", "agent_1")
+        )
+        self.assertEqual([item.round_id for item in left.memory], [3])
+        self.assertEqual([item.round_id for item in right.memory], [1, 2])
+        self.assertEqual(len(payload["before"]), 2)
+        apply_memory_intervention([left, right], InterventionSpec(2, "memory_clone", "agent_1", "agent_0"))
+        self.assertEqual([item.round_id for item in left.memory], [1, 2])
+        apply_memory_intervention([left, right], InterventionSpec(3, "memory_erase", target_agent="agent_0"))
+        self.assertEqual(left.memory, [])
+
+    def test_population_state_keeps_removed_memory_separate(self) -> None:
+        original = ExperimentalAgent("agent_0", [self._experience(1)])
+        state = PopulationState({"agent_0": original})
+        apply_population_intervention(state, InterventionSpec(1, "ablate_agent", target_agent="agent_0"))
+        self.assertNotIn("agent_0", state.active)
+        self.assertEqual(state.removed["agent_0"].memory[0].round_id, 1)
+        apply_population_intervention(state, InterventionSpec(2, "reintroduce_agent", target_agent="agent_0"))
+        self.assertIn("agent_0", state.active)
+
+    def test_initial_condition_and_scheduled_memory_intervention_are_logged(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            probes = root / "probes.json"
+            write_probe_set(probes, generate_probe_payload(HiddenWorldEnvironment(), per_world=1))
+            initial = self._experience(0)
+            config = RunConfig(
+                experiment=ExperimentSettings(num_agents=2, num_rounds=2, checkpoints=(), technical_retries=0, console_summary=False),
+                agent=AgentSettings(backend="mock"),
+                condition=ConditionSettings(memory_mode="private"),
+                initial_conditions=InitialConditionSettings(experiences=({"agent": "agent_0", **initial.prompt_dict()},)),
+                interventions=({"trigger_round": 2, "operation": "memory_erase", "target_agent": "agent_0"},),
+                logging=LoggingSettings(output_dir=str(root / "runs"), probe_set_path=str(probes)),
+            )
+            run_dir = asyncio.run(ExperimentRunner(config, backend=MockBackend()).run())
+            events = [json.loads(line) for line in (run_dir / "events.jsonl").read_text().splitlines()]
+            self.assertTrue(any(event["event"] == "initial_condition" for event in events))
+            self.assertTrue(any(event["event"] == "intervention" for event in events))
