@@ -1,5 +1,12 @@
 # First paired replication readiness report
 
+> **Superseded infrastructure note (2026-08-07):** this historical readiness
+> snapshot describes the earlier OMP-backed plan. New replication configs now
+> use `DeepSeekDirectBackend`; see
+> [DEEPSEEK_DIRECT_MIGRATION_REPORT.md](DEEPSEEK_DIRECT_MIGRATION_REPORT.md) and
+> [FIRST_REAL_PAIR_PROTOCOL.md](FIRST_REAL_PAIR_PROTOCOL.md) for the active
+> commands. The old OMP observations remain exploratory and unchanged.
+
 ## Executive summary
 
 **FIRST REAL PAIRED SEED READY: YES — with a mandatory health gate.**
