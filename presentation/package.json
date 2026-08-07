@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "@slidev/cli": "latest",
-    "@slidev/theme-default": "latest",
     "vue": "latest"
   },
   "devDependencies": {
+    "@slidev/theme-bricks": "^0.25.0",
     "playwright-chromium": "latest"
   }
 }
