@@ -100,8 +100,9 @@ and print the exact resume command.
 
 ## Concurrency and benchmark
 
-Interaction concurrency is 4 and rounds remain sequential. Probe concurrency is
-16 by default, with a pooled client sized for that workload. The benchmark is
+Interaction concurrency is 4 and rounds remain sequential. The benchmark froze
+probe concurrency at 32 in both replication configs, with a pooled client sized
+for that workload. The benchmark is
 separate from scientific data and writes only to
 `reports/infrastructure-benchmarks/`; it tests 4, 8, 16, and 32 concurrency
 with 32 small probe-like requests/level. It is plan-only unless
@@ -215,6 +216,17 @@ uv run python -m emergent_specialization.credentials delete
 - OMP, Bitwarden, and paid scientific inference calls: **0**.
 - Keychain credential reads: **1**, only for the authorized doctor completion;
   the key value was never printed or persisted.
+
+## Authorized infrastructure benchmark result
+
+The authorized benchmark ran 128/128 probe-like requests (32 at each tested
+concurrency) with zero retries, zero HTTP 429, zero 5xx, and zero timeouts.
+Throughput was 3.633, 7.607, 15.332, and 23.097 requests/s at concurrency 4,
+8, 16, and 32; p95 latency was 1.236, 1.183, 1.018, and 1.333 seconds. The
+observed total cost was USD 0.00163072. No latency knee was observed by 32, so
+`probe_concurrency: 32` was applied identically to both replication configs.
+Cache hit ratio was 0.0 in this deliberately namespace-separated benchmark;
+that is an infrastructure observation, not a scientific conclusion.
 
 ## Authorized one-call doctor result
 
