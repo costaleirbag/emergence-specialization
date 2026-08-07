@@ -101,6 +101,11 @@ The shared-memory control is identical except for its feedback condition:
 uv run python -m emergent_specialization.experiment --config configs/pilot_shared.yaml
 ```
 
+The first new matched seed-1 pair is prepared, but intentionally not launched
+by this repository session. See [the pair protocol](docs/FIRST_REAL_PAIR_PROTOCOL.md)
+and [the readiness report](docs/FIRST_PAIR_READINESS_REPORT.md) for the health
+gate, exact commands, call accounting, and offline mock validation.
+
 The 20-round pilots make **400** DeepSeek calls each: 20 interaction rounds ×
 4 agents (80), plus 40 fixed probes × 4 agents at checkpoints 0 and 20 (320).
 They are intentionally not launched automatically.

@@ -26,9 +26,18 @@ def expected_logical_completions(bundle: Any) -> int:
     experiment = config.get("experiment", {})
     num_agents = int(experiment.get("num_agents", len(bundle.agent_ids)))
     rounds = int(experiment.get("num_rounds", len(bundle.events_of_type("round_complete"))))
+    configured_checkpoints = experiment.get("checkpoints")
+    checkpoints = len(configured_checkpoints) if isinstance(configured_checkpoints, (list, tuple)) else len(bundle.checkpoints)
     final = bundle.checkpoints[-1] if bundle.checkpoints else {}
     probe_count = int(final.get("probe_count", 0) or 0)
-    checkpoints = len(bundle.checkpoints)
+    if probe_count == 0:
+        probe_path = config.get("logging", {}).get("probe_set_path") if isinstance(config.get("logging", {}), dict) else None
+        if probe_path:
+            try:
+                payload = json.loads(Path(str(probe_path)).read_text(encoding="utf-8"))
+                probe_count = len(payload.get("tasks", [])) if isinstance(payload, dict) else 0
+            except (OSError, json.JSONDecodeError, TypeError):
+                probe_count = 0
     return rounds * num_agents + checkpoints * probe_count * num_agents
 
 
@@ -40,7 +49,7 @@ def run_health(run_dir: str | Path) -> dict[str, Any]:
     coverage but retries/errors or incomplete usage metadata occurred; any
     missing logical completion is ``invalid`` for paired scientific analysis.
     """
-    bundle = load_run(run_dir)
+    bundle = load_run(run_dir, require_completed=False, require_checkpoints=False)
     inferences = bundle.events_of_type("inference")
     expected = expected_logical_completions(bundle)
     grouped: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
@@ -57,7 +66,7 @@ def run_health(run_dir: str | Path) -> dict[str, Any]:
     usage_calls = sum(isinstance(event.get("token_usage"), dict) and bool(event.get("token_usage")) for event in inferences)
     coverage = successful_logical / expected if expected else 1.0
     usage_coverage = usage_calls / len(inferences) if inferences else 0.0
-    if successful_logical < expected:
+    if successful_logical < expected or bundle.summary.get("status") != "completed":
         flag = "invalid"
     elif errors or retries or usage_coverage < 1.0:
         flag = "warning"

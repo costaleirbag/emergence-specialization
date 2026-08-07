@@ -1,5 +1,10 @@
 # Replication readiness report
 
+> This document records the earlier five-seed planning pass. The current
+> first-pair gate, including incomplete-run health handling, mock E2E checks,
+> `Phi(t)`, and exact seed-1 commands, is maintained in
+> `docs/FIRST_PAIR_READINESS_REPORT.md`.
+
 ## Executive summary
 
 **READY FOR REAL REPLICATION: YES, with a mandatory health gate.**

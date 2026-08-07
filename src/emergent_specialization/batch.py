@@ -224,6 +224,11 @@ def main(argv: Iterable[str] | None = None) -> None:
     parser.add_argument("--only-condition", choices=["private", "shared"], help="Restrict --run to one condition")
     args = parser.parse_args(list(argv) if argv is not None else None)
     planned = plan_batch(args.config)
+    selected = [
+        row for row in planned
+        if (args.only_seed is None or row.seed == args.only_seed)
+        and (args.only_condition is None or row.condition == args.only_condition)
+    ]
     if args.run:
         if not args.confirm_real:
             parser.error("--run requires --confirm-real; planning remains the safe default")
@@ -240,9 +245,9 @@ def main(argv: Iterable[str] | None = None) -> None:
             confirm_real=args.confirm_real,
         )
         return
-    rows = [asdict(row) for row in planned]
+    rows = [asdict(row) for row in selected]
     if args.json:
-        print(json.dumps(plan_manifest(args.config, planned), indent=2, sort_keys=True))
+        print(json.dumps(plan_manifest(args.config, selected), indent=2, sort_keys=True))
         return
     print("BATCH PLAN (no model calls)")
     print(f"git_commit={git_commit()}")

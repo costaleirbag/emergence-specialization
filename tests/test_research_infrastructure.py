@@ -206,6 +206,35 @@ class OnlineAndBatchTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             run_batch(rows[:1], output_root=root / "data" / "runs" / "replication")
 
+    def test_mock_paired_seed_has_expected_artifacts_and_different_feedback_recipients(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            probes = root / "probes.json"
+            write_probe_set(probes, generate_probe_payload(HiddenWorldEnvironment(), per_world=1))
+
+            def execute(condition: str) -> tuple[Path, list[dict[str, object]]]:
+                config = RunConfig(
+                    experiment=ExperimentSettings(
+                        num_agents=2, num_rounds=3, checkpoints=(0, 2, 3), seed=1,
+                        technical_retries=0, console_summary=False,
+                    ),
+                    agent=AgentSettings(backend="mock"),
+                    condition=ConditionSettings(memory_mode=condition),
+                    logging=LoggingSettings(output_dir=str(root / "runs" / condition), probe_set_path=str(probes)),
+                )
+                run_dir = asyncio.run(ExperimentRunner(config, backend=MockBackend()).run())
+                events = [json.loads(line) for line in (run_dir / "events.jsonl").read_text().splitlines()]
+                return run_dir, [event for event in events if event["event"] == "round_complete"]
+
+            private_dir, private_rounds = execute("private")
+            shared_dir, shared_rounds = execute("shared")
+            self.assertEqual([event["task"] for event in private_rounds], [event["task"] for event in shared_rounds])
+            self.assertTrue(all(len(event["feedback_recipients"]) == 1 for event in private_rounds))
+            self.assertTrue(all(len(event["feedback_recipients"]) == 2 for event in shared_rounds))
+            for run_dir in (private_dir, shared_dir):
+                for filename in ("metadata.json", "events.jsonl", "metrics.jsonl", "summary.json"):
+                    self.assertTrue((run_dir / filename).is_file())
+
     def test_aggregate_exposes_paired_delta_hse_field(self) -> None:
         root = Path(__file__).resolve().parents[1]
         private = root / "data" / "runs" / "private-seed1-20260806T231032Z-ff928a0b"

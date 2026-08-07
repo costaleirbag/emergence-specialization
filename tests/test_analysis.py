@@ -67,3 +67,11 @@ class AnalysisTests(unittest.TestCase):
         self.assertEqual(len(competence_rows(self.bundle)), 2 * 4 * 4)
         self.assertEqual(len(behavioral_rows(self.bundle)), 2 * 4 * 4)
         self.assertEqual(len(memory_rows(self.bundle)), 3 * 4)
+
+    def test_checkpoint_rows_expose_analysis_only_differentiation_fields(self) -> None:
+        rows = checkpoint_rows(self.bundle)
+        self.assertEqual(len(rows), 2)
+        for row in rows:
+            self.assertIn("phi", row)
+            self.assertIn("routing_alignment_eta", row)
+            self.assertIn("division_of_labor_match", row)

@@ -14,6 +14,11 @@ from pathlib import Path
 from typing import Any, Iterable, Sequence
 
 from .costs import normalize_token_usage, summarize_usage
+from .metrics.differentiation import (
+    competence_differentiation_phi_from_mapping,
+    division_of_labor_matching,
+    routing_alignment,
+)
 
 REQUIRED_RUN_FILES = ("metadata.json", "events.jsonl", "metrics.jsonl", "summary.json")
 
@@ -92,7 +97,12 @@ class RunBundle:
         return [event for event in self.events if event.get("event") == event_type]
 
 
-def load_run(run_dir: str | Path) -> RunBundle:
+def load_run(
+    run_dir: str | Path,
+    *,
+    require_completed: bool = True,
+    require_checkpoints: bool = True,
+) -> RunBundle:
     root = Path(run_dir).expanduser().resolve()
     missing = [filename for filename in REQUIRED_RUN_FILES if not (root / filename).is_file()]
     if missing:
@@ -101,9 +111,9 @@ def load_run(run_dir: str | Path) -> RunBundle:
     events = _load_jsonl(root / "events.jsonl")
     checkpoints = sorted(_load_jsonl(root / "metrics.jsonl"), key=lambda row: int(row.get("checkpoint", 0)))
     summary = _load_json(root / "summary.json")
-    if summary.get("status") != "completed":
+    if require_completed and summary.get("status") != "completed":
         raise ValueError(f"Run {root} is not completed (status={summary.get('status')!r})")
-    if not checkpoints:
+    if require_checkpoints and not checkpoints:
         raise ValueError(f"Run {root} has no checkpoint metrics")
     hashes = {filename: sha256_file(root / filename) for filename in REQUIRED_RUN_FILES}
     bundle = RunBundle(root, metadata, tuple(events), tuple(checkpoints), summary, hashes)
@@ -223,20 +233,40 @@ CHECKPOINT_SCALARS = (
     "oracle_society_accuracy",
     "oracle_gain",
     "temporal_role_stability",
+    "phi",
+    "routing_alignment_eta",
+    "division_of_labor_match",
+    "single_agent_accuracy",
+    "delta_match",
 )
 
 
 def checkpoint_rows(bundle: RunBundle) -> list[dict[str, Any]]:
-    return [
-        {
+    rows: list[dict[str, Any]] = []
+    for checkpoint in bundle.checkpoints:
+        competence = checkpoint.get("competence_matrix", {})
+        derived = {
+            "phi": competence_differentiation_phi_from_mapping(competence),
+            "routing_alignment_eta": routing_alignment(
+                checkpoint.get("routing_counts_by_world_agent", {}), competence
+            ).get("eta_route"),
+        }
+        matching = division_of_labor_matching(competence) if competence and len(competence) == len({world for profile in competence.values() for world in profile}) else {
+            "u_match": None, "u_single": None, "delta_match": None,
+        }
+        rows.append({
             "run_id": bundle.run_id,
             "condition": bundle.condition,
             "seed": bundle.seed,
             "checkpoint": int(checkpoint["checkpoint"]),
             **{name: checkpoint.get(name) for name in CHECKPOINT_SCALARS},
-        }
-        for checkpoint in bundle.checkpoints
-    ]
+            "phi": derived["phi"],
+            "routing_alignment_eta": derived["routing_alignment_eta"],
+            "division_of_labor_match": matching.get("u_match"),
+            "single_agent_accuracy": matching.get("u_single"),
+            "delta_match": matching.get("delta_match"),
+        })
+    return rows
 
 
 def hse_trajectory_rows(bundle: RunBundle) -> list[dict[str, Any]]:
