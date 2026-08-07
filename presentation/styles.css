@@ -32,10 +32,11 @@
 .private-side { color: #198f87; }.shared-side { color: #b07c24; }
 .arrow-stack { text-align: center; line-height: 1.55; margin-top: 1.4rem; font-weight: 600; }
 .fact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 2rem; }
+.fact-grid.five { grid-template-columns: repeat(5, 1fr); }
 .fact-grid > div { text-align: center; padding: 1rem .6rem; }
 .fact-grid strong { display: block; font-size: 2.2rem; line-height: 1.1; }
 .fact-grid small { display: block; margin-top: .5rem; opacity: .7; line-height: 1.2; }
 .statement-sub { font-size: 1.35rem; max-width: 42rem; margin: 1.4rem auto 0; line-height: 1.25; }
 .heatmap-table, .comparison-table { margin-top: 1.2rem; font-size: .78rem; }
 .heatmap-table th, .heatmap-table td, .comparison-table th, .comparison-table td { padding: .5rem .6rem; }
-@media (max-width: 800px) { .brick-row, .compare-grid { grid-template-columns: 1fr; gap: 1rem; } .fact-grid, .item-grid.four { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 800px) { .brick-row, .compare-grid { grid-template-columns: 1fr; gap: 1rem; } .fact-grid, .fact-grid.five, .item-grid.four { grid-template-columns: repeat(2, 1fr); } }

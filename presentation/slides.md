@@ -299,19 +299,24 @@ while the best individual reaches {{ pct(f.best_individual_accuracy) }}
 <!-- presenter notes: This is the honest interpretation. -->
 
 ---
-layout: intro
 section: Interpretation
 ---
 
-<div class="academic-center">
+# PRIVATE versus SHARED
 
-# The SHARED control is still pending
-
-<p class="statement-sub">No comparison is fabricated. Regenerate the data after a completed shared run.</p>
-
+<div class="fact-grid five">
+<div><strong>{{ num(f.normalized_hse) }}</strong><small>PRIVATE HSE</small></div>
+<div><strong>{{ num(s.final.normalized_hse) }}</strong><small>SHARED HSE</small></div>
+<div><strong>{{ num(f.normalized_task_agent_mutual_information) }}</strong><small>PRIVATE MI</small></div>
+<div><strong>{{ num(s.final.normalized_task_agent_mutual_information) }}</strong><small>SHARED MI</small></div>
+<div><strong>{{ pct(f.oracle_gain) }} / {{ pct(s.final.oracle_gain) }}</strong><small>oracle gain · P / S</small></div>
 </div>
 
-<!-- presenter notes: If the shared run finishes before the talk, rerun npm run data and replace this slide with the real comparison. -->
+<div class="brick-row compact"><div><b>PRIVATE</b><br><small>agent_1: 17/20 selections · utilization {{ num(f.normalized_utilization_entropy) }}</small></div><div><b>SHARED</b><br><small>6 / 4 / 6 / 4 selections · utilization {{ num(s.final.normalized_utilization_entropy) }}</small></div></div>
+
+<p class="small-note">Descriptive matched-seed comparison. It is not yet a multi-seed causal estimate.</p>
+
+<!-- presenter notes: The private run is concentrated; the shared run is much more evenly utilized. The metrics move in different directions, so no single score settles the interpretation. -->
 
 ---
 layout: intro
