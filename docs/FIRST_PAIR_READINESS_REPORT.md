@@ -28,7 +28,7 @@ Offline validation performed with MockBackend/toy data:
 
 ```text
 uv run python -m unittest discover -s tests -v
-84 tests: OK
+85 tests: OK
 uv run python -m compileall -q src
 OK
 ```
