@@ -16,6 +16,7 @@ from typing import Any, Iterable, Sequence
 from .costs import normalize_token_usage, summarize_usage
 from .metrics.differentiation import (
     competence_differentiation_phi_from_mapping,
+    competence_spectral_differentiation_from_mapping,
     division_of_labor_matching,
     routing_alignment,
 )
@@ -238,6 +239,7 @@ CHECKPOINT_SCALARS = (
     "division_of_labor_match",
     "single_agent_accuracy",
     "delta_match",
+    "effective_competence_dimensionality",
 )
 
 
@@ -254,6 +256,7 @@ def checkpoint_rows(bundle: RunBundle) -> list[dict[str, Any]]:
         matching = division_of_labor_matching(competence) if competence and len(competence) == len({world for profile in competence.values() for world in profile}) else {
             "u_match": None, "u_single": None, "delta_match": None,
         }
+        spectral = competence_spectral_differentiation_from_mapping(competence)
         rows.append({
             "run_id": bundle.run_id,
             "condition": bundle.condition,
@@ -265,6 +268,7 @@ def checkpoint_rows(bundle: RunBundle) -> list[dict[str, Any]]:
             "division_of_labor_match": matching.get("u_match"),
             "single_agent_accuracy": matching.get("u_single"),
             "delta_match": matching.get("delta_match"),
+            "effective_competence_dimensionality": spectral["participation_ratio"],
         })
     return rows
 

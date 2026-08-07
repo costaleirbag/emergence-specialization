@@ -5,6 +5,7 @@ import unittest
 from emergent_specialization.metrics.complementarity import complementarity_metrics
 from emergent_specialization.metrics.differentiation import (
     competence_differentiation_phi,
+    competence_spectral_differentiation,
     division_of_labor_matching,
     routing_alignment,
 )
@@ -58,3 +59,18 @@ class MetricTests(unittest.TestCase):
         self.assertAlmostEqual(result["u_match"], 1.0)
         self.assertAlmostEqual(result["u_single"], 0.5)
         self.assertAlmostEqual(result["delta_match"], 0.5)
+
+    def test_spectral_differentiation_has_explicit_zero_convention(self) -> None:
+        result = competence_spectral_differentiation([[0.5, 0.25], [0.5, 0.25]])
+        self.assertEqual(result["participation_ratio"], 0.0)
+
+    def test_spectral_rank_one_has_effective_dimension_one(self) -> None:
+        result = competence_spectral_differentiation([[1.0, 1.0], [0.0, 0.0]])
+        self.assertAlmostEqual(result["participation_ratio"], 1.0, places=6)
+
+    def test_spectral_dimension_is_label_permutation_invariant(self) -> None:
+        matrix = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [0.0, 0.0, 0.0]]
+        forward = competence_spectral_differentiation(matrix)
+        reverse = competence_spectral_differentiation(list(reversed(matrix)))
+        self.assertAlmostEqual(forward["participation_ratio"], reverse["participation_ratio"], places=6)
+        self.assertGreater(forward["participation_ratio"], 1.0)

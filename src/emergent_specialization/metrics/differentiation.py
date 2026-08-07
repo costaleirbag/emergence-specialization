@@ -55,6 +55,75 @@ def competence_differentiation_phi_from_mapping(
     return competence_differentiation_phi(matrix)
 
 
+def competence_spectral_differentiation(matrix: Sequence[Sequence[float]]) -> dict[str, Any]:
+    """Return eigenvalues and participation ratio of competence differentiation.
+
+    The matrix is centered across agents, ``Q = X Xᵀ / K`` is formed, and a
+    small dependency-free Jacobi eigensolver is used.  This is an analysis-only
+    effective dimensionality, not evidence of roles or specialization.
+    """
+    rows = _rectangular_matrix(matrix)
+    if not rows or not rows[0]:
+        return {"eigenvalues": [], "trace": 0.0, "participation_ratio": 0.0}
+    n_agents = len(rows)
+    n_worlds = len(rows[0])
+    means = [sum(row[col] for row in rows) / n_agents for col in range(n_worlds)]
+    centered = [[row[col] - means[col] for col in range(n_worlds)] for row in rows]
+    matrix_q = [
+        [sum(centered[i][col] * centered[j][col] for col in range(n_worlds)) / n_worlds for j in range(n_agents)]
+        for i in range(n_agents)
+    ]
+    # Jacobi rotations are ample for the small N=4 competence matrices used by
+    # this project and avoid introducing a numerical dependency for reports.
+    for _ in range(max(1, 20 * n_agents * n_agents)):
+        pivot_i, pivot_j = 0, 0
+        largest = 0.0
+        for i in range(n_agents):
+            for j in range(i + 1, n_agents):
+                value = abs(matrix_q[i][j])
+                if value > largest:
+                    largest, pivot_i, pivot_j = value, i, j
+        if largest <= 1e-12:
+            break
+        app = matrix_q[pivot_i][pivot_i]
+        aqq = matrix_q[pivot_j][pivot_j]
+        apq = matrix_q[pivot_i][pivot_j]
+        angle = 0.5 * __import__("math").atan2(2.0 * apq, aqq - app)
+        cosine = __import__("math").cos(angle)
+        sine = __import__("math").sin(angle)
+        for k in range(n_agents):
+            if k in {pivot_i, pivot_j}:
+                continue
+            aik = matrix_q[pivot_i][k]
+            ajk = matrix_q[pivot_j][k]
+            matrix_q[pivot_i][k] = matrix_q[k][pivot_i] = cosine * aik - sine * ajk
+            matrix_q[pivot_j][k] = matrix_q[k][pivot_j] = sine * aik + cosine * ajk
+        matrix_q[pivot_i][pivot_i] = cosine * cosine * app - 2.0 * sine * cosine * apq + sine * sine * aqq
+        matrix_q[pivot_j][pivot_j] = sine * sine * app + 2.0 * sine * cosine * apq + cosine * cosine * aqq
+        matrix_q[pivot_i][pivot_j] = matrix_q[pivot_j][pivot_i] = 0.0
+    eigenvalues = sorted((max(0.0, matrix_q[i][i]) for i in range(n_agents)), reverse=True)
+    trace = sum(eigenvalues)
+    denominator = sum(value * value for value in eigenvalues)
+    participation_ratio = (trace * trace / denominator) if denominator > 1e-15 else 0.0
+    return {
+        "eigenvalues": eigenvalues,
+        "trace": trace,
+        "participation_ratio": participation_ratio,
+    }
+
+
+def competence_spectral_differentiation_from_mapping(
+    competence: Mapping[str, Mapping[str, float]],
+    *,
+    agent_ids: Sequence[str] | None = None,
+    worlds: Sequence[str] | None = None,
+) -> dict[str, Any]:
+    ids = tuple(agent_ids) if agent_ids is not None else tuple(sorted(competence))
+    domain = tuple(worlds) if worlds is not None else tuple(sorted({world for profile in competence.values() for world in profile}))
+    matrix = [[float(competence.get(agent, {}).get(world, 0.0)) for world in domain] for agent in ids]
+    return competence_spectral_differentiation(matrix)
+
+
 def routing_alignment(
     routing_counts_by_world_agent: Mapping[str, Mapping[str, int | float]],
     competence: Mapping[str, Mapping[str, float]],
