@@ -139,7 +139,7 @@ def main(argv: Iterable[str] | None = None) -> None:
     parser.add_argument("--config", default=str(REPO_ROOT / DEFAULT_PRIVATE))
     parser.add_argument("--shared-config", default=str(REPO_ROOT / DEFAULT_SHARED))
     parser.add_argument("--confirm-real", action="store_true", help="Permit exactly one live completion")
-    parser.add_argument("--output-dir", default="reports/infrastructure-doctor")
+    parser.add_argument("--output-dir", default=str(REPO_ROOT / "reports/infrastructure-doctor"))
     args = parser.parse_args(list(argv) if argv is not None else None)
     if not args.confirm_real:
         report = _offline_report(args.config, args.shared_config)
