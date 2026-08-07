@@ -365,6 +365,85 @@ def _refresh_cost(manifest: dict[str, Any], gate: str | None = None) -> float:
     return total
 
 
+def _refresh_physical_attempts(manifest: dict[str, Any], gate: str | None = None) -> int:
+    """Recompute physical attempts from immutable run artifacts.
+
+    The manifest is a journal, not the source of truth for usage.  Recomputing
+    this value after every condition makes an interrupted campaign safe to
+    resume and prevents a stale counter from bypassing the gate ceiling.
+    """
+    total = 0
+    for row in manifest.get("runs", []):
+        if gate and row.get("gate") != gate:
+            continue
+        if row.get("run_dir") and row.get("status") != "reused":
+            health = _health_for(Path(row["run_dir"]))
+            if health:
+                total += int(health.get("physical_attempts", 0))
+    manifest.setdefault("state", {})["physical_attempts"] = total
+    if gate:
+        manifest.setdefault("gates", {}).setdefault(gate, {})["physical_attempts"] = total
+    return total
+
+
+def _gate_remaining_rows(manifest: dict[str, Any], gate: str) -> list[dict[str, Any]]:
+    return [
+        row for row in _rows_for_gate(manifest, gate)
+        if row.get("status") not in {"reused", "completed", "locked", "optional"}
+    ]
+
+
+def _guard_before_real_attempt(
+    manifest: dict[str, Any],
+    gate: str,
+    *,
+    hard_budget: float | None,
+    current_row: dict[str, Any],
+    mock: bool,
+) -> tuple[bool, str | None]:
+    """Check cost and physical-attempt ceilings before launching a process.
+
+    Forecasts deliberately overestimate unfinished logical work.  A guard is
+    only active for real execution; mock lifecycle tests must remain offline.
+    """
+    observed_cost = _refresh_cost(manifest, gate)
+    physical = _refresh_physical_attempts(manifest, gate)
+    state = manifest.setdefault("state", {})
+    if mock:
+        return True, None
+    if hard_budget is not None and observed_cost >= hard_budget:
+        return False, f"observed gate cost ${observed_cost:.6f} reached hard budget ${hard_budget:.6f}"
+
+    cost_rate = float(manifest.get("cost_forecast", {}).get("cost_per_logical_completion_usd", 0.0) or 0.0)
+    remaining_rows = _gate_remaining_rows(manifest, gate)
+    projected = observed_cost + sum(int(row.get("nominal_calls", 0)) for row in remaining_rows) * cost_rate
+    if hard_budget is not None and projected > hard_budget:
+        return False, (
+            f"conservative remaining-cost forecast ${projected:.6f} exceeds "
+            f"hard budget ${hard_budget:.6f}"
+        )
+
+    max_attempts = manifest.get("gates", {}).get(gate, {}).get("max_physical_attempts")
+    if max_attempts is None:
+        max_attempts = sum(int(row.get("max_physical_calls", 0)) for row in remaining_rows) + physical
+    max_attempts = int(max_attempts)
+    projected_attempts = physical + sum(int(row.get("max_physical_calls", 0)) for row in remaining_rows)
+    if projected_attempts > max_attempts:
+        return False, (
+            f"conservative physical-attempt forecast {projected_attempts} exceeds "
+            f"ceiling {max_attempts}"
+        )
+    state["last_guard"] = {
+        "gate": gate,
+        "observed_cost_usd": observed_cost,
+        "projected_cost_usd": projected,
+        "physical_attempts": physical,
+        "projected_physical_attempts": projected_attempts,
+        "row": f"{current_row.get('condition')}:seed{current_row.get('seed')}",
+    }
+    return True, None
+
+
 def _reconcile_rows(manifest: dict[str, Any], gate: str) -> None:
     for row in _rows_for_gate(manifest, gate):
         if row.get("status") in {"reused", "completed", "locked", "optional"}:
@@ -497,12 +576,31 @@ def run_gate(
             row = pair.get(condition)
             if row is None:
                 raise ValueError(f"paired gate {gate} seed {seed} lacks {condition}")
+            allowed, reason = _guard_before_real_attempt(
+                manifest,
+                gate,
+                hard_budget=hard_budget,
+                current_row=row,
+                mock=mock,
+            )
+            if not allowed:
+                manifest.setdefault("state", {}).update({
+                    "status": "stopped_gate_guard",
+                    "active_gate": gate,
+                    "guard_reason": reason,
+                })
+                _refresh_cost(manifest, gate)
+                _refresh_physical_attempts(manifest, gate)
+                _json_write(_manifest_file(manifest, manifest_file), manifest)
+                return 2
             if not _run_one_row(row, mock=mock, run_root=root, executor=executor):
                 manifest.setdefault("state", {}).update({"status": "gate_incomplete", "active_gate": gate})
                 _refresh_cost(manifest, gate)
+                _refresh_physical_attempts(manifest, gate)
                 _json_write(_manifest_file(manifest, manifest_file), manifest)
                 return 1
             _refresh_cost(manifest, gate)
+            _refresh_physical_attempts(manifest, gate)
             if hard_budget is not None and float(manifest["gates"][gate].get("observed_cost_usd", 0.0)) >= hard_budget:
                 manifest.setdefault("state", {}).update({"status": "stopped_gate_budget", "active_gate": gate})
                 _json_write(_manifest_file(manifest, manifest_file), manifest)
@@ -515,6 +613,7 @@ def run_gate(
     definition["status"] = "complete" if not pair_health["incomplete_pairs"] else "in_progress"
     manifest.setdefault("state", {}).update({"status": "gate_complete" if definition["status"] == "complete" else "gate_in_progress", "active_gate": gate})
     _refresh_cost(manifest, gate)
+    _refresh_physical_attempts(manifest, gate)
     _json_write(_manifest_file(manifest, manifest_file), manifest)
     return 0
 
