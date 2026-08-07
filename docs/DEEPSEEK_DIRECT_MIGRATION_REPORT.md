@@ -12,7 +12,9 @@ gate below.** No model call was made during this migration session.
 
 Starting audited HEAD: `a481b4bc0fae286bf14671193dd6e5f8727abb4d`  
 Branch: `research/developmental-dynamics`  
-Final HEAD: `9bb064a`
+Final HEAD: see `git rev-parse HEAD` at handoff; the exact final commit is
+reported in the terminal summary below (the report is included in the final
+documentation commit).
 
 ## Why this changes the infrastructure, not the science
 
