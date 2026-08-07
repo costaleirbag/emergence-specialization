@@ -1,6 +1,11 @@
 ---
-theme: bricks
+theme: frankfurt
+layout: cover
+infoLine: true
+topNavigation: true
+author: Research group
 title: Emergent Specialization in Homogeneous LLM Societies
+date: 2026/08/06
 info: Routing, symmetry breaking, and differentiation in an LLM society
 transition: fade
 mdc: true
@@ -20,49 +25,53 @@ Can routing generate the diversity it later exploits?
 
 ---
 layout: intro
+section: Origin
 ---
 
-::left::
-
 <div class="eyebrow">The trigger</div>
+
+# From routing to emergence
 
 ## A routing paper
 
 Behavioral diversity is useful only when a router can match tasks to different competencies.
 
-::right::
-
-# From routing to emergence
-
-<p class="lead">The paper made us ask where the diversity comes from in the first place.</p>
+<Item title="The question it left behind">Where does the diversity come from in the first place?</Item>
 
 <!-- presenter notes: The paper is the starting point, not a claim that it proposed this exact experiment. -->
 
 ---
-layout: quote
+layout: intro
 ---
+
+<div class="academic-center">
 
 # What if the actors start identical?
 
 <p class="quote-attribution">A question that changed the direction of the project.</p>
 
+</div>
+
 <!-- presenter notes: Let the question breathe. This is the conceptual pivot. -->
 
 ---
-layout: statement
+layout: intro
 ---
 
+<div class="academic-center central-question">
+
 # Does routing merely exploit diversity,<br>or can it generate the diversity it exploits?
+
+</div>
 
 <!-- presenter notes: State the central hypothesis exactly. -->
 
 ---
-layout: section
+layout: intro
+section: Emergence
 ---
 
 # From symmetry
-
-::right::
 
 ## Same start
 
@@ -75,30 +84,26 @@ Fluctuation → asymmetric feedback → different histories
 <!-- presenter notes: Avoid calling this a phase transition. It is a mechanism hypothesis about feedback and histories. -->
 
 ---
-layout: items
-cols: 4
----
 
 # Initial symmetry
 
-::items::
-
-<div class="agent-item"><strong>agent 0</strong><small>exchangeable</small></div>
-<div class="agent-item"><strong>agent 1</strong><small>exchangeable</small></div>
-<div class="agent-item"><strong>agent 2</strong><small>exchangeable</small></div>
-<div class="agent-item"><strong>agent 3</strong><small>exchangeable</small></div>
+<div class="item-grid four">
+<Item title="agent 0">exchangeable</Item>
+<Item title="agent 1">exchangeable</Item>
+<Item title="agent 2">exchangeable</Item>
+<Item title="agent 3">exchangeable</Item>
+</div>
 
 <div class="items-caption">empty controlled memory · no predefined roles · same confidence router</div>
 
 <!-- presenter notes: Homogeneous means no assigned role or privileged history—not identical token-level behavior. -->
 
 ---
-layout: section
+layout: intro
+section: Experiment
 ---
 
 # The experiment
-
-::right::
 
 ## Goal
 
@@ -141,8 +146,6 @@ Private feedback versus shared feedback.
 <!-- presenter notes: Routing controls who receives supervised information, so it is part of the dynamics rather than just a readout. -->
 
 ---
-layout: default
----
 
 # Private versus shared
 
@@ -156,40 +159,40 @@ layout: default
 <!-- presenter notes: This is the key causal contrast. Do not interpret the private run as proof without the shared control. -->
 
 ---
-layout: quote
+layout: intro
 ---
+
+<div class="academic-center feedback-loop">
 
 # experience → competence → confidence → routing → more experience
 
 <p class="quote-attribution">A positive-feedback loop that may amplify useful specialization—or early mistakes.</p>
 
+</div>
+
 <!-- presenter notes: Explain both possible regimes: productive division of labor and confidence-driven collapse. -->
 
----
-layout: items
-cols: 4
 ---
 
 # What counts as specialization?
 
-::items::
-
-<div class="metric-item"><strong>HSE</strong><small>Are agents behaviorally different?</small></div>
-<div class="metric-item"><strong>I(C;R)</strong><small>Is routing organized by task?</small></div>
-<div class="metric-item"><strong>Utilization</strong><small>Did routing collapse?</small></div>
-<div class="metric-item"><strong>Oracle gain</strong><small>Are differences useful?</small></div>
+<div class="item-grid four">
+<Item title="HSE">Are agents behaviorally different?</Item>
+<Item title="I(C;R)">Is routing organized by task?</Item>
+<Item title="Utilization">Did routing collapse?</Item>
+<Item title="Oracle gain">Are differences useful?</Item>
+</div>
 
 <div class="items-caption">Diversity ≠ useful specialization · no single metric is sufficient</div>
 
 <!-- presenter notes: HSE is a candidate observable, not the objective. MI can show organization without competence; concentration can be collapse. -->
 
 ---
-layout: section
+layout: intro
+section: Results
 ---
 
 # What happened?
-
-::right::
 
 ## Latest completed PRIVATE run
 
@@ -202,12 +205,16 @@ layout: section
 <!-- presenter notes: Introduce the actual artifact before showing its matrices. The shared control is intentionally not filled in. -->
 
 ---
-layout: fact
+layout: intro
 ---
+
+<div class="academic-center result-fact">
 
 # {{ pct(f.best_individual_accuracy) }}
 
 Best individual accuracy at t = 20
+
+</div>
 
 <!-- presenter notes: This is a descriptive fact from the common-probe evaluation, not a generalization claim. -->
 
@@ -265,12 +272,16 @@ Best individual accuracy at t = 20
 <!-- presenter notes: Avoid extrapolating monotonic emergence from two observations. -->
 
 ---
-layout: fact
+layout: intro
 ---
+
+<div class="academic-center result-fact wide">
 
 # The society’s oracle reaches {{ pct(f.oracle_society_accuracy) }}
 
 while the best individual reaches {{ pct(f.best_individual_accuracy) }}
+
+</div>
 
 <!-- presenter notes: Oracle gain is evidence of complementary capability in the probe set, not evidence that the router actually found the best agent on every task. -->
 
@@ -288,22 +299,26 @@ while the best individual reaches {{ pct(f.best_individual_accuracy) }}
 <!-- presenter notes: This is the honest interpretation. -->
 
 ---
-layout: statement
+layout: intro
+section: Interpretation
 ---
+
+<div class="academic-center">
 
 # The SHARED control is still pending
 
 <p class="statement-sub">No comparison is fabricated. Regenerate the data after a completed shared run.</p>
 
+</div>
+
 <!-- presenter notes: If the shared run finishes before the talk, rerun npm run data and replace this slide with the real comparison. -->
 
 ---
-layout: section
+layout: intro
+section: Next steps
 ---
 
 # What remains
-
-::right::
 
 ## Immediate
 
@@ -320,34 +335,37 @@ Trajectory prediction, topology, and intervention.
 <!-- presenter notes: Keep the order. The matched control is the next scientific priority. -->
 
 ---
-layout: items
-cols: 4
----
 
 # Limitations
 
-::items::
-
-<div class="metric-item"><strong>1 seed</strong><small>stochastic variation unknown</small></div>
-<div class="metric-item"><strong>20 rounds</strong><small>short horizon</small></div>
-<div class="metric-item"><strong>synthetic worlds</strong><small>controlled but narrow</small></div>
-<div class="metric-item"><strong>timeouts</strong><small>{{ p.event_stats.timeouts }} in this run</small></div>
+<div class="item-grid four">
+<Item title="1 seed">stochastic variation unknown</Item>
+<Item title="20 rounds">short horizon</Item>
+<Item title="Synthetic worlds">controlled but narrow</Item>
+<Item title="Timeouts">{{ p.event_stats.timeouts }} in this run</Item>
+</div>
 
 <div class="items-caption">The next decision should follow technical health and matched design—not attractive metrics.</div>
 
 <!-- presenter notes: Make the limitations explicit before taking questions. -->
 
 ---
-layout: statement
+layout: intro
 ---
+
+<div class="academic-center">
 
 # Routing may do more than select.
 
 <p class="statement-sub">It may help create the differentiated society it later routes through.</p>
 <p class="small-note">The private/shared control tells us whether that mechanism is causal.</p>
 
+</div>
+
 <!-- presenter notes: Return to the opening question. The next matched experiment decides the claim. -->
 
+---
+section: Backup
 ---
 
 # Backup · provenance

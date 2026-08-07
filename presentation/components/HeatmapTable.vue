@@ -1,7 +1,7 @@
 <script setup>
 const props = defineProps({ rows: Array, columns: Array, values: Object, digits: { type: Number, default: 2 } })
 function value(row, col) { return Number(props.values?.[row]?.[col] ?? 0) }
-function shade(v) { return `rgba(55, 211, 188, ${0.10 + Math.min(1, v) * 0.78})` }
+function shade(v) { return `rgba(51, 51, 179, ${0.08 + Math.min(1, v) * 0.74})` }
 function format(v) { return Number(v).toFixed(props.digits) }
 </script>
 <template>
