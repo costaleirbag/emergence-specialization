@@ -39,7 +39,7 @@ from .parsing import ResponseParseError, parse_agent_output
 from .probes import load_probe_set
 from .providers import DeepSeekDirectBackend, LLMBackend, MockBackend, OMPBackend
 from .retry import retry_delay
-from .router import ConfidenceRouter, RouterDecision
+from .router import ConfidenceRouter, RandomRouter, RouterDecision
 
 
 @dataclass(frozen=True)
@@ -138,7 +138,11 @@ class ExperimentRunner:
             x_max=config.environment.x_max,
         )
         self.memory_policy = MemoryPolicy(config.agent.memory_strategy, config.agent.memory_k)
-        self.router = ConfidenceRouter(config.router.epsilon)
+        self.router = (
+            RandomRouter()
+            if config.router.strategy == "random"
+            else ConfidenceRouter(config.router.epsilon)
+        )
         self.agents = [ExperimentalAgent(f"agent_{index}") for index in range(config.experiment.num_agents)]
         self._apply_initial_conditions()
         assert_initial_symmetry(
@@ -622,7 +626,7 @@ class ExperimentRunner:
             valid = [result.response for result in results if result.response is not None]
             if len(valid) != len(results):
                 raise IncompleteLogicalWork(f"Checkpoint {checkpoint} has missing logical probe completions")
-            probe_routing.append(self.router.deterministic_probe_choice(valid))
+            probe_routing.append(self.router.probe_choice(valid, self.router_rng))
             for agent_index, result in enumerate(results):
                 response = result.response
                 success = int(response is not None and self.environment.evaluate(task, response.answer))

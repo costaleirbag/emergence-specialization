@@ -4,7 +4,7 @@ import random
 import unittest
 
 from emergent_specialization.models import AgentResponse
-from emergent_specialization.router import ConfidenceRouter
+from emergent_specialization.router import ConfidenceRouter, RandomRouter
 
 
 class RouterTests(unittest.TestCase):
@@ -31,3 +31,20 @@ class RouterTests(unittest.TestCase):
     def test_probe_routing_is_deterministic(self) -> None:
         responses = [AgentResponse("agent_2", 1, 0.8), AgentResponse("agent_1", 2, 0.8)]
         self.assertEqual(ConfidenceRouter.deterministic_probe_choice(responses), "agent_1")
+
+    def test_random_router_ignores_confidence_and_is_order_invariant(self) -> None:
+        responses = [
+            AgentResponse("agent_0", 1, 0.01),
+            AgentResponse("agent_1", 2, 0.99),
+            AgentResponse("agent_2", 3, 0.50),
+        ]
+        router = RandomRouter()
+        forward = router.select(responses, random.Random(23))
+        reverse = router.select(list(reversed(responses)), random.Random(23))
+        self.assertEqual(forward, reverse)
+        self.assertEqual(forward.selection_mode, "random")
+        self.assertEqual(forward.tied_agent_ids, ("agent_0", "agent_1", "agent_2"))
+
+    def test_random_router_probe_choice_uses_rng_not_confidence(self) -> None:
+        responses = [AgentResponse("agent_0", 1, 0.01), AgentResponse("agent_1", 2, 0.99)]
+        self.assertEqual(RandomRouter().probe_choice(responses, random.Random(4)), "agent_0")

@@ -1,0 +1,54 @@
+# Stage B router ablation. Science matches the frozen 20-round baseline;
+# only router.strategy differs from replication_private.yaml.
+experiment:
+  num_agents: 4
+  num_rounds: 20
+  checkpoints: [0, 10, 20]
+  seed: 1
+  max_concurrency: 4
+  technical_retries: 1
+  console_summary: true
+environment:
+  worlds: [ALPHA, BETA, GAMMA, DELTA]
+  x_min: 0
+  x_max: 20
+agent:
+  backend: deepseek_direct
+  model: deepseek-v4-flash
+  thinking: "off"
+  memory_strategy: recent_k
+  memory_k: 8
+  max_tokens: 128
+router:
+  strategy: random
+  epsilon: 0.0
+condition:
+  memory_mode: private
+logging:
+  output_dir: data/runs/campaigns/developmental-dynamics-v1
+  probe_set_path: data/probe_set.json
+cost:
+  currency: USD
+  input_per_million_tokens: 0.14
+  cached_input_per_million_tokens: 0.0028
+  output_per_million_tokens: 0.28
+runtime:
+  interaction_concurrency: 4
+  probe_concurrency: 32
+  max_physical_attempts: 700
+  max_cost_usd: 0.50
+  max_attempts_per_logical_completion: 2
+  retry_base_s: 1.0
+  retry_max_s: 30.0
+  retry_jitter_s: 0.25
+  connect_timeout_s: 10.0
+  read_timeout_s: 600.0
+  request_timeout_s: 660.0
+  pool_timeout_s: 10.0
+  api_base_url: https://api.deepseek.com
+  credential_source: keychain
+  credential_service: emergence-specialization.deepseek
+  credential_account: api
+  user_id: emergence-specialization
+  client_max_connections: 20
+  client_max_keepalive_connections: 16

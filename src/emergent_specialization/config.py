@@ -83,8 +83,10 @@ class RouterSettings:
     epsilon: float = 0.0
 
     def __post_init__(self) -> None:
-        if self.strategy != "confidence":
-            raise ValueError("only confidence routing is implemented")
+        if self.strategy not in {"confidence", "random"}:
+            raise ValueError("router strategy must be 'confidence' or 'random'")
+        if self.strategy == "random" and self.epsilon != 0.0:
+            raise ValueError("random routing does not accept epsilon exploration")
         if not 0.0 <= self.epsilon <= 1.0:
             raise ValueError("epsilon must be in [0, 1]")
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-from emergent_specialization.config import AgentSettings, CostSettings, load_config
+from emergent_specialization.config import AgentSettings, CostSettings, RouterSettings, load_config
 
 
 class ConfigTests(unittest.TestCase):
@@ -20,3 +20,8 @@ class ConfigTests(unittest.TestCase):
         self.assertIsNone(CostSettings().input_per_million_tokens)
         with self.assertRaises(ValueError):
             CostSettings(output_per_million_tokens=-1)
+
+    def test_random_router_is_an_explicit_non_exploratory_strategy(self) -> None:
+        self.assertEqual(RouterSettings(strategy="random").strategy, "random")
+        with self.assertRaises(ValueError):
+            RouterSettings(strategy="random", epsilon=0.1)
