@@ -12,7 +12,7 @@ gate below.** No model call was made during this migration session.
 
 Starting audited HEAD: `a481b4bc0fae286bf14671193dd6e5f8727abb4d`  
 Branch: `research/developmental-dynamics`  
-Final HEAD: fill after the local migration commits are made.
+Final HEAD: `9bb064a`
 
 ## Why this changes the infrastructure, not the science
 
@@ -203,7 +203,7 @@ uv run python -m emergent_specialization.credentials delete
 
 ## Validation performed in this session
 
-- Unit suite: 92 tests passed; no tests use the network or a real credential.
+- Unit suite: 95 tests passed; no tests use the network or a real credential.
 - `compileall -q src tests`: passed.
 - Offline doctor and benchmark plan: passed; reported zero model calls.
 - Batch planner for seed 1: 2 planned runs, 560 logical completions/run, 700
