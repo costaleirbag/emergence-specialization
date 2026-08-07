@@ -62,8 +62,8 @@ The first question after each run is infrastructure, not HSE:
 
 An invalid condition must not be silently excluded or followed automatically by
 seeds 2–5. Preserve the raw directory and report the missing logical calls.
-Warnings may be retained only with an explicit methodological note; a clean
-replication target is `healthy`.
+`healthy_recovered` may be retained only with an explicit methodological note;
+a clean replication target is `healthy`.
 
 ## Scientific analysis after health
 
