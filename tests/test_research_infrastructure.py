@@ -59,6 +59,18 @@ class CheckpointAndFeedbackTests(unittest.TestCase):
         self.assertEqual(shared.effective_feedback.mode, "shared")
         self.assertEqual(FeedbackSettings("probabilistic", 1.0).as_label(), "probabilistic-p1")
 
+    def test_yaml_feedback_schedule_is_normalized(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "scheduled.yaml"
+            path.write_text(
+                "experiment:\n  num_rounds: 4\n  checkpoints: {every: 2}\n"
+                "feedback:\n  mode: probabilistic\n  private_probability: 0.2\n  schedule: [[3, 0.8]]\n",
+                encoding="utf-8",
+            )
+            config = load_config(path)
+            self.assertEqual(config.experiment.checkpoints, (0, 2, 4))
+            self.assertEqual(config.effective_feedback.schedule, ((3, 0.8),))
+
     def test_probabilistic_endpoints_are_exact(self) -> None:
         self.assertEqual(FeedbackSettings("probabilistic", 0.0).mode, "probabilistic")
         self.assertEqual(FeedbackSettings("probabilistic", 1.0).private_probability, 1.0)
