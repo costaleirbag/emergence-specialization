@@ -8,12 +8,18 @@ version = "0.1.0"
 description = "Controlled experiment harness for emergent specialization in homogeneous LLM societies"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["PyYAML>=6.0"]
+dependencies = [
+    "httpx>=0.27",
+    "keyring>=25.0",
+    "openai>=1.0",
+    "PyYAML>=6.0",
+]
 
 [project.scripts]
 emergent-specialization = "emergent_specialization.experiment:main"
 emergence-report = "emergent_specialization.reporting:main"
 emergence-compare = "emergent_specialization.reporting:comparison_main"
+emergence-credentials = "emergent_specialization.credentials:main"
 
 [dependency-groups]
 report = [

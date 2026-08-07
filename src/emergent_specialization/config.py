@@ -65,8 +65,8 @@ class AgentSettings:
     max_tokens: int | None = None
 
     def __post_init__(self) -> None:
-        if self.backend not in {"omp", "mock"}:
-            raise ValueError("agent backend must be 'omp' or 'mock'")
+        if self.backend not in {"omp", "mock", "deepseek_direct"}:
+            raise ValueError("agent backend must be 'omp', 'deepseek_direct', or 'mock'")
         if self.memory_strategy not in {"recent_k", "all"}:
             raise ValueError("memory_strategy must be recent_k or all")
         if self.memory_k < 0:
@@ -185,6 +185,54 @@ class CostSettings:
 
 
 @dataclass(frozen=True)
+class RuntimeSettings:
+    """Provider/runtime controls that do not alter the scientific state."""
+
+    interaction_concurrency: int | None = None
+    probe_concurrency: int | None = None
+    max_physical_attempts: int | None = None
+    max_cost_usd: float | None = None
+    max_attempts_per_logical_completion: int | None = None
+    retry_base_s: float = 1.0
+    retry_max_s: float = 30.0
+    retry_jitter_s: float = 0.25
+    connect_timeout_s: float = 10.0
+    read_timeout_s: float = 600.0
+    request_timeout_s: float = 660.0
+    pool_timeout_s: float = 10.0
+    api_base_url: str = "https://api.deepseek.com"
+    credential_source: str = "keychain"
+    credential_service: str = "emergence-specialization.deepseek"
+    credential_account: str = "api"
+    user_id: str = "emergence-specialization"
+    client_max_connections: int | None = None
+    client_max_keepalive_connections: int | None = None
+
+    def __post_init__(self) -> None:
+        for name in ("interaction_concurrency", "probe_concurrency", "max_physical_attempts", "max_attempts_per_logical_completion"):
+            value = getattr(self, name)
+            if value is not None and (isinstance(value, bool) or value < 1):
+                raise ValueError(f"{name} must be positive or null")
+        for name in ("max_cost_usd",):
+            value = getattr(self, name)
+            if value is not None and value < 0:
+                raise ValueError(f"{name} must be non-negative or null")
+        for name in ("retry_base_s", "retry_max_s", "retry_jitter_s", "connect_timeout_s", "read_timeout_s", "request_timeout_s", "pool_timeout_s"):
+            if getattr(self, name) < 0:
+                raise ValueError(f"{name} must be non-negative")
+        if self.retry_max_s < self.retry_base_s:
+            raise ValueError("retry_max_s must be at least retry_base_s")
+        if self.request_timeout_s < self.read_timeout_s:
+            raise ValueError("request_timeout_s must be at least read_timeout_s")
+        if self.credential_source not in {"keychain", "env"}:
+            raise ValueError("credential_source must be keychain or env")
+        if not self.api_base_url.startswith("https://"):
+            raise ValueError("api_base_url must use https")
+        if not self.user_id or not all(character.isalnum() or character in "-_" for character in self.user_id):
+            raise ValueError("user_id must contain only letters, numbers, '-' or '_'")
+
+
+@dataclass(frozen=True)
 class InitialConditionSettings:
     """Optional explicit memory perturbations for sensitivity experiments."""
 
@@ -214,6 +262,7 @@ class RunConfig:
     interventions: tuple[dict[str, Any], ...] = ()
     logging: LoggingSettings = field(default_factory=LoggingSettings)
     cost: CostSettings = field(default_factory=CostSettings)
+    runtime: RuntimeSettings = field(default_factory=RuntimeSettings)
     source_path: str | None = None
     source_hash: str | None = None
 
@@ -223,6 +272,14 @@ class RunConfig:
     @property
     def effective_feedback(self) -> FeedbackSettings:
         return self.feedback or FeedbackSettings.from_legacy(self.condition.memory_mode)
+
+    @property
+    def effective_interaction_concurrency(self) -> int:
+        return self.runtime.interaction_concurrency or self.experiment.max_concurrency
+
+    @property
+    def effective_probe_concurrency(self) -> int:
+        return self.runtime.probe_concurrency or self.experiment.max_concurrency
 
     def overridden(
         self,
@@ -286,11 +343,10 @@ def normalize_checkpoints(raw: Any, num_rounds: int) -> tuple[int, ...]:
     return tuple(values)
 
 
-def load_config(path: str | Path) -> RunConfig:
-    config_path = Path(path)
-    raw_text = config_path.read_text(encoding="utf-8")
-    raw = yaml.safe_load(raw_text)
-    raw = _mapping(raw, "root")
+def config_from_mapping(
+    raw: Mapping[str, Any], *, source_path: str | None = None, source_hash: str | None = None
+) -> RunConfig:
+    raw = _mapping(dict(raw), "root")
 
     experiment = _mapping(raw.get("experiment"), "experiment")
     environment = _mapping(raw.get("environment"), "environment")
@@ -302,6 +358,7 @@ def load_config(path: str | Path) -> RunConfig:
     interventions_raw = raw.get("interventions", [])
     logging = _mapping(raw.get("logging"), "logging")
     cost = _mapping(raw.get("cost"), "cost")
+    runtime = _mapping(raw.get("runtime"), "runtime")
 
     if "checkpoints" in experiment:
         experiment["checkpoints"] = normalize_checkpoints(
@@ -322,8 +379,6 @@ def load_config(path: str | Path) -> RunConfig:
     if not isinstance(interventions_raw, list) or any(not isinstance(item, dict) for item in interventions_raw):
         raise ValueError("interventions must be a list of mappings")
 
-    import hashlib
-
     return RunConfig(
         experiment=ExperimentSettings(**experiment),
         environment=EnvironmentSettings(**environment),
@@ -335,6 +390,20 @@ def load_config(path: str | Path) -> RunConfig:
         interventions=tuple(dict(item) for item in interventions_raw),
         logging=LoggingSettings(**logging),
         cost=CostSettings(**cost),
+        runtime=RuntimeSettings(**runtime),
+        source_path=source_path,
+        source_hash=source_hash,
+    )
+
+
+def load_config(path: str | Path) -> RunConfig:
+    config_path = Path(path)
+    raw_text = config_path.read_text(encoding="utf-8")
+    raw = yaml.safe_load(raw_text)
+    import hashlib
+
+    return config_from_mapping(
+        _mapping(raw, "root"),
         source_path=str(config_path),
         source_hash=hashlib.sha256(raw_text.encode("utf-8")).hexdigest(),
     )

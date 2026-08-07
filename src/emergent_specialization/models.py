@@ -59,6 +59,12 @@ class BackendResponse:
     latency_s: float
     token_usage: dict[str, Any] | None = None
     error: str | None = None
+    error_category: str | None = None
+    retryable: bool = True
+    http_status: int | None = None
+    retry_after_s: float | None = None
+    provider_metadata: dict[str, Any] | None = None
+    observed_cost_usd: float | None = None
 
 
 @dataclass(frozen=True)
@@ -84,6 +90,13 @@ class InferenceRecord:
     latency_s: float
     token_usage: dict[str, Any] | None
     error: str | None
+    logical_id: str | None = None
+    error_category: str | None = None
+    retryable: bool = True
+    http_status: int | None = None
+    retry_after_s: float | None = None
+    provider_metadata: dict[str, Any] | None = None
+    observed_cost_usd: float | None = None
 
 
 @dataclass(frozen=True)
