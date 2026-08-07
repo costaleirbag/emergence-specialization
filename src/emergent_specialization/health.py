@@ -68,10 +68,20 @@ def run_health(run_dir: str | Path) -> dict[str, Any]:
     usage_coverage = usage_calls / len(inferences) if inferences else 0.0
     if successful_logical < expected or bundle.summary.get("status") != "completed":
         flag = "invalid"
+        classification = "INVALID / INCOMPLETE"
     elif errors or retries or usage_coverage < 1.0:
-        flag = "warning"
+        # A recovered transient failure remains visible, but does not make a
+        # scientifically complete run unusable by itself.
+        flag = "healthy_recovered"
+        classification = "HEALTHY / RECOVERED"
     else:
         flag = "healthy"
+        classification = "HEALTHY / CLEAN"
+    observed_cost = sum(
+        float(event.get("observed_cost_usd") or 0.0)
+        for event in inferences
+        if isinstance(event.get("observed_cost_usd"), (int, float))
+    )
     return {
         "schema_version": 1,
         "run_id": bundle.run_id,
@@ -79,6 +89,7 @@ def run_health(run_dir: str | Path) -> dict[str, Any]:
         "seed": bundle.seed,
         "status": bundle.summary.get("status"),
         "health_flag": flag,
+        "health_classification": classification,
         "expected_logical_completions": expected,
         "successful_logical_completions": successful_logical,
         "missing_logical_completions": max(0, expected - successful_logical),
@@ -90,6 +101,7 @@ def run_health(run_dir: str | Path) -> dict[str, Any]:
         "completion_coverage": coverage,
         "usage_calls": usage_calls,
         "usage_coverage": usage_coverage,
+        "observed_cost_usd": observed_cost if observed_cost else None,
         "latency_s": {
             "mean": statistics.fmean(latencies) if latencies else None,
             "median": statistics.median(latencies) if latencies else None,

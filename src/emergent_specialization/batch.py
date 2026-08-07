@@ -49,18 +49,21 @@ class PlannedRun:
     feedback_seed: int
     model: str
     backend: str
-    omp_version_expected: str
+    provider_version_expected: str
 
 
 def nominal_call_counts(config: RunConfig, probe_count: int) -> dict[str, int]:
     interactions = config.experiment.num_rounds * config.experiment.num_agents
     probes = len(config.experiment.checkpoints) * probe_count * config.experiment.num_agents
     nominal = interactions + probes
+    retry_ceiling = nominal * (config.experiment.technical_retries + 1)
+    if config.runtime.max_physical_attempts is not None:
+        retry_ceiling = min(retry_ceiling, config.runtime.max_physical_attempts)
     return {
         "interaction_calls": interactions,
         "probe_calls": probes,
         "nominal_calls": nominal,
-        "max_physical_calls": nominal * (config.experiment.technical_retries + 1),
+        "max_physical_calls": retry_ceiling,
     }
 
 
@@ -82,6 +85,14 @@ def _omp_version() -> str:
     except (OSError, subprocess.TimeoutExpired):
         return "unavailable (version check failed)"
     return result.stdout.strip() if result.returncode == 0 else f"unavailable (exit {result.returncode})"
+
+
+def _provider_version(config: RunConfig) -> str:
+    if config.agent.backend == "omp":
+        return _omp_version()
+    if config.agent.backend == "deepseek_direct":
+        return "DeepSeek API (OpenAI-compatible; version reported per response)"
+    return "not_applicable"
 
 
 def plan_batch(path: str | Path) -> list[PlannedRun]:
@@ -110,16 +121,15 @@ def plan_batch(path: str | Path) -> list[PlannedRun]:
         task_seed = base_config.experiment.task_seed if base_config.experiment.task_seed is not None else base_config.experiment.seed
         router_seed = base_config.experiment.router_seed if base_config.experiment.router_seed is not None else base_config.experiment.seed + 1
         feedback_seed = base_config.experiment.feedback_seed if base_config.experiment.feedback_seed is not None else base_config.experiment.seed + 2
-        omp_version = _omp_version()
+        omp_version = _provider_version(base_config)
         for seed in seeds:
             expected_prefix = f"{condition}-seed{seed}"
-            command = " ".join(
-                shlex.quote(part)
-                for part in (
-                    "./scripts/run-deepseek-experiment.sh", "--config", str(config_path),
-                    "--seed", str(seed), "--output-dir", str(output_root),
-                )
+            command_parts = (
+                ("uv", "run", "python", "-m", "emergent_specialization.experiment", "--config", str(config_path), "--seed", str(seed), "--output-dir", str(output_root), "--confirm-real")
+                if base_config.agent.backend == "deepseek_direct"
+                else ("./scripts/run-deepseek-experiment.sh", "--config", str(config_path), "--seed", str(seed), "--output-dir", str(output_root))
             )
+            command = " ".join(shlex.quote(part) for part in command_parts)
             planned.append(
                 PlannedRun(
                     seed=seed,
@@ -140,7 +150,7 @@ def plan_batch(path: str | Path) -> list[PlannedRun]:
                     feedback_seed=seed + 2 if base_config.experiment.feedback_seed is None else base_config.experiment.feedback_seed,
                     model=base_config.agent.model,
                     backend=base_config.agent.backend,
-                    omp_version_expected=omp_version,
+                    provider_version_expected=omp_version,
                 )
             )
     return planned
@@ -165,7 +175,7 @@ def _completed_match(row: PlannedRun, output_root: Path) -> Path | None:
             # A completed process is not necessarily a scientifically usable
             # run. Only a strict healthy artifact is resumable/skippable.
             try:
-                if run_health(run_dir).get("health_flag") == "healthy":
+                if run_health(run_dir).get("health_flag") in {"healthy", "healthy_recovered"}:
                     return run_dir
             except (OSError, ValueError, KeyError):
                 continue
@@ -207,7 +217,7 @@ def plan_manifest(path: str | Path, planned: Iterable[PlannedRun]) -> dict[str, 
         "batch_config": str(batch_path),
         "batch_config_hash": hashlib.sha256(batch_path.read_bytes()).hexdigest(),
         "git_commit": git_commit(),
-        "expected_omp_version": rows[0]["omp_version_expected"] if rows else "unavailable",
+        "expected_provider_version": rows[0]["provider_version_expected"] if rows else "unavailable",
         "runs": rows,
     }
 
@@ -251,7 +261,7 @@ def main(argv: Iterable[str] | None = None) -> None:
         return
     print("BATCH PLAN (no model calls)")
     print(f"git_commit={git_commit()}")
-    print(f"expected omp={rows[0]['omp_version_expected'] if rows else 'unavailable'}")
+    print(f"expected provider={rows[0]['provider_version_expected'] if rows else 'unavailable'}")
     for row in rows:
         print(
             f"seed={row['seed']} condition={row['condition']} rounds={row['rounds']} "

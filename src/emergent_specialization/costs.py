@@ -131,6 +131,17 @@ def summarize_usage(
         "reasoning_tokens": _sum_complete(usable, "reasoning_tokens") if usage_complete else None,
         "total_tokens": _sum_complete(usable, "total_tokens") if usage_complete else None,
     }
+    if usage_complete and aggregate["input_tokens"] is not None and aggregate["cached_input_tokens"] is not None:
+        aggregate["cache_miss_input_tokens"] = max(
+            aggregate["input_tokens"] - aggregate["cached_input_tokens"], 0
+        )
+        denominator = aggregate["cached_input_tokens"] + aggregate["cache_miss_input_tokens"]
+        aggregate["cache_hit_ratio"] = (
+            aggregate["cached_input_tokens"] / denominator if denominator else None
+        )
+    else:
+        aggregate["cache_miss_input_tokens"] = None
+        aggregate["cache_hit_ratio"] = None
     provider_cost_values = [value.get("provider_cost") for value in usable]
     provider_cost_complete = bool(usage_complete and provider_cost_values and all(provider_cost_values))
     reported_cost: dict[str, int | float] = {}
@@ -180,3 +191,26 @@ def summarize_usage(
         "reported_cost_breakdown": reported_cost or None,
         "estimated_cost": estimated_cost,
     }
+
+
+def estimate_usage_cost(
+    usage: Mapping[str, Any] | None,
+    *,
+    input_per_million_tokens: float | None,
+    cached_input_per_million_tokens: float | None,
+    output_per_million_tokens: float | None,
+) -> float | None:
+    """Estimate one attempt's USD cost when all required usage/rates exist."""
+    normalized = normalize_token_usage(usage)
+    if not normalized or normalized.get("input_tokens") is None or normalized.get("output_tokens") is None:
+        return None
+    if input_per_million_tokens is None or output_per_million_tokens is None:
+        return None
+    cached = normalized.get("cached_input_tokens") or 0
+    cache_rate = cached_input_per_million_tokens if cached_input_per_million_tokens is not None else input_per_million_tokens
+    uncached = max(float(normalized["input_tokens"]) - float(cached), 0.0)
+    return (
+        uncached * input_per_million_tokens / 1_000_000
+        + float(cached) * cache_rate / 1_000_000
+        + float(normalized["output_tokens"]) * output_per_million_tokens / 1_000_000
+    )

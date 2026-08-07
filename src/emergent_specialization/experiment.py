@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import json
 import random
 import time
@@ -15,8 +16,9 @@ from pathlib import Path
 from typing import Any, Iterable, Sequence
 
 from .agents import ExperimentalAgent, assert_initial_symmetry, stable_hash
-from .config import RunConfig, load_config
-from .costs import summarize_usage
+from .config import RunConfig, config_from_mapping, load_config
+from .credentials import CredentialStore
+from .costs import estimate_usage_cost, summarize_usage
 from .environment import HiddenWorldEnvironment
 from .interventions import InterventionSpec, apply_memory_intervention
 from .logging import RunLogger
@@ -30,10 +32,12 @@ from .metrics.information import (
     normalized_utilization_entropy,
     utilization_entropy,
 )
+from .journal import ExecutionJournal
 from .models import AgentResponse, Experience, InferenceRecord, ProbeObservation, Task
 from .parsing import ResponseParseError, parse_agent_output
 from .probes import load_probe_set
-from .providers import LLMBackend, MockBackend, OMPBackend
+from .providers import DeepSeekDirectBackend, LLMBackend, MockBackend, OMPBackend
+from .retry import retry_delay
 from .router import ConfidenceRouter, RouterDecision
 
 
@@ -44,6 +48,14 @@ class SolveResult:
     records: tuple[InferenceRecord, ...]
     memory_inserted: tuple[dict[str, object], ...]
     error: str | None = None
+
+
+class BudgetExceeded(RuntimeError):
+    """A hard physical-attempt or cost guard stopped the run."""
+
+
+class IncompleteLogicalWork(RuntimeError):
+    """A round/checkpoint lacks one or more logical completions."""
 
 
 class _ConsoleProgress:
@@ -91,13 +103,32 @@ def make_backend(config: RunConfig) -> LLMBackend:
             thinking=config.agent.thinking,
             working_directory=config.agent.omp_working_directory,
         )
-    raise ValueError(f"Unknown backend {config.agent.backend!r}; use 'mock' or 'omp'")
+    if config.agent.backend == "deepseek_direct":
+        api_key = CredentialStore(
+            config.runtime.credential_service,
+            config.runtime.credential_account,
+        ).get(source=config.runtime.credential_source)
+        return DeepSeekDirectBackend(
+            api_key=api_key,
+            base_url=config.runtime.api_base_url,
+            thinking=config.agent.thinking,
+            max_tokens=config.agent.max_tokens or 128,
+            connect_timeout_s=config.runtime.connect_timeout_s,
+            read_timeout_s=config.runtime.read_timeout_s,
+            request_timeout_s=config.runtime.request_timeout_s,
+            pool_timeout_s=config.runtime.pool_timeout_s,
+            user_id=config.runtime.user_id,
+            max_connections=config.runtime.client_max_connections,
+            max_keepalive_connections=config.runtime.client_max_keepalive_connections,
+            credential_source=config.runtime.credential_source,
+        )
+    raise ValueError(f"Unknown backend {config.agent.backend!r}; use 'mock', 'omp', or 'deepseek_direct'")
 
 
 class ExperimentRunner:
     """Owns all experimental state; providers are stateless inference adapters."""
 
-    def __init__(self, config: RunConfig, backend: LLMBackend | None = None) -> None:
+    def __init__(self, config: RunConfig, backend: LLMBackend | None = None, *, resume_dir: str | Path | None = None) -> None:
         self.config = config
         self.backend = backend if backend is not None else make_backend(config)
         self.environment = HiddenWorldEnvironment(
@@ -128,12 +159,23 @@ class ExperimentRunner:
             if config.experiment.feedback_seed is not None
             else config.experiment.seed + 2
         )
-        self.semaphore = asyncio.Semaphore(config.experiment.max_concurrency)
+        self.semaphore = asyncio.Semaphore(config.effective_interaction_concurrency)
+        self.probe_semaphore = asyncio.Semaphore(config.effective_probe_concurrency)
         self.route_history: list[dict[str, Any]] = []
         self.token_usages: list[dict[str, Any] | None] = []
         self.previous_probe_routing: list[str | None] | None = None
         self.last_metrics: dict[str, Any] | None = None
         self.intervention_specs = [InterventionSpec.from_mapping(item) for item in config.interventions]
+        self.resume_dir = Path(resume_dir).resolve() if resume_dir is not None else None
+        self.journal: ExecutionJournal | None = None
+        self.run_id: str | None = self.resume_dir.name if self.resume_dir else None
+        self._cached_completions: dict[str, dict[str, Any]] = {}
+        self._completed_rounds: set[int] = set()
+        self._completed_checkpoints: set[int] = set()
+        self._observed_cost_usd = 0.0
+        self._physical_attempts = 0
+        self._reserved_attempts = 0
+        self._budget_lock = asyncio.Lock()
 
     def _apply_initial_conditions(self) -> None:
         for item in self.config.initial_conditions.experiences:
@@ -158,6 +200,158 @@ class ExperimentRunner:
                     "use PopulationState explicitly"
                 )
 
+    def _logical_id(
+        self,
+        *,
+        phase: str,
+        round_id: int | None,
+        checkpoint: int | None,
+        probe_index: int | None,
+        agent_id: str,
+        task: Task,
+        inserted: Sequence[dict[str, object]],
+        prompt_hash: str,
+    ) -> str:
+        payload = {
+            "run_id": self.run_id,
+            "config_hash": self.config.source_hash,
+            "condition": self.config.condition.memory_mode,
+            "seed": self.config.experiment.seed,
+            "phase": phase,
+            "round_id": round_id,
+            "checkpoint": checkpoint,
+            "probe_index": probe_index,
+            "agent_id": agent_id,
+            "task": task.experimenter_dict(),
+            "memory_hash": stable_hash(json.dumps(inserted, sort_keys=True, separators=(",", ":"))),
+            "prompt_hash": prompt_hash,
+        }
+        return stable_hash(json.dumps(payload, sort_keys=True, separators=(",", ":")))
+
+    def _budget_guard(self) -> None:
+        runtime = self.config.runtime
+        attempts = self.journal.physical_attempts() if self.journal is not None else self._physical_attempts
+        if runtime.max_physical_attempts is not None and attempts >= runtime.max_physical_attempts:
+            raise BudgetExceeded(
+                f"physical attempt budget exhausted: {attempts}/{runtime.max_physical_attempts}"
+            )
+        if runtime.max_cost_usd is not None and self._observed_cost_usd >= runtime.max_cost_usd:
+            raise BudgetExceeded(
+                f"cost budget exhausted: observed ${self._observed_cost_usd:.8f} / ${runtime.max_cost_usd:.8f}"
+            )
+
+    async def _reserve_attempt(self) -> None:
+        """Reserve a physical-attempt slot before concurrent work starts.
+
+        A semaphore limits throughput, but it does not make a budget check
+        atomic.  Reservations prevent a burst of probe workers from crossing
+        the hard physical-attempt ceiling together.
+        """
+        async with self._budget_lock:
+            self._budget_guard()
+            ceiling = self.config.runtime.max_physical_attempts
+            if ceiling is not None and self._physical_attempts + self._reserved_attempts >= ceiling:
+                raise BudgetExceeded(
+                    f"physical attempt budget exhausted: {self._physical_attempts + self._reserved_attempts}/{ceiling}"
+                )
+            self._reserved_attempts += 1
+
+    async def _release_attempt(self) -> None:
+        async with self._budget_lock:
+            self._reserved_attempts = max(0, self._reserved_attempts - 1)
+
+    def _restore_existing_state(self, logger: RunLogger) -> None:
+        """Rebuild scientific state from committed JSONL rounds before resume."""
+        events_path = logger.events_path
+        if not events_path.exists():
+            return
+        events = [json.loads(line) for line in events_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        round_events = sorted(
+            (event for event in events if event.get("event") == "round_complete"),
+            key=lambda event: int(event["round"]),
+        )
+        for event in round_events:
+            round_id = int(event["round"])
+            sampled = self.environment.sample_task(self.task_rng, task_id=f"round-{round_id}")
+            logged_task = Task(**event["task"])
+            if sampled.experimenter_dict() != logged_task.experimenter_dict():
+                raise ValueError(f"Resume task sequence mismatch at round {round_id}")
+            candidates = event.get("candidates", {})
+            valid = [
+                AgentResponse(agent_id, int(candidate["answer"]), float(candidate["confidence"]))
+                for agent_id, candidate in sorted(candidates.items())
+                if candidate.get("answer") is not None and candidate.get("confidence") is not None
+            ]
+            decision = self.router.select(valid, self.router_rng)
+            if decision.selected_agent_id != event.get("selected_agent_id"):
+                raise ValueError(f"Resume router state mismatch at round {round_id}")
+            selected = next(response for response in valid if response.agent_id == decision.selected_agent_id)
+            experience = Experience(
+                round_id=round_id,
+                world=logged_task.world,
+                x=logged_task.x,
+                y=logged_task.y,
+                prediction=selected.answer,
+                confidence=selected.confidence,
+                correct_answer=logged_task.correct_answer,
+                was_correct=self.environment.evaluate(logged_task, selected.answer),
+            )
+            recipients = [str(value) for value in event.get("feedback_recipients", [])]
+            for recipient in recipients:
+                if recipient not in self.agent_by_id:
+                    raise ValueError(f"Resume references unknown feedback recipient {recipient}")
+                self.agent_by_id[recipient].observe(experience)
+            self.route_history.append({"world": logged_task.world, "selected_agent_id": selected.agent_id})
+            self._completed_rounds.add(round_id)
+        metric_events = sorted(
+            (event for event in events if event.get("event") == "checkpoint_complete"),
+            key=lambda event: int(event["checkpoint"]),
+        )
+        self._completed_checkpoints = {int(event["checkpoint"]) for event in metric_events}
+        metric_path = logger.metrics_path
+        if metric_path.exists():
+            metrics = [json.loads(line) for line in metric_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            if metrics:
+                self.last_metrics = sorted(metrics, key=lambda row: int(row["checkpoint"]))[-1]
+                self.previous_probe_routing = sorted(metrics, key=lambda row: int(row["checkpoint"]))[-1].get("probe_routing")
+        if self.journal is not None:
+            for payload in self.journal.attempt_payloads():
+                self._physical_attempts += 1
+                self._observed_cost_usd += float(payload.get("observed_cost_usd") or 0.0)
+                self.token_usages.append(payload.get("token_usage"))
+
+    def _open_journal(self, logger: RunLogger) -> None:
+        self.journal = ExecutionJournal(logger.run_dir / "run_state.sqlite3")
+        self.journal.set_state("run_id", logger.run_id)
+        self.journal.set_state("config_hash", self.config.source_hash)
+        self.journal.set_state("probe_set_path", self.config.logging.probe_set_path)
+        self.journal.set_state("model", self.config.agent.model)
+        self.journal.set_state("condition", self.config.condition.memory_mode)
+        self.run_id = logger.run_id
+        if self.resume_dir is not None:
+            if self.journal.physical_attempts() == 0 and logger.events_path.exists():
+                for event in (
+                    json.loads(line)
+                    for line in logger.events_path.read_text(encoding="utf-8").splitlines()
+                    if line.strip()
+                ):
+                    if event.get("event") != "inference" or not event.get("logical_id"):
+                        continue
+                    logical_id = str(event["logical_id"])
+                    attempt = int(event.get("attempt", 0))
+                    self.journal.record_attempt(logical_id, attempt, event)
+                    if event.get("error") is None and event.get("parsed_answer") is not None:
+                        response = AgentResponse(
+                            str(event["agent_id"]), int(event["parsed_answer"]), float(event["confidence"])
+                        )
+                        self.journal.record_logical_completion(
+                            logical_id, {"record": event, "response": asdict(response), "error": None}
+                        )
+            self._restore_existing_state(logger)
+
+    def _checkpoint_completed(self, checkpoint: int) -> bool:
+        return checkpoint in self._completed_checkpoints
+
     @property
     def agent_ids(self) -> list[str]:
         return [agent.agent_id for agent in self.agents]
@@ -168,18 +362,27 @@ class ExperimentRunner:
             "thinking": self.config.agent.thinking,
             "temperature": self.config.agent.temperature,
             "top_p": self.config.agent.top_p,
-            "max_tokens": self.config.agent.max_tokens,
+            "max_tokens": self.config.agent.max_tokens or (128 if self.config.agent.backend == "deepseek_direct" else None),
             "note": (
                 "temperature/top_p/max_tokens are experimental metadata only for the OMP backend; "
                 "OMP 17.2.10 does not document controls for them."
                 if self.config.agent.backend == "omp"
+                else "DeepSeek Direct uses documented JSON Output, max_tokens, and thinking=disabled."
+                if self.config.agent.backend == "deepseek_direct"
                 else "mock backend ignores decoding parameters"
             ),
+            "direct_request": {
+                "response_format": {"type": "json_object"},
+                "stream": False,
+                "thinking": "disabled",
+            }
+            if self.config.agent.backend == "deepseek_direct"
+            else None,
         }
 
     @property
     def actual_model_label(self) -> str:
-        return self.config.agent.model if self.config.agent.backend == "omp" else "mock/deterministic-modular-learner"
+        return self.config.agent.model if self.config.agent.backend in {"omp", "deepseek_direct"} else "mock/deterministic-modular-learner"
 
     async def _solve(
         self,
@@ -196,17 +399,46 @@ class ExperimentRunner:
         system_prompt = self.config.agent.system_prompt
         prompt_hash = stable_hash(system_prompt + "\n\n" + user_prompt)
         system_prompt_hash = stable_hash(system_prompt)
+        logical_id = self._logical_id(
+            phase=phase,
+            round_id=round_id,
+            checkpoint=checkpoint,
+            probe_index=probe_index,
+            agent_id=agent.agent_id,
+            task=task,
+            inserted=inserted,
+            prompt_hash=prompt_hash,
+        )
+        if self.journal is not None:
+            cached = self.journal.completed(logical_id)
+            if cached is not None:
+                record = InferenceRecord(**cached["record"])
+                response_payload = cached.get("response")
+                response = AgentResponse(**response_payload) if response_payload else None
+                return SolveResult(
+                    agent_id=agent.agent_id,
+                    response=response,
+                    records=(),
+                    memory_inserted=tuple(inserted),
+                    error=cached.get("error"),
+                )
         records: list[InferenceRecord] = []
         final_error: str | None = None
+        max_attempts = self.config.runtime.max_attempts_per_logical_completion or (self.config.experiment.technical_retries + 1)
 
-        for attempt in range(self.config.experiment.technical_retries + 1):
-            async with self.semaphore:
-                backend_response = await self.backend.complete(
-                    system_prompt=system_prompt,
-                    user_prompt=user_prompt,
-                    model=self.config.agent.model,
-                    model_parameters=self.model_parameters,
-                )
+        for attempt in range(max_attempts):
+            await self._reserve_attempt()
+            semaphore = self.probe_semaphore if phase == "probe" else self.semaphore
+            try:
+                async with semaphore:
+                    backend_response = await self.backend.complete(
+                        system_prompt=system_prompt,
+                        user_prompt=user_prompt,
+                        model=self.config.agent.model,
+                        model_parameters=self.model_parameters,
+                    )
+            finally:
+                await self._release_attempt()
             parsed_answer: int | None = None
             confidence: float | None = None
             error = backend_response.error
@@ -219,6 +451,23 @@ class ExperimentRunner:
                         parsed_answer, confidence = parsed.answer, parsed.confidence
                     except ResponseParseError as exc:
                         error = f"ResponseParseError: {exc}"
+                        error_category = "parse_error"
+                        retryable = True
+                    else:
+                        error_category = None
+                        retryable = True
+                if backend_response.raw_response is None:
+                    error_category = "empty_content"
+                    retryable = True
+            else:
+                error_category = backend_response.error_category or "backend_error"
+                retryable = backend_response.retryable
+            observed_cost = estimate_usage_cost(
+                backend_response.token_usage,
+                input_per_million_tokens=self.config.cost.input_per_million_tokens,
+                cached_input_per_million_tokens=self.config.cost.cached_input_per_million_tokens,
+                output_per_million_tokens=self.config.cost.output_per_million_tokens,
+            )
             record = InferenceRecord(
                 phase=phase,
                 round_id=round_id,
@@ -239,16 +488,48 @@ class ExperimentRunner:
                 latency_s=backend_response.latency_s,
                 token_usage=backend_response.token_usage,
                 error=error,
+                logical_id=logical_id,
+                error_category=error_category,
+                retryable=retryable,
+                http_status=backend_response.http_status,
+                retry_after_s=backend_response.retry_after_s,
+                provider_metadata=backend_response.provider_metadata,
+                observed_cost_usd=observed_cost,
             )
             records.append(record)
+            self._physical_attempts += 1
+            if observed_cost is not None:
+                self._observed_cost_usd += observed_cost
+            if self.journal is not None:
+                self.journal.record_attempt(logical_id, attempt, record)
             if error is None:
+                response = AgentResponse(agent.agent_id, parsed_answer, confidence)
+                if self.journal is not None:
+                    self.journal.record_logical_completion(
+                        logical_id,
+                        {"record": asdict(record), "response": asdict(response), "error": None},
+                    )
                 return SolveResult(
                     agent_id=agent.agent_id,
-                    response=AgentResponse(agent.agent_id, parsed_answer, confidence),
+                    response=response,
                     records=tuple(records),
                     memory_inserted=tuple(inserted),
                 )
             final_error = error
+            if error_category == "insufficient_balance":
+                raise BudgetExceeded("DeepSeek API reported insufficient balance (HTTP 402); stopping immediately")
+            if not retryable or attempt + 1 >= max_attempts:
+                break
+            delay = retry_delay(
+                attempt,
+                base_s=self.config.runtime.retry_base_s,
+                max_s=self.config.runtime.retry_max_s,
+                jitter_s=self.config.runtime.retry_jitter_s,
+                logical_id=logical_id,
+                retry_after_s=backend_response.retry_after_s,
+            )
+            if delay > 0:
+                await asyncio.sleep(delay)
 
         return SolveResult(
             agent_id=agent.agent_id,
@@ -277,6 +558,16 @@ class ExperimentRunner:
     ) -> dict[str, Any]:
         """Evaluate frozen snapshots; this function never calls ``observe``."""
         memory_before = {agent.agent_id: tuple(agent.memory) for agent in self.agents}
+        snapshot_payload = {
+            agent_id: [experience.prompt_dict() for experience in memory]
+            for agent_id, memory in memory_before.items()
+        }
+        snapshot_hash = stable_hash(json.dumps(snapshot_payload, sort_keys=True, separators=(",", ":")))
+        if self.journal is not None:
+            previous_snapshot = self.journal.snapshot(checkpoint)
+            if previous_snapshot is not None and previous_snapshot[0] != snapshot_hash:
+                raise ValueError(f"Checkpoint {checkpoint} memory snapshot hash mismatch; refusing to resume")
+            self.journal.record_snapshot(checkpoint, snapshot_hash, snapshot_payload)
         progress = _ConsoleProgress(
             f"CHECKPOINT {checkpoint}: probe evaluation",
             len(probes) * len(self.agents),
@@ -309,6 +600,15 @@ class ExperimentRunner:
         self._log_inferences(logger, flat_results)
         if any(tuple(agent.memory) != memory_before[agent.agent_id] for agent in self.agents):
             raise AssertionError("Probe evaluation mutated an agent memory")
+        if any(result.response is None for result in flat_results):
+            logger.event(
+                "checkpoint_incomplete",
+                {
+                    "checkpoint": checkpoint,
+                    "missing_agents": [result.agent_id for result in flat_results if result.response is None],
+                },
+            )
+            raise IncompleteLogicalWork(f"Checkpoint {checkpoint} has missing logical probe completions")
 
         by_probe: list[list[SolveResult]] = [
             flat_results[index * len(self.agents) : (index + 1) * len(self.agents)]
@@ -319,6 +619,8 @@ class ExperimentRunner:
         probe_routing: list[str | None] = []
         for probe_index, (task, results) in enumerate(zip(probes, by_probe)):
             valid = [result.response for result in results if result.response is not None]
+            if len(valid) != len(results):
+                raise IncompleteLogicalWork(f"Checkpoint {checkpoint} has missing logical probe completions")
             probe_routing.append(self.router.deterministic_probe_choice(valid))
             for agent_index, result in enumerate(results):
                 response = result.response
@@ -400,9 +702,11 @@ class ExperimentRunner:
             {
                 "checkpoint": checkpoint,
                 "probe_set_hash": probe_set_hash,
+                "memory_snapshot_hash": snapshot_hash,
                 "memory_counts": {agent.agent_id: len(agent.memory) for agent in self.agents},
             },
         )
+        self._completed_checkpoints.add(checkpoint)
         self.last_metrics = payload
         return payload
 
@@ -457,13 +761,22 @@ class ExperimentRunner:
 
     async def run(self) -> Path:
         probes, probe_set_hash = load_probe_set(self.config.logging.probe_set_path)
-        timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-        run_id = (
-            f"{self.config.condition.memory_mode}-seed{self.config.experiment.seed}-{timestamp}-{uuid.uuid4().hex[:8]}"
-        )
-        logger = RunLogger(self.config.logging.output_dir, run_id)
-        logger.write_metadata(
-            {
+        if self.resume_dir is not None:
+            run_id = self.resume_dir.name
+            logger = RunLogger(self.resume_dir.parent, run_id, resume=True)
+            self._open_journal(logger)
+            existing_metadata = json.loads((logger.run_dir / "metadata.json").read_text(encoding="utf-8"))
+            if existing_metadata.get("probe_set_hash") != probe_set_hash:
+                raise ValueError("Resume probe-set hash mismatch; refusing to continue")
+        else:
+            timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+            run_id = (
+                f"{self.config.condition.memory_mode}-seed{self.config.experiment.seed}-{timestamp}-{uuid.uuid4().hex[:8]}"
+            )
+            logger = RunLogger(self.config.logging.output_dir, run_id)
+            self._open_journal(logger)
+            logger.write_metadata(
+                {
                 "config": self.config.as_dict(),
                 "probe_set_hash": probe_set_hash,
                 "effective_rng_seeds": {
@@ -486,45 +799,61 @@ class ExperimentRunner:
                     "probe_generation": "recorded in data/probe_set.json",
                 },
                 "backend": self.backend.metadata(),
+                "execution_policy": {
+                    "interaction_concurrency": self.config.effective_interaction_concurrency,
+                    "probe_concurrency": self.config.effective_probe_concurrency,
+                    "max_attempts_per_logical_completion": (
+                        self.config.runtime.max_attempts_per_logical_completion
+                        or self.config.experiment.technical_retries + 1
+                    ),
+                    "max_physical_attempts": self.config.runtime.max_physical_attempts,
+                    "max_cost_usd": self.config.runtime.max_cost_usd,
+                    "retry_base_s": self.config.runtime.retry_base_s,
+                    "retry_max_s": self.config.runtime.retry_max_s,
+                    "retry_jitter_s": self.config.runtime.retry_jitter_s,
+                },
                 "scientific_controls": {
                     "agent_ids_are_host_side_only": True,
                     "same_system_prompt": True,
                     "empty_initial_memory": not bool(self.config.initial_conditions.experiences),
                     "initial_condition_count": len(self.config.initial_conditions.experiences),
-                    "provider_session_independent": self.config.agent.backend == "omp",
+                    "provider_session_independent": self.config.agent.backend in {"omp", "deepseek_direct"},
                     "probe_updates_memory": False,
                     "hidden_rules_in_model_prompt": False,
                     "feedback_policy": self.config.effective_feedback.as_label(),
                 },
-            }
-        )
-        logger.event(
-            "run_started",
-            {
-                "run_id": run_id,
-                "seed": self.config.experiment.seed,
-                "condition": self.config.condition.memory_mode,
-                "num_agents": len(self.agents),
-                "num_rounds": self.config.experiment.num_rounds,
-            },
-        )
-        if self.config.initial_conditions.experiences:
+                }
+            )
             logger.event(
-                "initial_condition",
+                "run_started",
                 {
-                    "experiences": [
-                        {"agent": agent.agent_id, **experience.prompt_dict()}
-                        for agent in self.agents
-                        for experience in agent.memory
-                    ]
+                    "run_id": run_id,
+                    "seed": self.config.experiment.seed,
+                    "condition": self.config.condition.memory_mode,
+                    "num_agents": len(self.agents),
+                    "num_rounds": self.config.experiment.num_rounds,
                 },
             )
+            if self.config.initial_conditions.experiences:
+                logger.event(
+                    "initial_condition",
+                    {
+                        "experiences": [
+                            {"agent": agent.agent_id, **experience.prompt_dict()}
+                            for agent in self.agents
+                            for experience in agent.memory
+                        ]
+                    },
+                )
+        self.run_id = run_id
         try:
             if self.config.experiment.console_summary:
                 nominal_interactions = self.config.experiment.num_rounds * len(self.agents)
                 nominal_probes = len(self.config.experiment.checkpoints) * len(probes) * len(self.agents)
                 nominal_total = nominal_interactions + nominal_probes
                 max_total = nominal_total * (self.config.experiment.technical_retries + 1)
+                if self.config.runtime.max_physical_attempts is not None:
+                    max_total = min(max_total, self.config.runtime.max_physical_attempts)
                 print("\nEXPERIMENT PLAN")
                 print(f"model: {self.config.agent.model} | condition: {self.config.condition.memory_mode}")
                 print(
@@ -535,11 +864,13 @@ class ExperimentRunner:
                     f"retry ceiling: {max_total} physical completions "
                     f"(technical_retries={self.config.experiment.technical_retries})"
                 )
-            if 0 in self.config.experiment.checkpoints:
+            if 0 in self.config.experiment.checkpoints and not self._checkpoint_completed(0):
                 await self._evaluate_checkpoint(
                     checkpoint=0, probes=probes, probe_set_hash=probe_set_hash, logger=logger
                 )
             for round_id in range(1, self.config.experiment.num_rounds + 1):
+                if round_id in self._completed_rounds:
+                    continue
                 self._apply_scheduled_interventions(round_id, logger)
                 task = self.environment.sample_task(self.task_rng, task_id=f"round-{round_id}")
                 memory_counts_before = {agent.agent_id: len(agent.memory) for agent in self.agents}
@@ -566,16 +897,16 @@ class ExperimentRunner:
                 )
                 self._log_inferences(logger, results)
                 valid = [result.response for result in results if result.response is not None]
-                if not valid:
+                if len(valid) != len(results):
                     logger.event(
-                        "round_failed",
+                        "round_incomplete",
                         {
                             "round": round_id,
                             "task": task.experimenter_dict(),
                             "candidate_errors": {result.agent_id: result.error for result in results},
                         },
                     )
-                    raise RuntimeError(f"Round {round_id}: no valid model response; no answer was invented")
+                    raise IncompleteLogicalWork(f"Round {round_id} has missing logical completions")
                 decision: RouterDecision = self.router.select(valid, self.router_rng)
                 selected = next(response for response in valid if response.agent_id == decision.selected_agent_id)
                 experience, recipients = self._distribute_feedback(selected, task, round_id)
@@ -600,13 +931,17 @@ class ExperimentRunner:
                     "feedback_recipients": recipients,
                 }
                 logger.event("round_complete", round_payload)
+                if self.journal is not None:
+                    self.journal.record_round_commit(round_id, round_payload)
+                self._completed_rounds.add(round_id)
                 self.route_history.append({"world": task.world, "selected_agent_id": selected.agent_id})
                 if self.config.experiment.console_summary:
                     self._print_round(round_id, task, results, memory_counts_before, selected, recipients)
-                if round_id in self.config.experiment.checkpoints:
+                if round_id in self.config.experiment.checkpoints and not self._checkpoint_completed(round_id):
                     await self._evaluate_checkpoint(
                         checkpoint=round_id, probes=probes, probe_set_hash=probe_set_hash, logger=logger
                     )
+                    self._completed_checkpoints.add(round_id)
             summary = {
                 "run_id": run_id,
                 "status": "completed",
@@ -615,6 +950,8 @@ class ExperimentRunner:
                 "memory_counts": {agent.agent_id: len(agent.memory) for agent in self.agents},
                 "routing_counts": dict(Counter(item["selected_agent_id"] for item in self.route_history)),
                 "final_metrics": self.last_metrics,
+                "physical_attempts": self._physical_attempts,
+                "observed_cost_usd": self._observed_cost_usd if self._observed_cost_usd else None,
                 "usage": summarize_usage(
                     self.token_usages,
                     currency=self.config.cost.currency,
@@ -624,17 +961,26 @@ class ExperimentRunner:
                 ),
             }
             logger.write_summary(summary)
+            if self.journal is not None:
+                self.journal.set_state("status", "completed")
+                self.journal.close()
+            close = getattr(self.backend, "close", None)
+            if callable(close):
+                result = close()
+                if hasattr(result, "__await__"):
+                    await result
             if self.config.experiment.console_summary:
                 self._print_final_summary(summary)
             return logger.run_dir
-        except Exception as exc:
-            logger.event("run_failed", {"error": f"{type(exc).__name__}: {exc}"})
+        except KeyboardInterrupt:
+            logger.event("run_interrupted", {"completed_logical": self.journal.completed_count() if self.journal else None})
             logger.write_summary(
                 {
                     "run_id": run_id,
-                    "status": "failed",
-                    "error": f"{type(exc).__name__}: {exc}",
+                    "status": "interrupted",
                     "memory_counts": {agent.agent_id: len(agent.memory) for agent in self.agents},
+                    "physical_attempts": self._physical_attempts,
+                    "observed_cost_usd": self._observed_cost_usd if self._observed_cost_usd else None,
                     "usage": summarize_usage(
                         self.token_usages,
                         currency=self.config.cost.currency,
@@ -644,6 +990,32 @@ class ExperimentRunner:
                     ),
                 }
             )
+            if self.journal is not None:
+                self.journal.set_state("status", "interrupted")
+                self.journal.close()
+            raise
+        except Exception as exc:
+            logger.event("run_failed", {"error": f"{type(exc).__name__}: {exc}"})
+            logger.write_summary(
+                {
+                    "run_id": run_id,
+                    "status": "failed",
+                    "error": f"{type(exc).__name__}: {exc}",
+                    "memory_counts": {agent.agent_id: len(agent.memory) for agent in self.agents},
+                    "physical_attempts": self._physical_attempts,
+                    "observed_cost_usd": self._observed_cost_usd if self._observed_cost_usd else None,
+                    "usage": summarize_usage(
+                        self.token_usages,
+                        currency=self.config.cost.currency,
+                        input_per_million_tokens=self.config.cost.input_per_million_tokens,
+                        cached_input_per_million_tokens=self.config.cost.cached_input_per_million_tokens,
+                        output_per_million_tokens=self.config.cost.output_per_million_tokens,
+                    ),
+                }
+            )
+            if self.journal is not None:
+                self.journal.set_state("status", "failed")
+                self.journal.close()
             raise
 
     @staticmethod
@@ -653,6 +1025,8 @@ class ExperimentRunner:
         print(f"run: {summary['run_id']}")
         print(f"routing counts: {json.dumps(summary['routing_counts'], sort_keys=True)}")
         print(f"memory counts: {json.dumps(summary['memory_counts'], sort_keys=True)}")
+        if summary.get("observed_cost_usd") is not None:
+            print(f"observed cost estimate: ${summary['observed_cost_usd']:.8f}")
         usage = summary.get("usage") or {}
         if usage.get("status") == "provider_reported":
             print(f"provider-reported cost: {usage['reported_cost']:.8f} (OMP currency unit)")
@@ -669,8 +1043,10 @@ class ExperimentRunner:
 
 def build_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run the emergent-specialization experiment.")
-    parser.add_argument("--config", required=True, help="YAML config path")
+    parser.add_argument("--config", help="YAML config path")
+    parser.add_argument("--resume", help="Existing run directory to resume in place")
     parser.add_argument("--dry-run", action="store_true", help="Use deterministic MockBackend; no model calls")
+    parser.add_argument("--confirm-real", action="store_true", help="Required acknowledgement for direct real inference")
     parser.add_argument("--num-rounds", type=int, help="Override number of interaction rounds")
     parser.add_argument("--seed", type=int, help="Override experiment/task/router seed")
     parser.add_argument("--output-dir", help="Override the parent directory for a run")
@@ -685,13 +1061,52 @@ def build_argument_parser() -> argparse.ArgumentParser:
 
 async def async_main(argv: Iterable[str] | None = None) -> Path:
     args = build_argument_parser().parse_args(list(argv) if argv is not None else None)
-    config = load_config(args.config).overridden(
-        num_rounds=args.num_rounds,
-        seed=args.seed,
-        output_dir=args.output_dir,
-        backend="mock" if args.dry_run else None,
-    )
-    run_dir = await ExperimentRunner(config).run()
+    if bool(args.config) == bool(args.resume):
+        raise SystemExit("exactly one of --config or --resume is required")
+    if args.resume and any(value is not None for value in (args.num_rounds, args.seed, args.output_dir)):
+        raise SystemExit("--resume cannot be combined with --num-rounds, --seed, or --output-dir")
+    if args.resume:
+        resume_dir = Path(args.resume).expanduser().resolve()
+        metadata = json.loads((resume_dir / "metadata.json").read_text(encoding="utf-8"))
+        raw_config = metadata.get("config")
+        if not isinstance(raw_config, dict):
+            raise SystemExit("resume metadata has no immutable config")
+        config = config_from_mapping(
+            raw_config,
+            source_path=raw_config.get("source_path"),
+            source_hash=raw_config.get("source_hash"),
+        )
+        if metadata.get("config", {}).get("source_hash") != config.source_hash:
+            raise SystemExit("resume config hash is invalid")
+        summary_path = resume_dir / "summary.json"
+        from .health import run_health
+
+        health = run_health(resume_dir)
+        print(
+            f"RESUME PLAN: expected={health['expected_logical_completions']} "
+            f"complete={health['successful_logical_completions']} "
+            f"missing={health['missing_logical_completions']} "
+            f"physical_attempts={health['physical_attempts']} "
+            f"observed_cost_usd={health.get('observed_cost_usd')}"
+        )
+        if summary_path.exists():
+            if health["status"] == "completed" and health["missing_logical_completions"] == 0:
+                print(f"Resume is already complete; 0 API calls: {resume_dir}")
+                return resume_dir
+        if config.agent.backend == "deepseek_direct" and not args.confirm_real:
+            raise SystemExit("resuming direct real inference requires --confirm-real")
+        runner = ExperimentRunner(config, resume_dir=resume_dir)
+        run_dir = await runner.run()
+    else:
+        config = load_config(args.config).overridden(
+            num_rounds=args.num_rounds,
+            seed=args.seed,
+            output_dir=args.output_dir,
+            backend="mock" if args.dry_run else None,
+        )
+        if config.agent.backend == "deepseek_direct" and not args.dry_run and not args.confirm_real:
+            raise SystemExit("direct real inference requires --confirm-real")
+        run_dir = await ExperimentRunner(config).run()
     print(f"Raw events and metrics: {run_dir}")
     if args.report:
         from .reporting import generate_run_report

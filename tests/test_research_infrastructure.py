@@ -40,6 +40,7 @@ from emergent_specialization.metrics.permutation import (
 )
 from emergent_specialization.probes import generate_probe_payload, write_probe_set
 from emergent_specialization.providers.mock import MockBackend
+from emergent_specialization.models import BackendResponse
 
 
 class CheckpointAndFeedbackTests(unittest.TestCase):
@@ -206,6 +207,13 @@ class OnlineAndBatchTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             run_batch(rows[:1], output_root=root / "data" / "runs" / "replication")
 
+    def test_direct_replication_plan_uses_nominal_560_and_hard_700_ceiling(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        config = load_config(root / "configs" / "research" / "replication_private.yaml")
+        counts = nominal_call_counts(config, 40)
+        self.assertEqual(counts["nominal_calls"], 560)
+        self.assertEqual(counts["max_physical_calls"], 700)
+
     def test_mock_paired_seed_has_expected_artifacts_and_different_feedback_recipients(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -234,6 +242,85 @@ class OnlineAndBatchTests(unittest.TestCase):
             for run_dir in (private_dir, shared_dir):
                 for filename in ("metadata.json", "events.jsonl", "metrics.jsonl", "summary.json"):
                     self.assertTrue((run_dir / filename).is_file())
+
+    def test_resume_reuses_completed_logical_interaction_and_is_idempotent(self) -> None:
+        class FailFirstBackend(MockBackend):
+            def __init__(self) -> None:
+                self.calls = 0
+
+            async def complete(self, **kwargs: object) -> BackendResponse:
+                self.calls += 1
+                if self.calls == 1:
+                    return BackendResponse(raw_response=None, latency_s=0.0, error="synthetic failure", retryable=False)
+                return await super().complete(**kwargs)  # type: ignore[arg-type]
+
+        class CountingBackend(MockBackend):
+            def __init__(self) -> None:
+                self.calls = 0
+
+            async def complete(self, **kwargs: object) -> BackendResponse:
+                self.calls += 1
+                return await super().complete(**kwargs)  # type: ignore[arg-type]
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            probes = root / "probes.json"
+            write_probe_set(probes, generate_probe_payload(HiddenWorldEnvironment(), per_world=1))
+            config = RunConfig(
+                experiment=ExperimentSettings(num_agents=2, num_rounds=1, checkpoints=(), technical_retries=0, console_summary=False),
+                agent=AgentSettings(backend="mock"),
+                condition=ConditionSettings(memory_mode="private"),
+                logging=LoggingSettings(output_dir=str(root / "runs"), probe_set_path=str(probes)),
+            )
+            first = FailFirstBackend()
+            with self.assertRaises(RuntimeError):
+                asyncio.run(ExperimentRunner(config, backend=first).run())
+            run_dir = next((root / "runs").iterdir())
+            recovery = CountingBackend()
+            asyncio.run(ExperimentRunner(config, backend=recovery, resume_dir=run_dir).run())
+            self.assertEqual(recovery.calls, 1)
+            repeated = CountingBackend()
+            asyncio.run(ExperimentRunner(config, backend=repeated, resume_dir=run_dir).run())
+            self.assertEqual(repeated.calls, 0)
+
+    def test_retryable_physical_attempt_is_recorded_and_recovered(self) -> None:
+        class RetryOnceBackend(MockBackend):
+            def __init__(self) -> None:
+                self.calls = 0
+
+            async def complete(self, **kwargs: object) -> BackendResponse:
+                self.calls += 1
+                if self.calls == 1:
+                    return BackendResponse(
+                        raw_response=None,
+                        latency_s=0.0,
+                        error="synthetic rate limit",
+                        error_category="rate_limit",
+                        retryable=True,
+                        http_status=429,
+                        retry_after_s=0.0,
+                    )
+                return await super().complete(**kwargs)  # type: ignore[arg-type]
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            probes = root / "probes.json"
+            write_probe_set(probes, generate_probe_payload(HiddenWorldEnvironment(), per_world=1))
+            config = RunConfig(
+                experiment=ExperimentSettings(
+                    num_agents=2, num_rounds=1, checkpoints=(), technical_retries=1,
+                    console_summary=False,
+                ),
+                agent=AgentSettings(backend="mock"),
+                condition=ConditionSettings(memory_mode="private"),
+                logging=LoggingSettings(output_dir=str(root / "runs"), probe_set_path=str(probes)),
+            )
+            backend = RetryOnceBackend()
+            run_dir = asyncio.run(ExperimentRunner(config, backend=backend).run())
+            events = [json.loads(line) for line in (run_dir / "events.jsonl").read_text().splitlines()]
+            attempts = [event for event in events if event["event"] == "inference"]
+            self.assertEqual(len(attempts), 3)
+            self.assertEqual(sum(event.get("attempt", 0) for event in attempts), 1)
 
     def test_aggregate_exposes_paired_delta_hse_field(self) -> None:
         root = Path(__file__).resolve().parents[1]
