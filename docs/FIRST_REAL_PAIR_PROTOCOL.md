@@ -23,11 +23,13 @@ describes the existing baseline; it does not change the experiment dynamics.
 | Interaction rounds | 20 |
 | Checkpoints | 0, 10, 20 |
 | Fixed probes | 40 per checkpoint |
-| Model | `deepseek/deepseek-v4-flash` |
-| Backend | OMP through the Bitwarden launcher |
+| Model | `deepseek-v4-flash` |
+| Backend | Official DeepSeek API through `DeepSeekDirectBackend` |
 | Memory | Python-owned `recent_k=8` |
 | Router | confidence, `epsilon=0` |
-| Retries | `technical_retries=1` |
+| Retries | `technical_retries=1`, max 2 attempts/logical completion |
+| Physical guard | 700 attempts/run |
+| Cost guard | USD 0.50/run (usage-based estimate) |
 
 The only intended condition difference is feedback locality:
 
@@ -53,8 +55,8 @@ The first question after each run is infrastructure, not HSE:
 
 - `healthy`: 100% logical completion coverage, no retries/errors, complete
   usage metadata;
-- `warning`: 100% logical coverage but recovered retries/errors or partial
-  usage;
+- `healthy_recovered`: 100% logical coverage but recovered retries/errors or
+  partial usage;
 - `invalid`: one or more logical completions are missing, or the run status is
   incomplete/failed.
 
@@ -93,22 +95,41 @@ uv run python -m emergent_specialization.batch \
   --plan --only-seed 1 --json
 ```
 
+The direct backend reads `emergence-specialization.deepseek` / `api` from the
+macOS Keychain. Register it once with:
+
+```bash
+uv run python -m emergent_specialization.credentials store
+uv run python -m emergent_specialization.credentials status
+```
+
 Run PRIVATE seed 1 manually:
 
 ```bash
-./scripts/run-deepseek-experiment.sh \
+uv run python -m emergent_specialization.experiment \
   --config configs/research/replication_private.yaml \
   --seed 1 \
-  --output-dir data/runs/replication
+  --output-dir data/runs/replication \
+  --confirm-real
 ```
 
 Run SHARED seed 1 manually, only after the PRIVATE health check:
 
 ```bash
-./scripts/run-deepseek-experiment.sh \
+uv run python -m emergent_specialization.experiment \
   --config configs/research/replication_shared.yaml \
   --seed 1 \
-  --output-dir data/runs/replication
+  --output-dir data/runs/replication \
+  --confirm-real
+```
+
+If a direct run is interrupted, resume the same directory (never start a new
+run or repeat completed logical completions):
+
+```bash
+uv run python -m emergent_specialization.experiment \
+  --resume data/runs/replication/<run-id> \
+  --confirm-real
 ```
 
 Health after each run:

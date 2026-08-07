@@ -11,16 +11,16 @@ flowchart TD
   P --> R["Confidence router"]
   P --> M["Explicit agent memories"]
   P --> Q["Fixed probes, metrics, JSONL logs"]
-  P --> O["OMP JSONL/RPC adapter"]
-  O --> A0["DeepSeek Flash copy 0"]
-  O --> A1["DeepSeek Flash copy 1"]
-  O --> AN["DeepSeek Flash copies 2–3"]
+  P --> O["DeepSeekDirectBackend"]
+  O --> A0["Official DeepSeek API"]
 ```
 
 Codex is the development agent for this repository; it is not an experimental
-agent. OMP is only an inference harness for copies of
-`deepseek/deepseek-v4-flash`. Python owns identities, sampling, hidden rules,
-routing, feedback, memory, checkpoints, random seeds, and all measurements.
+agent. New replication runs use the official DeepSeek API through one
+long-lived OpenAI-compatible client. Python owns identities, sampling, hidden
+rules, routing, feedback, memory, checkpoints, random seeds, and all
+measurements. OMP remains a legacy/historical adapter for reading and auditing
+the exploratory pilots; it is not the primary replication backend.
 
 ## Setup
 
@@ -39,16 +39,10 @@ Install the optional notebook/report stack when you want visual analysis:
 uv sync --group report
 ```
 
-Check the installed OMP without printing credentials:
-
-```bash
-command -v omp
-omp --version
-omp --help
-```
-
 The requested model ID is declared in every real-run config. The harness never
-silently substitutes another model.
+silently substitutes another model. Direct replication credentials are kept in
+macOS Keychain through `keyring`; they are not read from `.env`, shell startup
+files, YAML, or command-line arguments.
 
 ## Run and test
 
@@ -64,16 +58,16 @@ make pilot-private
 make report RUN=data/runs/<run-id>
 ```
 
-O alvo `pilot-private` é o primeiro piloto científico real. O alvo shared tem
-uma confirmação explícita para evitar uma execução acidental:
+Os alvos antigos `pilot-private`/`pilot-shared` são preservados para reproduzir
+os pilotos OMP históricos. A primeira nova réplica deve usar os configs em
+`configs/research/` e a API direta, com confirmação explícita:
 
 ```bash
 make pilot-shared CONFIRM=YES
 ```
 
-Os alvos `smoke-real`, `pilot-private` e `pilot-shared` fazem chamadas reais e
-pedem autenticação pelo launcher quando necessário. `make test` e
-`make smoke-dry` não fazem chamadas de modelo.
+Os atalhos que fazem inferência real continuam explicitamente marcados; `make
+test` e `make smoke-dry` não fazem chamadas de modelo.
 
 Run the automated test suite (it never contacts DeepSeek):
 
@@ -88,17 +82,10 @@ calls:
 uv run python -m emergent_specialization.experiment --config configs/pilot_private.yaml --dry-run
 ```
 
-After confirming the local OMP runtime and model availability, run a 20-round
-pilot under private feedback:
+For a no-call local validation, run the deterministic fake backend:
 
 ```bash
-uv run python -m emergent_specialization.experiment --config configs/pilot_private.yaml
-```
-
-The shared-memory control is identical except for its feedback condition:
-
-```bash
-uv run python -m emergent_specialization.experiment --config configs/pilot_shared.yaml
+uv run python -m emergent_specialization.experiment --config configs/pilot_private.yaml --dry-run
 ```
 
 The first new matched seed-1 pair is prepared, but intentionally not launched
@@ -106,9 +93,10 @@ by this repository session. See [the pair protocol](docs/FIRST_REAL_PAIR_PROTOCO
 and [the readiness report](docs/FIRST_PAIR_READINESS_REPORT.md) for the health
 gate, exact commands, call accounting, and offline mock validation.
 
-The 20-round pilots make **400** DeepSeek calls each: 20 interaction rounds ×
-4 agents (80), plus 40 fixed probes × 4 agents at checkpoints 0 and 20 (320).
-They are intentionally not launched automatically.
+The new replication configs make **560 nominal** DeepSeek completions each: 80
+interaction calls plus 160 probe calls at each of checkpoints 0, 10, and 20.
+They have a hard ceiling of 700 physical attempts and a declarative USD 0.50
+per-run cost guard. They are intentionally not launched automatically.
 
 Real runs print an experiment plan, live completion counts for each probe
 checkpoint, and a progress line before each interaction round. The progress
@@ -119,24 +107,28 @@ counter.
 
 Use `--num-rounds 10` and `--seed 2` for non-persistent overrides.
 
-### DeepSeek through the local Bitwarden CLI
+### Direct DeepSeek API and secure credentials
 
-When DeepSeek credentials are supplied by the local Bitwarden CLI, run a real
-experiment through the repository launcher rather than setting
-`omp_executable` to a credential-fetching OMP wrapper. The experiment starts a
-fresh OMP process for every completion, so a wrapper at that boundary would
-query Bitwarden once per call.
+The new backend reads the API key once from macOS Keychain and keeps it only in
+the Python process memory. Register/check/delete it with:
 
 ```bash
-scripts/run-deepseek-experiment.sh --config configs/smoke_real_private.yaml
+uv run python -m emergent_specialization.credentials store
+uv run python -m emergent_specialization.credentials status
+uv run python -m emergent_specialization.credentials delete
 ```
 
-The launcher obtains exactly one Bitwarden item named `DeepSeek API`, syncs the
-vault, retrieves its Password, locks Bitwarden before starting Python, and then
-passes only `DEEPSEEK_API_KEY` to the experiment process tree for that one
-execution. It never writes a key to a file or passes `BW_SESSION` to Python or
-OMP. The smoke config is intentionally two rounds with no checkpoints, so it
-is an integration check rather than a scientific pilot.
+Offline direct validation (no model call, no Keychain lookup) is:
+
+```bash
+uv run python -m emergent_specialization.deepseek_doctor
+uv run python -m emergent_specialization.benchmark.deepseek \
+  --concurrency 4,8,16,32 --jobs-per-level 32
+```
+
+The opt-in real doctor and benchmark require `--confirm-real`; neither changes
+scientific state. The old Bitwarden launcher and OMP smoke remain available for
+historical compatibility, but should not be used for the new replication pair.
 
 ## Experimental controls
 
@@ -145,21 +137,18 @@ is an integration check rather than a scientific pilot.
   inserted into model prompts.
 - The four modular rules are environment-only. Prompts provide only an opaque
   world label, `x`, `y`, and answer choices.
-- Every OMP completion starts a new process using `--mode rpc --no-session`.
-  The adapter also passes `--no-tools --no-skills --no-rules --no-extensions
-  --no-lsp --no-pty`. Thus OMP conversation history, compaction, tools, and
-  project memory do not act as scientific memory.
+- Direct completions use a stateless request containing the system prompt,
+  Python-controlled memory, and current task on every call. The historical OMP
+  adapter still starts restricted `--mode rpc --no-session` processes and keeps
+  its isolation metadata, so old artifacts remain auditable.
 - The only model-visible history is an explicit list of selected feedback
   experiences. The baseline uses `recent_k: 8`, giving every agent the same
   context budget. Probe evaluation receives frozen snapshots and cannot update
   memory.
-- OMP 17.2.10 documents model and thinking controls in its CLI/RPC interface,
-  but not temperature, top-p, or max-tokens controls. Those fields are logged
-  as experimental intent and are not falsely claimed as enforced by OMP.
-- A no-prompt local OMP smoke test did emit an `autoresearch` extension UI
-  widget even with `--no-extensions`. It is not a model tool under
-  `--no-tools`, but should be audited or disabled in the OMP installation
-  before treating a real run as a completely feature-free baseline.
+- The direct V4 request explicitly sets JSON Output, `stream=false`, and
+  `thinking=disabled`; SDK retries are disabled and retries are owned by the
+  runtime. The provider does not expose a documented sampling seed for this
+  model, which is recorded as unavailable in metadata.
 
 ## Outputs
 
@@ -174,11 +163,11 @@ Each run creates `data/runs/<run-id>/` containing:
 
 ### Token usage and cost accounting
 
-The OMP adapter records a provider usage payload when an RPC frame exposes one.
-If OMP does not expose usage, the run summary explicitly reports
-`status: unavailable`; the harness never estimates tokens from characters or
-silently invents a monetary total. Monetary values are estimates based on rates
-you provide in the YAML config, expressed per million tokens:
+The direct adapter records provider usage, cache hit/miss fields, provider IDs,
+system fingerprint, latency, retry category, and local usage-based cost per
+physical attempt. If usage is missing, the run summary marks it partial or
+unavailable; it never estimates tokens from characters. Monetary values are
+estimates based on rates in the YAML config, expressed per million tokens:
 
 ```yaml
 cost:
@@ -188,15 +177,13 @@ cost:
   output_per_million_tokens: null
 ```
 
-Set rates from the provider's current billing page for the exact model and
-account before treating `summary.json`'s `estimated_cost` as meaningful. Raw
-usage remains attached to each inference event, while the run-level `usage`
-object reports coverage, totals, pricing, and an explicit status such as
-`provider_reported`, `estimated`, `pricing_not_configured`, or `unavailable`.
-OMP 17.2.10 currently emits `input`, `output`, `cacheRead`, `totalTokens`, and
-`cost.total`; these are preserved and aggregated as `reported_cost` when all
-calls provide them. OMP does not include a currency code in that payload, so
-the report labels the amount as an OMP provider-reported currency unit.
+The replication configs contain the current DeepSeek V4 Flash pricing snapshot
+and record it in the run manifest. Reconfirm pricing before a future study.
+Raw usage remains attached to each attempt, while the run-level `usage` object
+reports coverage, cache ratio, totals, pricing, and an explicit status such as
+`estimated`, `partial_usage`, `pricing_not_configured`, or `unavailable`.
+Historical OMP usage remains supported when its RPC frames expose it, but is
+not mixed with direct-backend provenance.
 
 Raw JSONL is the scientific record. It intentionally stores tasks, the exact
 memory inserted into each prompt, prompt hashes, raw responses, parsed values,
