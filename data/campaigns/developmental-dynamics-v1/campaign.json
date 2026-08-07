@@ -2,10 +2,10 @@
   "budget": {
     "hard_observed_cost_cap_usd": 7.5,
     "observed_campaign_cost_usd": 0.0,
-    "physical_attempt_ceiling": 296400
+    "physical_attempt_ceiling": 295000
   },
   "campaign_id": "developmental-dynamics-v1",
-  "created_at_utc": "2026-08-07T22:26:41.611767+00:00",
+  "created_at_utc": "2026-08-07T22:28:01.211170+00:00",
   "credential_source": "keychain",
   "existing_runs_reused": [
     {
@@ -5552,7 +5552,7 @@
       ]
     }
   },
-  "starting_git_head": "0794a190a50ca67be1427e5dcd25addb7e8712cc",
+  "starting_git_head": "2b31625370b9143f66c35eefeb369d8d8c96937f",
   "state": {
     "completed_runs": 2,
     "current_index": 0,
