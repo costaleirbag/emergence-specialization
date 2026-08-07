@@ -12,7 +12,9 @@ from typing import Any, Iterable
 from .analysis import load_run
 
 
-def _classify_error(value: object) -> str:
+def _classify_error(value: object, category: object = None) -> str:
+    if category in {"rate_limit", "server_error", "overloaded", "transient_transport", "empty_content", "parse_error"}:
+        return str(category)
     text = str(value or "").lower()
     if "timeout" in text:
         return "timeout"
@@ -60,7 +62,11 @@ def run_health(run_dir: str | Path) -> dict[str, Any]:
         )
         grouped.setdefault(key, []).append(event)
     successful_logical = sum(any(event.get("error") is None for event in attempts) for attempts in grouped.values())
-    errors = Counter(_classify_error(event.get("error")) for event in inferences if event.get("error"))
+    errors = Counter(
+        _classify_error(event.get("error"), event.get("error_category"))
+        for event in inferences
+        if event.get("error")
+    )
     retries = sum(max(0, int(event.get("attempt", 0))) for event in inferences)
     latencies = [float(event["latency_s"]) for event in inferences if isinstance(event.get("latency_s"), (int, float))]
     usage_calls = sum(isinstance(event.get("token_usage"), dict) and bool(event.get("token_usage")) for event in inferences)
@@ -95,9 +101,12 @@ def run_health(run_dir: str | Path) -> dict[str, Any]:
         "missing_logical_completions": max(0, expected - successful_logical),
         "physical_attempts": len(inferences),
         "retries": retries,
-        "timeout_count": errors["timeout"],
+        "timeout_count": errors["timeout"] + errors["transient_transport"],
         "parse_error_count": errors["parse_error"],
-        "other_error_count": errors["other_error"],
+        "rate_limit_count": errors["rate_limit"],
+        "server_error_count": errors["server_error"] + errors["overloaded"],
+        "empty_content_count": errors["empty_content"],
+        "other_error_count": errors["other_error"] + errors["provider_error"],
         "completion_coverage": coverage,
         "usage_calls": usage_calls,
         "usage_coverage": usage_coverage,
