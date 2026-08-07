@@ -147,6 +147,8 @@
       "new_paired_seeds": 9,
       "new_runs": 18,
       "nominal_logical_completions": 10080,
+      "observed_cost_usd": 0.30014931519999993,
+      "physical_attempts": 10122,
       "planned_paired_seeds": 10,
       "requires_human_confirmation": true,
       "reused_runs": 2,
@@ -162,7 +164,7 @@
         9,
         10
       ],
-      "status": "planned",
+      "status": "complete",
       "target_total_paired_seeds": 10
     },
     "gate_2_replication": {
@@ -282,7 +284,7 @@
       "config_hash": "579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "config_path": "configs/research/replication_private.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:2:private:579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -290,17 +292,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/private-seed2-20260807T225104Z-be3237c7",
       "seed": 2,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "shared",
       "config_hash": "6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "config_path": "configs/research/replication_shared.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy",
       "identity": "developmental-dynamics-v1:staged-v2:A:2:shared:6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -308,17 +310,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/shared-seed2-20260807T225200Z-8c133849",
       "seed": 2,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "private",
       "config_hash": "579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "config_path": "configs/research/replication_private.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:3:private:579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -326,17 +328,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/private-seed3-20260807T225257Z-05e28374",
       "seed": 3,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "shared",
       "config_hash": "6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "config_path": "configs/research/replication_shared.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:3:shared:6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -344,17 +346,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/shared-seed3-20260807T225359Z-56170c8d",
       "seed": 3,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "private",
       "config_hash": "579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "config_path": "configs/research/replication_private.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:4:private:579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -362,17 +364,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/private-seed4-20260807T230309Z-a096164c",
       "seed": 4,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "shared",
       "config_hash": "6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "config_path": "configs/research/replication_shared.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:4:shared:6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -380,17 +382,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/shared-seed4-20260807T230407Z-ff186b8f",
       "seed": 4,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "private",
       "config_hash": "579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "config_path": "configs/research/replication_private.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:5:private:579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -398,17 +400,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/private-seed5-20260807T230505Z-cce4293b",
       "seed": 5,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "shared",
       "config_hash": "6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "config_path": "configs/research/replication_shared.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:5:shared:6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -416,17 +418,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/shared-seed5-20260807T230601Z-319c2f08",
       "seed": 5,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "private",
       "config_hash": "579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "config_path": "configs/research/replication_private.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:6:private:579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -434,17 +436,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/private-seed6-20260807T230655Z-f341e59a",
       "seed": 6,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "shared",
       "config_hash": "6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "config_path": "configs/research/replication_shared.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:6:shared:6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -452,17 +454,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/shared-seed6-20260807T230755Z-32988887",
       "seed": 6,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "private",
       "config_hash": "579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "config_path": "configs/research/replication_private.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:7:private:579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -470,17 +472,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/private-seed7-20260807T231857Z-6bd2b86c",
       "seed": 7,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "shared",
       "config_hash": "6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "config_path": "configs/research/replication_shared.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:7:shared:6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -488,17 +490,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/shared-seed7-20260807T231955Z-c6cae4c5",
       "seed": 7,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "private",
       "config_hash": "579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "config_path": "configs/research/replication_private.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:8:private:579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -506,17 +508,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/private-seed8-20260807T232054Z-36fa9439",
       "seed": 8,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "shared",
       "config_hash": "6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "config_path": "configs/research/replication_shared.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:8:shared:6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -524,17 +526,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/shared-seed8-20260807T232151Z-cbfbf6f3",
       "seed": 8,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "private",
       "config_hash": "579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "config_path": "configs/research/replication_private.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:9:private:579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -542,17 +544,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/private-seed9-20260807T232246Z-da2e0cb5",
       "seed": 9,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "shared",
       "config_hash": "6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "config_path": "configs/research/replication_shared.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:9:shared:6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -560,17 +562,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/shared-seed9-20260807T232343Z-7d79091b",
       "seed": 9,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "private",
       "config_hash": "579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "config_path": "configs/research/replication_private.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy",
       "identity": "developmental-dynamics-v1:staged-v2:A:10:private:579056fa6f005d32d1e350c6dc663f02a767765c1978cc44e5be43e0490844b0",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -578,17 +580,17 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/private-seed10-20260807T232436Z-f89fb62d",
       "seed": 10,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "shared",
       "config_hash": "6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "config_path": "configs/research/replication_shared.yaml",
       "gate": "gate_1_replication",
-      "health": null,
+      "health": "healthy_recovered",
       "identity": "developmental-dynamics-v1:staged-v2:A:10:shared:6201f972494f15b28134c9988c9b0d507fde1ff2edf42c7a94874c600c9a2e54",
       "interaction_calls": 80,
       "max_physical_calls": 700,
@@ -596,10 +598,10 @@
       "probe_calls": 480,
       "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
       "router": "confidence",
-      "run_dir": null,
+      "run_dir": "/Users/costaleirbag/dev/emergence-specialization/data/runs/campaigns/developmental-dynamics-v1/shared-seed10-20260807T232533Z-8e4e6588",
       "seed": 10,
       "stage": "A",
-      "status": "planned"
+      "status": "completed"
     },
     {
       "condition": "private",
@@ -6025,10 +6027,18 @@
   },
   "state": {
     "active_gate": "gate_1_replication",
-    "completed_runs": 2,
+    "completed_runs": 20,
     "current_index": 0,
-    "observed_cost_usd": 0.0,
-    "physical_attempts": 0,
-    "status": "gate_1_planned"
+    "last_guard": {
+      "gate": "gate_1_replication",
+      "observed_cost_usd": 0.28014566159999993,
+      "physical_attempts": 9558,
+      "projected_cost_usd": 0.3003205659999999,
+      "projected_physical_attempts": 10258,
+      "row": "shared:seed10"
+    },
+    "observed_cost_usd": 0.30014931519999993,
+    "physical_attempts": 10122,
+    "status": "gate_complete"
   }
 }
