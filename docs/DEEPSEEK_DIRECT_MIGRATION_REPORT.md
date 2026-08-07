@@ -94,7 +94,8 @@ hard. Probe workers never call `observe`.
 `--resume` reads the immutable original manifest, prints expected/complete/
 missing work, prior attempts and observed cost, and requires `--confirm-real`
 only when incomplete direct work remains. A complete run resumes with zero API
-calls.
+calls. Ctrl+C and SIGTERM mark the run interrupted, flush the journal/summary,
+and print the exact resume command.
 
 ## Concurrency and benchmark
 

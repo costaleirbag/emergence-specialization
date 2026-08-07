@@ -7,6 +7,7 @@ import asyncio
 import hashlib
 import json
 import random
+import signal
 import time
 import uuid
 from collections import Counter
@@ -973,7 +974,8 @@ class ExperimentRunner:
                 self._print_final_summary(summary)
             return logger.run_dir
         except KeyboardInterrupt:
-            logger.event("run_interrupted", {"completed_logical": self.journal.completed_count() if self.journal else None})
+            completed_logical = self.journal.completed_count() if self.journal else None
+            logger.event("run_interrupted", {"completed_logical": completed_logical})
             logger.write_summary(
                 {
                     "run_id": run_id,
@@ -993,6 +995,43 @@ class ExperimentRunner:
             if self.journal is not None:
                 self.journal.set_state("status", "interrupted")
                 self.journal.close()
+            print(
+                f"\nRUN INTERRUPTED: {logger.run_dir}\n"
+                f"completed logical calls: {completed_logical if completed_logical is not None else 'unknown'}\n"
+                f"observed cost: ${self._observed_cost_usd:.8f}\n"
+                f"resume: uv run python -m emergent_specialization.experiment --resume {logger.run_dir} --confirm-real",
+                flush=True,
+            )
+            raise
+        except asyncio.CancelledError:
+            completed_logical = self.journal.completed_count() if self.journal else None
+            logger.event("run_interrupted", {"completed_logical": completed_logical})
+            logger.write_summary(
+                {
+                    "run_id": run_id,
+                    "status": "interrupted",
+                    "memory_counts": {agent.agent_id: len(agent.memory) for agent in self.agents},
+                    "physical_attempts": self._physical_attempts,
+                    "observed_cost_usd": self._observed_cost_usd if self._observed_cost_usd else None,
+                    "usage": summarize_usage(
+                        self.token_usages,
+                        currency=self.config.cost.currency,
+                        input_per_million_tokens=self.config.cost.input_per_million_tokens,
+                        cached_input_per_million_tokens=self.config.cost.cached_input_per_million_tokens,
+                        output_per_million_tokens=self.config.cost.output_per_million_tokens,
+                    ),
+                }
+            )
+            if self.journal is not None:
+                self.journal.set_state("status", "interrupted")
+                self.journal.close()
+            print(
+                f"\nRUN INTERRUPTED: {logger.run_dir}\n"
+                f"completed logical calls: {completed_logical if completed_logical is not None else 'unknown'}\n"
+                f"observed cost: ${self._observed_cost_usd:.8f}\n"
+                f"resume: uv run python -m emergent_specialization.experiment --resume {logger.run_dir} --confirm-real",
+                flush=True,
+            )
             raise
         except Exception as exc:
             logger.event("run_failed", {"error": f"{type(exc).__name__}: {exc}"})
@@ -1118,7 +1157,14 @@ async def async_main(argv: Iterable[str] | None = None) -> Path:
 
 
 def main(argv: Iterable[str] | None = None) -> None:
-    asyncio.run(async_main(argv))
+    def interrupt_handler(_signum: int, _frame: Any) -> None:
+        raise KeyboardInterrupt
+
+    old_sigterm = signal.signal(signal.SIGTERM, interrupt_handler)
+    try:
+        asyncio.run(async_main(argv))
+    finally:
+        signal.signal(signal.SIGTERM, old_sigterm)
 
 
 if __name__ == "__main__":
