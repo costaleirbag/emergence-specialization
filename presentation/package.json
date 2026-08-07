@@ -1,0 +1,19 @@
+{
+  "name": "emergent-specialization-presentation",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "data": "python3 scripts/generate_data.py",
+    "dev": "slidev --open slides.md",
+    "build": "slidev build slides.md",
+    "export": "slidev export slides.md --output dist/emergent-specialization.pdf"
+  },
+  "dependencies": {
+    "@slidev/cli": "latest",
+    "@slidev/theme-default": "latest",
+    "vue": "latest"
+  },
+  "devDependencies": {
+    "playwright-chromium": "latest"
+  }
+}

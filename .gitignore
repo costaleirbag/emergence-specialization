@@ -9,3 +9,5 @@ data/smoke_runs/*
 !data/smoke_runs/.gitkeep
 reports/*
 !reports/.gitkeep
+presentation/node_modules/
+presentation/dist/
