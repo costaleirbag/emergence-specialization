@@ -117,6 +117,11 @@ class ExperimentRunner:
             if config.experiment.router_seed is not None
             else config.experiment.seed + 1
         )
+        self.feedback_rng = random.Random(
+            config.experiment.feedback_seed
+            if config.experiment.feedback_seed is not None
+            else config.experiment.seed + 2
+        )
         self.semaphore = asyncio.Semaphore(config.experiment.max_concurrency)
         self.route_history: list[dict[str, Any]] = []
         self.token_usages: list[dict[str, Any] | None] = []
@@ -382,7 +387,10 @@ class ExperimentRunner:
             correct_answer=task.correct_answer,
             was_correct=self.environment.evaluate(task, selected.answer),
         )
-        mode = self.config.condition.memory_mode
+        policy = self.config.effective_feedback
+        mode = policy.mode
+        if mode == "probabilistic":
+            mode = "private" if self.feedback_rng.random() < (policy.private_probability or 0.0) else "shared"
         if mode == "private":
             recipient = self.agent_by_id[selected.agent_id]
             recipient.observe(experience)
@@ -393,7 +401,7 @@ class ExperimentRunner:
             if any(agent.memory != self.agents[0].memory for agent in self.agents[1:]):
                 raise AssertionError("Shared feedback must keep all memories equal")
             return experience, self.agent_ids
-        if mode == "no_memory":
+        if mode == "none":
             return experience, []
         raise AssertionError(f"Unexpected memory mode {mode!r}")
 
@@ -440,6 +448,11 @@ class ExperimentRunner:
                         if self.config.experiment.router_seed is not None
                         else self.config.experiment.seed + 1
                     ),
+                    "feedback_locality": (
+                        self.config.experiment.feedback_seed
+                        if self.config.experiment.feedback_seed is not None
+                        else self.config.experiment.seed + 2
+                    ),
                     "probe_generation": "recorded in data/probe_set.json",
                 },
                 "backend": self.backend.metadata(),
@@ -450,6 +463,7 @@ class ExperimentRunner:
                     "provider_session_independent": self.config.agent.backend == "omp",
                     "probe_updates_memory": False,
                     "hidden_rules_in_model_prompt": False,
+                    "feedback_policy": self.config.effective_feedback.as_label(),
                 },
             }
         )

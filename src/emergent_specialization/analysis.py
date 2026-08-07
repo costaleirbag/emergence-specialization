@@ -239,6 +239,23 @@ def checkpoint_rows(bundle: RunBundle) -> list[dict[str, Any]]:
     ]
 
 
+def hse_trajectory_rows(bundle: RunBundle) -> list[dict[str, Any]]:
+    """Return raw and baseline-relative HSE at every recorded checkpoint."""
+    rows = checkpoint_rows(bundle)
+    baseline = next((row.get("hse") for row in rows if row["checkpoint"] == 0), None)
+    normalized_baseline = next((row.get("normalized_hse") for row in rows if row["checkpoint"] == 0), None)
+    return [
+        {
+            **row,
+            "delta_hse": row["hse"] - baseline if isinstance(row.get("hse"), (int, float)) and isinstance(baseline, (int, float)) else None,
+            "delta_normalized_hse": row["normalized_hse"] - normalized_baseline
+            if isinstance(row.get("normalized_hse"), (int, float)) and isinstance(normalized_baseline, (int, float))
+            else None,
+        }
+        for row in rows
+    ]
+
+
 def individual_accuracy_rows(bundle: RunBundle) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for checkpoint in bundle.checkpoints:

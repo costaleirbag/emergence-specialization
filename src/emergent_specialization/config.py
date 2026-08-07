@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 import yaml
 
@@ -19,6 +19,7 @@ class ExperimentSettings:
     seed: int = 1
     task_seed: int | None = None
     router_seed: int | None = None
+    feedback_seed: int | None = None
     max_concurrency: int = 4
     technical_retries: int = 1
     console_summary: bool = True
@@ -98,6 +99,39 @@ class ConditionSettings:
 
 
 @dataclass(frozen=True)
+class FeedbackSettings:
+    """Information-locality policy for selected feedback.
+
+    ``condition.memory_mode`` remains the legacy public schema. This separate
+    policy lets future studies interpolate between the existing private and
+    shared endpoints without changing those configs.
+    """
+
+    mode: str = "private"
+    private_probability: float | None = None
+
+    def __post_init__(self) -> None:
+        if self.mode not in {"private", "shared", "probabilistic", "none"}:
+            raise ValueError("feedback mode must be private, shared, probabilistic, or none")
+        if self.mode == "probabilistic":
+            if self.private_probability is None:
+                raise ValueError("probabilistic feedback requires private_probability")
+            if not 0.0 <= self.private_probability <= 1.0:
+                raise ValueError("private_probability must be in [0, 1]")
+        elif self.private_probability is not None and not 0.0 <= self.private_probability <= 1.0:
+            raise ValueError("private_probability must be in [0, 1]")
+
+    @classmethod
+    def from_legacy(cls, memory_mode: str) -> "FeedbackSettings":
+        return cls(mode={"no_memory": "none"}.get(memory_mode, memory_mode))
+
+    def as_label(self) -> str:
+        if self.mode == "probabilistic":
+            return f"probabilistic-p{self.private_probability:g}"
+        return self.mode
+
+
+@dataclass(frozen=True)
 class LoggingSettings:
     output_dir: str = "data/runs"
     probe_set_path: str = "data/probe_set.json"
@@ -136,6 +170,7 @@ class RunConfig:
     agent: AgentSettings = field(default_factory=AgentSettings)
     router: RouterSettings = field(default_factory=RouterSettings)
     condition: ConditionSettings = field(default_factory=ConditionSettings)
+    feedback: FeedbackSettings | None = None
     logging: LoggingSettings = field(default_factory=LoggingSettings)
     cost: CostSettings = field(default_factory=CostSettings)
     source_path: str | None = None
@@ -143,6 +178,10 @@ class RunConfig:
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+    @property
+    def effective_feedback(self) -> FeedbackSettings:
+        return self.feedback or FeedbackSettings.from_legacy(self.condition.memory_mode)
 
     def overridden(
         self,
@@ -175,6 +214,37 @@ def _mapping(value: Any, section: str) -> dict[str, Any]:
     return dict(value)
 
 
+def normalize_checkpoints(raw: Any, num_rounds: int) -> tuple[int, ...]:
+    """Normalize an explicit list or ``{every: N}`` schedule.
+
+    Explicit ``[]`` remains empty, which is useful for interaction-only smoke
+    tests. Regular schedules include the start and final checkpoint.
+    """
+    if raw is None:
+        return ()
+    if isinstance(raw, Mapping):
+        unknown = set(raw) - {"every"}
+        if unknown:
+            raise ValueError(f"checkpoint schedule has unknown keys: {sorted(unknown)}")
+        every = raw.get("every")
+        if isinstance(every, bool) or not isinstance(every, int) or every <= 0:
+            raise ValueError("checkpoint schedule 'every' must be a positive integer")
+        values = list(range(0, num_rounds + 1, every))
+        if num_rounds not in values:
+            values.append(num_rounds)
+        return tuple(sorted(set(values)))
+    if isinstance(raw, (str, bytes)) or not isinstance(raw, (list, tuple)):
+        raise ValueError("checkpoints must be a list or a mapping with 'every'")
+    values: list[int] = []
+    for checkpoint in raw:
+        if isinstance(checkpoint, bool) or not isinstance(checkpoint, int):
+            raise ValueError("checkpoints must contain integers")
+        values.append(checkpoint)
+    if len(values) != len(set(values)):
+        raise ValueError("checkpoints must not contain duplicates")
+    return tuple(values)
+
+
 def load_config(path: str | Path) -> RunConfig:
     config_path = Path(path)
     raw_text = config_path.read_text(encoding="utf-8")
@@ -186,11 +256,14 @@ def load_config(path: str | Path) -> RunConfig:
     agent = _mapping(raw.get("agent"), "agent")
     router = _mapping(raw.get("router"), "router")
     condition = _mapping(raw.get("condition"), "condition")
+    feedback = _mapping(raw.get("feedback"), "feedback")
     logging = _mapping(raw.get("logging"), "logging")
     cost = _mapping(raw.get("cost"), "cost")
 
     if "checkpoints" in experiment:
-        experiment["checkpoints"] = tuple(experiment["checkpoints"])
+        experiment["checkpoints"] = normalize_checkpoints(
+            experiment["checkpoints"], int(experiment.get("num_rounds", 80))
+        )
     if "worlds" in environment:
         environment["worlds"] = tuple(environment["worlds"])
 
@@ -202,6 +275,7 @@ def load_config(path: str | Path) -> RunConfig:
         agent=AgentSettings(**agent),
         router=RouterSettings(**router),
         condition=ConditionSettings(**condition),
+        feedback=FeedbackSettings(**feedback) if feedback else None,
         logging=LoggingSettings(**logging),
         cost=CostSettings(**cost),
         source_path=str(config_path),
