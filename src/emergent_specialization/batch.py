@@ -39,6 +39,7 @@ class PlannedRun:
     nominal_calls: int
     max_physical_calls: int
     output_dir: str
+    expected_run_prefix: str
     command: str
     config_hash: str | None
     probe_set_hash: str
@@ -111,7 +112,7 @@ def plan_batch(path: str | Path) -> list[PlannedRun]:
         feedback_seed = base_config.experiment.feedback_seed if base_config.experiment.feedback_seed is not None else base_config.experiment.seed + 2
         omp_version = _omp_version()
         for seed in seeds:
-            destination = output_root / f"{condition}-seed{seed}"
+            expected_prefix = f"{condition}-seed{seed}"
             command = " ".join(
                 shlex.quote(part)
                 for part in (
@@ -128,7 +129,8 @@ def plan_batch(path: str | Path) -> list[PlannedRun]:
                     checkpoints=base_config.experiment.checkpoints,
                     probe_count=len(probes),
                     **counts,
-                    output_dir=str(destination),
+                    output_dir=str(output_root),
+                    expected_run_prefix=expected_prefix,
                     command=command,
                     config_hash=base_config.source_hash,
                     probe_set_hash=probe_set_hash,
@@ -250,7 +252,7 @@ def main(argv: Iterable[str] | None = None) -> None:
             f"seed={row['seed']} condition={row['condition']} rounds={row['rounds']} "
             f"checkpoints={list(row['checkpoints'])} probes={row['probe_count']} "
             f"calls={row['nominal_calls']} (max={row['max_physical_calls']}) "
-            f"output={row['output_dir']}"
+            f"output={row['output_dir']} prefix={row['expected_run_prefix']}"
         )
         print(f"  {row['command']}")
 
