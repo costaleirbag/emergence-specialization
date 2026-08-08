@@ -520,10 +520,11 @@ def plan() -> dict[str, Any]:
     for candidate in ("ope", "cwde"):
         path = ROOT / f"reports/task-ecology/qualification-v1/{candidate}/qualification_summary.json"
         if path.exists():
-            report = json.loads(path.read_text(encoding="utf-8")); recent.append(float(report.get("observed_cost_usd", 0.0) or 0.0))
-    # Existing candidate raw reports have per-event costs; use the campaign
-    # ledger as a conservative recent semantic rate when summaries omit cost.
-    rate = 0.000025
+            report = json.loads(path.read_text(encoding="utf-8")); recent.append((float(report.get("observed_cost_usd", 0.0) or 0.0), int(report.get("logical_calls", 1920))))
+    observed_rates = [cost / logical for cost, logical in recent if logical > 0 and cost >= 0]
+    # The qualification manifests are the nearest completed semantic runs;
+    # use their observed per-logical-call rate, not old GF(7) prices.
+    rate = statistics.mean(observed_rates) if observed_rates else 0.000025
     forecast = calls["total"] * rate
     result = {"protocol": PROTOCOL, "expected_calls": calls, "recent_rate_usd_per_call": rate,
               "forecast_nominal_usd": forecast, "forecast_with_25pct_retry_margin_usd": forecast*1.25,
