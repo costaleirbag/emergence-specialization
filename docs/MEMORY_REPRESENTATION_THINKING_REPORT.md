@@ -29,6 +29,19 @@ The partial raw dataset is in
 `data/calibrations/memory-representation-thinking-v1/`; the balanced probe
 manifest is stored alongside it.
 
+The complete off-only balanced-probe curves were:
+
+| Representation | k=0 | k=1 | k=2 | k=4 | k=8 | k8−k0 |
+|---|---:|---:|---:|---:|---:|---:|
+| full experience | 0.126 | 0.133 | 0.135 | 0.135 | 0.137 | +0.011 |
+| feedback only | 0.126 | 0.141 | 0.143 | 0.146 | 0.139 | +0.013 |
+
+These are descriptive balanced-probe means over context seeds and replicates;
+they show no strong monotone competence gain. At k=8, feedback-only and full
+experience are nearly identical. The truly corrupted feedback control was 0.144
+versus 0.139 for correct feedback in the off-only arm, so this partial result
+does not show a positive correct-label gain.
+
 ## Scientific status
 
 Because the thinking-on cell is incomplete, no representation effect,
