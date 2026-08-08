@@ -9,6 +9,7 @@ replicates: 3
 reasoning_modes: ["off", high]
 representations: [full_experience, feedback_only]
 include_truly_corrupted_feedback: true
+thinking_max_tokens: 512
 technical_retries: 1
 max_concurrency: 32
 hard_cost_cap_usd: 3.0
