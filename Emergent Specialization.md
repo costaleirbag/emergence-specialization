@@ -1558,3 +1558,25 @@ It is a dynamical extension inspired by its behavioral diversity and routing rob
 # 35. One-sentence project description
 
 > **A controlled study of whether initially homogeneous LLM agents can spontaneously develop persistent, useful specialization through asymmetric interaction histories, measured as a dynamical extension of behavioral diversity metrics used in LLM routing.**
+
+---
+
+# 36. Estado experimental — 2026-08-08
+
+O Gate 1 (`confidence` routing, `private` versus `shared`) possui dez pares
+completos e foi analisado somente offline. Um controle mecanístico com `random`
+routing foi iniciado para separar seleção por confiança de localidade de
+informação, mantendo o restante do desenho congelado. As sementes 1 e 2
+completaram os dois braços com tarefas e sequências de seleção exatamente
+pareadas; a run `private`, seed 3, foi interrompida após respostas inválidas
+(`answer = 7`) nas duas tentativas de uma sonda, deixando 201 completions lógicas
+ausentes. O controle random é, portanto, **PARTIAL / BLOCKED**: os dois pares
+completos são um teste de plumbing, não evidência de mecanismo.
+
+O relatório reproduzível está em
+`docs/RANDOM_ROUTING_MECHANISM_REPORT.md`, com tabelas e figuras em
+`reports/campaigns/developmental-dynamics-v1/random-routing-10/`. A run inválida
+permanece preservada na auditoria de saúde. Não interpretar HSE, Phi, MI,
+utilização ou ganho de oráculo isoladamente como especialização útil; qualquer
+retomada do controle requer revisão humana explícita. Gate 2 e demais extensões
+permanecem bloqueados.
