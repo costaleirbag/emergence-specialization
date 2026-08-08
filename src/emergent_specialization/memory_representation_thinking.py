@@ -25,6 +25,7 @@ import yaml
 
 from .agents import DEFAULT_SYSTEM_PROMPT, ExperimentalAgent, stable_hash
 from .config import load_config
+from .costs import estimate_usage_cost
 from .environment import HiddenWorldEnvironment, task_prompt
 from .experiment import make_backend
 from .memory import MemoryPolicy
@@ -177,7 +178,11 @@ async def run_real(path: str | Path = DEFAULT_CONFIG, *, confirm_real: bool = Fa
     system_prompt = base.agent.system_prompt or DEFAULT_SYSTEM_PROMPT
     backend = make_backend(base)
     lock = asyncio.Lock(); sem = asyncio.Semaphore(int(spec["max_concurrency"]))
-    physical = len(events); cost = float(manifest.get("observed_cost_usd", 0.0)); max_attempts = int(spec["technical_retries"]) + 1
+    def event_cost(event: dict[str, Any]) -> float:
+        direct = event.get("observed_cost_usd")
+        if isinstance(direct, (int, float)) and direct > 0: return float(direct)
+        return float(estimate_usage_cost(event.get("token_usage"), input_per_million_tokens=base.cost.input_per_million_tokens, cached_input_per_million_tokens=base.cost.cached_input_per_million_tokens, output_per_million_tokens=base.cost.output_per_million_tokens) or 0.0)
+    physical = len(events); cost = sum(event_cost(event) for event in events); max_attempts = int(spec["technical_retries"]) + 1
     async def one(reasoning: str, context: dict[str, Any], task: Task, replicate: int) -> None:
         nonlocal physical, cost
         query = {"reasoning": reasoning, "mode": context["mode"], "world": context["world"], "seed": context["seed"], "k": context["k"], "representation": context["representation"], "task": asdict(task), "replicate": replicate}
@@ -191,7 +196,7 @@ async def run_real(path: str | Path = DEFAULT_CONFIG, *, confirm_real: bool = Fa
                 physical += 1
             started = time.perf_counter()
             async with sem: response = await backend.complete(system_prompt=system_prompt, user_prompt=user_prompt, model=base.agent.model, model_parameters={"thinking": reasoning, "reasoning_effort": "high", "max_tokens": base.agent.max_tokens or 128})
-            latency = response.latency_s or (time.perf_counter() - started); token_usage = response.token_usage; observed = float(response.observed_cost_usd or 0.0)
+            latency = response.latency_s or (time.perf_counter() - started); token_usage = response.token_usage; observed = float(response.observed_cost_usd or estimate_usage_cost(token_usage, input_per_million_tokens=base.cost.input_per_million_tokens, cached_input_per_million_tokens=base.cost.cached_input_per_million_tokens, output_per_million_tokens=base.cost.output_per_million_tokens) or 0.0)
             error = response.error; error_category = response.error_category; parsed = None; confidence = None; answer_in_domain = None; semantic = None
             if error is None:
                 try:
