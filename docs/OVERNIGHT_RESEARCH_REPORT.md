@@ -49,3 +49,14 @@ Before any new paid society campaign, choose explicitly between:
    configs, hashes, and a separate campaign identity.
 
 No next scientific experiment was started automatically.
+
+## Follow-up mechanism calibration
+
+The later response-anchoring audit corrected the old replicate grouping and
+renamed the misleading `corrupted_k8` label. A balanced-probe
+memory-representation × thinking calibration was then started. Its thinking-off
+arm completed 16,800 logical queries. Thinking-on was stopped after the same-model
+official toggle repeatedly exhausted its output cap in reasoning; continuing
+would exceed the authorized US$3 ceiling. This partial result is documented in
+`docs/MEMORY_REPRESENTATION_THINKING_REPORT.md` and does not authorize a new
+scientific experiment.
