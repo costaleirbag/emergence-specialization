@@ -480,6 +480,31 @@ def _aggregate_geometry(geometry: str) -> dict[str, Any]:
     return {"geometry": geometry, "events": len(events), "metrics": metrics_rows, "spectral": spectral_rows}
 
 
+def validate_geometry_output(geometry: str) -> dict[str, Any]:
+    """Offline technical health gate for one completed geometry."""
+    manifest = json.loads((MANIFEST_ROOT / f"{geometry.lower()}.json").read_text(encoding="utf-8"))
+    status = json.loads((DATA_ROOT / geometry.lower() / "manifest.json").read_text(encoding="utf-8"))
+    events = [json.loads(line) for line in (DATA_ROOT / geometry.lower() / "events.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
+    by_id: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for event in events: by_id[event["logical_id"]].append(event)
+    terminal = {logical_id: [event for event in values if event.get("error") is None or event.get("error_category") == "out_of_domain"]
+                for logical_id, values in by_id.items()}
+    provider_models = {event.get("provider_metadata", {}).get("model") for event in events}
+    retry_categories = [event.get("error_category") or event.get("error") for event in events if int(event.get("attempt", 0)) > 0]
+    ood = sum(event.get("error_category") == "out_of_domain" for event in events)
+    health = {"geometry": geometry, "status": status.get("status"), "expected_logical": manifest["logical_calls"],
+              "unique_logical": len(by_id), "complete_logical": sum(bool(v) for v in terminal.values()),
+              "physical_attempts": len(events), "technical_retries": sum(1 for event in events if int(event.get("attempt", 0)) > 0),
+              "retry_categories": retry_categories, "semantic_ood": ood, "provider_models": sorted(str(x) for x in provider_models),
+              "duplicate_terminal_logical": sum(len(v) > 1 for v in terminal.values()),
+              "cost_from_events": sum(float(event.get("attempt_cost_usd") or 0.0) for event in events),
+              "observed_cost": status.get("observed_cost_usd"),
+              "clean_coverage": len(by_id) == manifest["logical_calls"] and all(bool(v) for v in terminal.values()),
+              "model_identity_pass": provider_models <= {MODEL}}
+    health["healthy"] = bool(health["status"] == "completed" and health["clean_coverage"] and health["model_identity_pass"] and health["duplicate_terminal_logical"] == 0)
+    return health
+
+
 def _toy_report() -> list[dict[str, Any]]:
     path = REPORT_ROOT / "aggregate_L.csv"
     if not path.exists(): return []
