@@ -176,3 +176,19 @@ tests, and a cost-ledger check.
 - Three implementation reviews were required. The first two independently
   blocked unsafe versions; no paid call occurred. Final execution eligibility
   remains contingent on one last adversarial review of the committed state.
+
+## 2026-08-08 — AR-001 final execution decision
+
+- Independent adversarial verdict on committed HEAD `2424764`: **GO**, with no
+  remaining execution blocker. Fourteen focused tests, the 162-test full suite,
+  compileall, ledger state, clean scientific provenance, and preflight passed.
+- Explicit budget question: **yes**, AR-001 distinguishes the live execution
+  bottleneck from induction/prompting in a way that offline ecology analysis
+  cannot. Its value is diagnostic and does not authorize a semantic ecology or
+  a new society run.
+- Authorized action is exactly one resumable AR-001 run under the frozen 168-
+  logical-call protocol, US$0.05 experiment cap, and US$2 session ledger. No
+  adaptive extension is authorized.
+- Residual conservative behavior: a paid transport failure without usage holds
+  its US$0.005 reservation and makes the run terminal rather than risking an
+  unaccounted retry.
