@@ -11,6 +11,8 @@ from typing import Any, Iterator
 class ParsedOutput:
     answer: int
     confidence: float
+    answer_in_domain: bool
+    semantic_violation: str | None = None
 
 
 class ResponseParseError(ValueError):
@@ -23,8 +25,10 @@ def parse_agent_output(raw: str) -> ParsedOutput:
     Models occasionally put prose, set notation, or multiple fenced/object
     fragments before their final answer. We scan balanced brace-delimited
     candidates (respecting quoted strings), validate each candidate strictly,
-    and choose the last valid ``AgentResponse`` object. Invalid candidates are
-    ignored; if none validate, the call remains a normal parse failure/retry.
+    and choose the last valid ``AgentResponse`` object.  Syntax/schema validity
+    is deliberately separate from task-domain validity: an integer answer such
+    as ``7`` is a scientifically incorrect answer, not an unreadable response.
+    Only malformed objects or invalid confidence values remain parse failures.
     """
     candidates: list[ParsedOutput] = []
     direct = _try_parse_object(raw.strip())
@@ -48,14 +52,20 @@ def _try_parse_object(fragment: str) -> ParsedOutput | None:
         return None
     answer = value["answer"]
     confidence = value["confidence"]
-    if isinstance(answer, bool) or not isinstance(answer, int) or not 0 <= answer <= 6:
+    if isinstance(answer, bool) or not isinstance(answer, int):
         return None
     if isinstance(confidence, bool) or not isinstance(confidence, (int, float)):
         return None
     confidence = float(confidence)
     if not 0.0 <= confidence <= 1.0:
         return None
-    return ParsedOutput(answer=answer, confidence=confidence)
+    answer_in_domain = 0 <= answer <= 6
+    return ParsedOutput(
+        answer=answer,
+        confidence=confidence,
+        answer_in_domain=answer_in_domain,
+        semantic_violation=None if answer_in_domain else "answer_out_of_domain",
+    )
 
 
 def _balanced_object_fragments(raw: str) -> Iterator[str]:

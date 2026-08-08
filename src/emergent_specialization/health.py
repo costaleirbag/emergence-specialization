@@ -67,6 +67,12 @@ def run_health(run_dir: str | Path) -> dict[str, Any]:
         for event in inferences
         if event.get("error")
     )
+    semantic_violations = Counter(
+        str(event.get("semantic_violation"))
+        for event in inferences
+        if event.get("semantic_violation")
+    )
+    answer_domain_violations = semantic_violations.get("answer_out_of_domain", 0)
     retries = sum(max(0, int(event.get("attempt", 0))) for event in inferences)
     latencies = [float(event["latency_s"]) for event in inferences if isinstance(event.get("latency_s"), (int, float))]
     usage_calls = sum(isinstance(event.get("token_usage"), dict) and bool(event.get("token_usage")) for event in inferences)
@@ -106,6 +112,16 @@ def run_health(run_dir: str | Path) -> dict[str, Any]:
         "rate_limit_count": errors["rate_limit"],
         "server_error_count": errors["server_error"] + errors["overloaded"],
         "empty_content_count": errors["empty_content"],
+        "semantic_answer_domain_violation_count": answer_domain_violations,
+        "semantic_answer_domain_violation_rate": answer_domain_violations / len(inferences) if inferences else 0.0,
+        "semantic_answer_domain_violation_interaction_count": sum(
+            event.get("semantic_violation") == "answer_out_of_domain" and event.get("phase") == "round"
+            for event in inferences
+        ),
+        "semantic_answer_domain_violation_probe_count": sum(
+            event.get("semantic_violation") == "answer_out_of_domain" and event.get("phase") == "probe"
+            for event in inferences
+        ),
         "other_error_count": errors["other_error"] + errors["provider_error"],
         "completion_coverage": coverage,
         "usage_calls": usage_calls,

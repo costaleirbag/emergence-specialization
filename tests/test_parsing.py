@@ -38,9 +38,16 @@ class ParsingTests(unittest.TestCase):
         )
         self.assertEqual((result.answer, result.confidence), (6, 0.9))
 
-    def test_never_repairs_an_invalid_answer(self) -> None:
-        with self.assertRaises(ResponseParseError):
-            parse_agent_output('{"answer": 9, "confidence": 0.5}')
+    def test_accepts_out_of_domain_answer_as_scientific_failure(self) -> None:
+        result = parse_agent_output('{"answer": 7, "confidence": 0.2}')
+        self.assertEqual(result.answer, 7)
+        self.assertFalse(result.answer_in_domain)
+        self.assertEqual(result.semantic_violation, "answer_out_of_domain")
+
+    def test_does_not_repair_out_of_domain_answer(self) -> None:
+        result = parse_agent_output('{"answer": 9, "confidence": 0.5}')
+        self.assertEqual(result.answer, 9)
+        self.assertFalse(result.answer_in_domain)
 
     def test_rejects_confidence_outside_range(self) -> None:
         with self.assertRaises(ResponseParseError):

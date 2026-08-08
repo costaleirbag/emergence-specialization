@@ -1,0 +1,67 @@
+agent_id,attempt,category,checkpoint,condition,event_error,event_error_category,eventual_retry_success,first_attempt,phase,probe_index,raw_model_response,round_id,router,run_id,seed,selected_interaction_candidate
+agent_1,0,transport_provider_failure,10,shared,DeepSeek Direct empty content,empty_content,True,True,probe,32,,,confidence,shared-seed1-20260807T215816Z-0dec0ddc,1,False
+agent_3,0,transport_provider_failure,20,shared,DeepSeek Direct empty content,empty_content,True,True,probe,11,,,confidence,shared-seed1-20260807T215816Z-0dec0ddc,1,False
+agent_2,0,semantic_answer_domain_violation,20,shared,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,16,"{""answer"": 7, ""confidence"": 0.0}",,confidence,shared-seed1-20260807T215816Z-0dec0ddc,1,False
+agent_3,0,semantic_answer_domain_violation,0,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,31,"{""answer"": 7, ""confidence"": 0.2}",,random,private-seed1-20260808T003654Z-4d8e06fc,1,False
+agent_1,0,semantic_answer_domain_violation,10,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,15,"{""answer"": 52, ""confidence"": 0.1}",,random,private-seed1-20260808T003654Z-4d8e06fc,1,False
+agent_3,0,semantic_answer_domain_violation,0,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,23,"{""answer"": 9, ""confidence"": 0.0}",,confidence,private-seed2-20260807T225104Z-be3237c7,2,False
+agent_1,0,semantic_answer_domain_violation,,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,round,,"{""answer"": 7, ""confidence"": 0.0}",12,random,private-seed2-20260808T003839Z-8df9b9a7,2,False
+agent_1,0,semantic_answer_domain_violation,20,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,38,"{""answer"": 7, ""confidence"": 0.0}",,random,private-seed2-20260808T003839Z-8df9b9a7,2,False
+agent_3,0,transport_provider_failure,0,private,DeepSeek Direct empty content,empty_content,True,True,probe,0,,,confidence,private-seed3-20260807T225257Z-05e28374,3,False
+agent_0,0,semantic_answer_domain_violation,0,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,19,"{""answer"": -1, ""confidence"": 0.0}",,confidence,private-seed3-20260807T225257Z-05e28374,3,False
+agent_3,0,transport_provider_failure,10,private,DeepSeek Direct empty content,empty_content,True,True,probe,25,,,confidence,private-seed3-20260807T225257Z-05e28374,3,False
+agent_2,0,semantic_answer_domain_violation,,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,round,,"{
+  ""answer"": 7,
+  ""confidence"": 0.0
+}",10,random,private-seed3-20260808T004034Z-378082a6,3,True
+agent_0,0,semantic_answer_domain_violation,10,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,False,True,probe,31,"{""answer"": 7, ""confidence"": 0.0}",,random,private-seed3-20260808T004034Z-378082a6,3,False
+agent_0,1,semantic_answer_domain_violation,10,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,False,False,probe,31,"{
+  ""answer"": 7,
+  ""confidence"": 0.2
+}",,random,private-seed3-20260808T004034Z-378082a6,3,False
+agent_0,0,semantic_answer_domain_violation,0,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,23,"{""answer"": 9, ""confidence"": 0.0}",,confidence,private-seed4-20260807T230309Z-a096164c,4,False
+agent_1,0,semantic_answer_domain_violation,10,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,31,"{""answer"": 7, ""confidence"": 0.2}",,confidence,private-seed4-20260807T230309Z-a096164c,4,False
+agent_1,0,malformed_unreadable_output,20,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,36,"                                                                                                                              {""answer",,confidence,private-seed4-20260807T230309Z-a096164c,4,False
+agent_3,0,transport_provider_failure,10,private,DeepSeek Direct empty content,empty_content,True,True,probe,1,,,confidence,private-seed5-20260807T230505Z-cce4293b,5,False
+agent_1,0,transport_provider_failure,10,private,DeepSeek Direct empty content,empty_content,True,True,probe,2,,,confidence,private-seed5-20260807T230505Z-cce4293b,5,False
+agent_1,0,semantic_answer_domain_violation,10,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,34,"{""answer"": 9, ""confidence"": 0.0}",,confidence,private-seed5-20260807T230505Z-cce4293b,5,False
+agent_0,0,transport_provider_failure,20,private,DeepSeek Direct empty content,empty_content,True,True,probe,16,,,confidence,private-seed6-20260807T230655Z-f341e59a,6,False
+agent_0,0,transport_provider_failure,20,private,DeepSeek Direct empty content,empty_content,True,True,probe,27,,,confidence,private-seed6-20260807T230655Z-f341e59a,6,False
+agent_0,0,transport_provider_failure,10,private,DeepSeek Direct empty content,empty_content,True,True,probe,13,,,confidence,private-seed7-20260807T231857Z-6bd2b86c,7,False
+agent_3,0,semantic_answer_domain_violation,10,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,37,"{""answer"": -1, ""confidence"": 0.0}",,confidence,private-seed7-20260807T231857Z-6bd2b86c,7,False
+agent_3,0,semantic_answer_domain_violation,,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,round,,"{""answer"": 7, ""confidence"": 0.0}",2,confidence,private-seed8-20260807T232054Z-36fa9439,8,True
+agent_3,0,semantic_answer_domain_violation,,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,round,,"{""answer"": 7, ""confidence"": 0.0}",14,confidence,private-seed9-20260807T232246Z-da2e0cb5,9,False
+agent_1,0,semantic_answer_domain_violation,20,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,9,"{""answer"": 8, ""confidence"": 0.0}",,confidence,private-seed9-20260807T232246Z-da2e0cb5,9,False
+agent_3,0,semantic_answer_domain_violation,20,private,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,32,"{""answer"": 15, ""confidence"": 0.0}",,confidence,private-seed9-20260807T232246Z-da2e0cb5,9,False
+agent_1,0,transport_provider_failure,10,shared,DeepSeek Direct empty content,empty_content,True,True,probe,7,,,random,shared-seed1-20260808T003747Z-bb5f0355,1,False
+agent_1,0,malformed_unreadable_output,0,shared,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,9,"                                                                                                                               {""",,confidence,shared-seed10-20260807T232533Z-8e4e6588,10,False
+agent_0,0,semantic_answer_domain_violation,0,shared,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,37,"{""answer"": 7, ""confidence"": 0.0}",,confidence,shared-seed10-20260807T232533Z-8e4e6588,10,False
+agent_1,0,transport_provider_failure,10,shared,DeepSeek Direct empty content,empty_content,True,True,probe,37,,,confidence,shared-seed10-20260807T232533Z-8e4e6588,10,False
+agent_0,0,transport_provider_failure,20,shared,DeepSeek Direct empty content,empty_content,True,True,probe,18,,,confidence,shared-seed10-20260807T232533Z-8e4e6588,10,False
+agent_2,0,semantic_answer_domain_violation,0,shared,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,23,"{""answer"": 9, ""confidence"": 0.0}",,random,shared-seed2-20260808T003936Z-e50c94b4,2,False
+agent_0,0,transport_provider_failure,,shared,DeepSeek Direct empty content,empty_content,True,True,round,,,8,random,shared-seed2-20260808T003936Z-e50c94b4,2,False
+agent_0,0,transport_provider_failure,10,shared,DeepSeek Direct empty content,empty_content,True,True,probe,7,,,random,shared-seed2-20260808T003936Z-e50c94b4,2,False
+agent_0,0,semantic_answer_domain_violation,0,shared,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,31,"{""answer"": 7, ""confidence"": 0.1}",,confidence,shared-seed3-20260807T225359Z-56170c8d,3,False
+agent_1,0,semantic_answer_domain_violation,0,shared,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,31,"{""answer"": 7, ""confidence"": 0.0}",,confidence,shared-seed3-20260807T225359Z-56170c8d,3,False
+agent_1,0,transport_provider_failure,,shared,DeepSeek Direct empty content,empty_content,True,True,round,,,18,confidence,shared-seed3-20260807T225359Z-56170c8d,3,False
+agent_3,0,semantic_answer_domain_violation,0,shared,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,31,"{""answer"": 7, ""confidence"": 0.0}",,confidence,shared-seed4-20260807T230407Z-ff186b8f,4,False
+agent_0,0,malformed_unreadable_output,,shared,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,round,,"                                                                                                                         {""answer"": 0, """,9,confidence,shared-seed4-20260807T230407Z-ff186b8f,4,False
+agent_2,0,semantic_answer_domain_violation,0,shared,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,9,"{
+  ""answer"": 7,
+  ""confidence"": 0.0
+}",,confidence,shared-seed5-20260807T230601Z-319c2f08,5,False
+agent_2,0,malformed_unreadable_output,,shared,,,True,True,round,,"{""answer"": 0, ""confidence"": 0.2}{""answer"": 0, ""confidence"": 0.2}{""answer"": 0, ""confidence"": 0.2}{""answer"": 0, ""confidence"": 0.2}",7,confidence,shared-seed5-20260807T230601Z-319c2f08,5,False
+agent_0,0,semantic_answer_domain_violation,10,shared,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,25,"{""answer"":7,""confidence"":0.0}",,confidence,shared-seed5-20260807T230601Z-319c2f08,5,False
+agent_3,0,transport_provider_failure,,shared,DeepSeek Direct empty content,empty_content,True,True,round,,,6,confidence,shared-seed6-20260807T230755Z-32988887,6,False
+agent_2,0,transport_provider_failure,20,shared,DeepSeek Direct empty content,empty_content,True,True,probe,1,,,confidence,shared-seed6-20260807T230755Z-32988887,6,False
+agent_3,0,transport_provider_failure,20,shared,DeepSeek Direct transient_transport,transient_transport,True,True,probe,18,,,confidence,shared-seed6-20260807T230755Z-32988887,6,False
+agent_0,0,transport_provider_failure,20,shared,DeepSeek Direct transient_transport,transient_transport,True,True,probe,36,,,confidence,shared-seed6-20260807T230755Z-32988887,6,False
+agent_3,0,transport_provider_failure,,shared,DeepSeek Direct empty content,empty_content,True,True,round,,,7,confidence,shared-seed7-20260807T231955Z-c6cae4c5,7,False
+agent_2,0,transport_provider_failure,20,shared,DeepSeek Direct empty content,empty_content,True,True,probe,6,,,confidence,shared-seed7-20260807T231955Z-c6cae4c5,7,False
+agent_2,0,transport_provider_failure,20,shared,DeepSeek Direct empty content,empty_content,True,True,probe,25,,,confidence,shared-seed7-20260807T231955Z-c6cae4c5,7,False
+agent_1,0,malformed_unreadable_output,0,shared,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,28,"[""answer"": 0, ""confidence"": 0.2]",,confidence,shared-seed8-20260807T232151Z-cbfbf6f3,8,False
+agent_2,0,semantic_answer_domain_violation,0,shared,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,31,"{""answer"": 7, ""confidence"": 0.0}",,confidence,shared-seed8-20260807T232151Z-cbfbf6f3,8,False
+agent_0,0,malformed_unreadable_output,10,shared,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,30,"                                                                                                                        {""answer"": 0, ""confidence",,confidence,shared-seed8-20260807T232151Z-cbfbf6f3,8,False
+agent_1,0,malformed_unreadable_output,20,shared,ResponseParseError: no valid answer/confidence JSON object found,parse_error,True,True,probe,1,"                                                                                                                          {""answer"": 0,",,confidence,shared-seed8-20260807T232151Z-cbfbf6f3,8,False
+agent_3,0,transport_provider_failure,20,shared,DeepSeek Direct empty content,empty_content,True,True,probe,15,,,confidence,shared-seed9-20260807T232343Z-7d79091b,9,False
+agent_1,0,transport_provider_failure,20,shared,DeepSeek Direct empty content,empty_content,True,True,probe,16,,,confidence,shared-seed9-20260807T232343Z-7d79091b,9,False

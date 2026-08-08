@@ -97,6 +97,8 @@ class InferenceRecord:
     retry_after_s: float | None = None
     provider_metadata: dict[str, Any] | None = None
     observed_cost_usd: float | None = None
+    answer_in_domain: bool | None = None
+    semantic_violation: str | None = None
 
 
 @dataclass(frozen=True)

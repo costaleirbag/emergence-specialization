@@ -1559,6 +1559,25 @@ It is a dynamical extension inspired by its behavioral diversity and routing rob
 
 > **A controlled study of whether initially homogeneous LLM agents can spontaneously develop persistent, useful specialization through asymmetric interaction histories, measured as a dynamical extension of behavioral diversity metrics used in LLM routing.**
 
+# 37. Protocolo limpo v2 — semântica de resposta
+
+Uma resposta JSON só é considerada tecnicamente ilegível quando falha no
+contrato sintático/schema ou quando `confidence` não está em $[0,1]$. Um JSON
+com `answer` inteiro fora de $[0,6]$ é uma resposta científica válida, porém
+errada para o domínio: ela é registrada com `answer_in_domain=false`, não gera
+retry, continua elegível ao router e é avaliada como incorreta nas sondas.
+
+Essa separação corrige um viés do protocolo legado, no qual respostas como
+`{"answer": 7, "confidence": 0.0}` eram tratadas como falhas técnicas e
+substituídas por uma segunda tentativa. Como uma resposta selecionada pode
+alterar a memória e a trajetória, os artefatos anteriores permanecem
+**LEGACY / EXPLORATORY** e não são reutilizados como evidência limpa.
+
+O protocolo novo tem identidade `staged-v3-response-semantics`, quatro células
+(`confidence/random` $\times$ `private/shared`) e seeds 1--10. O manifesto
+reprodutível está em `data/campaigns/developmental-dynamics-v2/campaign.json`;
+as configurações são imutáveis em `configs/research/v2/`.
+
 ---
 
 # 36. Estado experimental — 2026-08-08

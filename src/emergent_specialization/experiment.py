@@ -446,6 +446,8 @@ class ExperimentRunner:
                 await self._release_attempt()
             parsed_answer: int | None = None
             confidence: float | None = None
+            answer_in_domain: bool | None = None
+            semantic_violation: str | None = None
             error = backend_response.error
             if error is None:
                 if backend_response.raw_response is None:
@@ -454,6 +456,8 @@ class ExperimentRunner:
                     try:
                         parsed = parse_agent_output(backend_response.raw_response)
                         parsed_answer, confidence = parsed.answer, parsed.confidence
+                        answer_in_domain = parsed.answer_in_domain
+                        semantic_violation = parsed.semantic_violation
                     except ResponseParseError as exc:
                         error = f"ResponseParseError: {exc}"
                         error_category = "parse_error"
@@ -500,6 +504,8 @@ class ExperimentRunner:
                 retry_after_s=backend_response.retry_after_s,
                 provider_metadata=backend_response.provider_metadata,
                 observed_cost_usd=observed_cost,
+                answer_in_domain=answer_in_domain,
+                semantic_violation=semantic_violation,
             )
             records.append(record)
             self._physical_attempts += 1

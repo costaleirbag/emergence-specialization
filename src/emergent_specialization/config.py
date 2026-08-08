@@ -254,6 +254,7 @@ class InitialConditionSettings:
 
 @dataclass(frozen=True)
 class RunConfig:
+    protocol_version: str = "legacy"
     experiment: ExperimentSettings = field(default_factory=ExperimentSettings)
     environment: EnvironmentSettings = field(default_factory=EnvironmentSettings)
     agent: AgentSettings = field(default_factory=AgentSettings)
@@ -267,6 +268,10 @@ class RunConfig:
     runtime: RuntimeSettings = field(default_factory=RuntimeSettings)
     source_path: str | None = None
     source_hash: str | None = None
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.protocol_version, str) or not self.protocol_version.strip():
+            raise ValueError("protocol_version must be a non-empty string")
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -361,6 +366,7 @@ def config_from_mapping(
     logging = _mapping(raw.get("logging"), "logging")
     cost = _mapping(raw.get("cost"), "cost")
     runtime = _mapping(raw.get("runtime"), "runtime")
+    protocol_version = raw.get("protocol_version", "legacy")
 
     if "checkpoints" in experiment:
         experiment["checkpoints"] = normalize_checkpoints(
@@ -382,6 +388,7 @@ def config_from_mapping(
         raise ValueError("interventions must be a list of mappings")
 
     return RunConfig(
+        protocol_version=str(protocol_version),
         experiment=ExperimentSettings(**experiment),
         environment=EnvironmentSettings(**environment),
         agent=AgentSettings(**agent),
