@@ -322,6 +322,16 @@ def _memory_answers(memory: list[str]) -> list[str]:
     return answers
 
 
+def _logical_observation(event: dict[str, Any]) -> bool:
+    """Whether an event completes a logical context for analysis.
+
+    A semantic out-of-domain answer is a completed, incorrect observation; it
+    is not dropped from accuracy denominators or mistaken for a retryable
+    transport failure.
+    """
+    return (event.get("error") is None and event.get("answer") is not None) or event.get("error_category") == "out_of_domain"
+
+
 def _write_csv(path: Path, rows: list[dict[str, Any]], fields: list[str] | None = None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if fields is None:
@@ -415,8 +425,8 @@ def aggregate(ecology_name: str) -> dict[str, Any]:
                               "cost_usd": event.get("attempt_cost_usd")})
     _write_csv(out_dir / "response_level.csv", response_rows)
     rows: list[dict[str, Any]] = []
-    for (seed, target, source, h), values in sorted(grouped.items()):
-        valid = [v for v in values if (v.get("error") is None or v.get("error_category") == "out_of_domain") and v.get("answer") is not None]
+    for (seed, target, source, h), values in sorted(grouped.items(), key=lambda item: (item[0][0], item[0][1], item[0][2] or "", item[0][3])):
+        valid = [v for v in values if _logical_observation(v)]
         rows.append({"ecology": ecology_name, "seed": seed, "source": source or "none", "target": target, "h": h,
                      "n": len(valid), "accuracy": _mean([1.0 if v["correct"] else 0.0 for v in valid]),
                      "mean_confidence": _mean([float(v["confidence"]) for v in valid if v.get("confidence") is not None]),
@@ -470,8 +480,8 @@ def aggregate(ecology_name: str) -> dict[str, Any]:
         _write_csv(out_dir / "identifiability.csv", audit_rows)
     confidence_rows: list[dict[str, Any]] = []
     anchoring_rows: list[dict[str, Any]] = []
-    for key, values in sorted(grouped.items()):
-        seed, target, source, h = key; valid = [v for v in values if (v.get("error") is None or v.get("error_category") == "out_of_domain") and v.get("answer") is not None]
+    for key, values in sorted(grouped.items(), key=lambda item: (item[0][0], item[0][1], item[0][2] or "", item[0][3])):
+        seed, target, source, h = key; valid = [v for v in values if _logical_observation(v)]
         scores = [float(v["confidence"]) for v in valid if v.get("confidence") is not None]; labels = [bool(v["correct"]) for v in valid if v.get("confidence") is not None]
         mem = [_memory_answers(v["task"].get("memory") or []) for v in valid]
         anchoring_rows.append({"ecology": ecology_name, "seed": seed, "source": source or "none", "target": target, "h": h, "n": len(valid),
