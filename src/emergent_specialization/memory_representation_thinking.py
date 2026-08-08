@@ -145,7 +145,7 @@ def preflight(path: str | Path = DEFAULT_CONFIG) -> dict[str, Any]:
             if spec.get("include_truly_corrupted_feedback"): contexts.append({"world": world, "seed": seed, "k": 8, "representation": "feedback_only", "mode": "truly_corrupted_feedback", "pool": [asdict(x) for x in pool]})
     probe_pairs = {(task.world, task.x, task.y) for task in tasks}
     if any((item["world"], item["x"], item["y"]) in probe_pairs for context in contexts for item in context["pool"]): raise ValueError("exemplar/probe overlap")
-    return {"protocol": PROTOCOL, "config_path": str(config_path.relative_to(ROOT)), "config_hash": _sha256_file(config_path), "base_config": str(Path(base.source_path).resolve().relative_to(ROOT)), "base_config_hash": base.source_hash, "backend": base.agent.backend, "model": base.agent.model, "thinking_modes": list(spec["reasoning_modes"]), "thinking_max_tokens": int(spec.get("thinking_max_tokens", 512)), "thinking_support": "documented DeepSeek V4 API toggle; same model", "worlds": list(spec["worlds"]), "context_seeds": int(spec["context_seeds"]), "k_values": list(spec["k_values"]), "representations": list(spec["representations"]), "probes_per_world": len(grouped[spec["worlds"][0]]), "probe_hash": _probe_hash(tasks), "probe_label_histogram": histogram, "contexts": len(contexts), "planned_logical_queries": expected_query_count(spec), "hard_cost_cap_usd": float(spec["hard_cost_cap_usd"]), "max_physical_attempts": int(spec["max_physical_attempts"]), "reasoning_traces_persisted": False, "k0_deduplicated": True, "old_corrupted_control_renamed": True}
+    return {"protocol": PROTOCOL, "config_path": str(config_path.relative_to(ROOT)), "config_hash": _sha256_file(config_path), "base_config": str(Path(base.source_path).resolve().relative_to(ROOT)), "base_config_hash": base.source_hash, "backend": base.agent.backend, "model": base.agent.model, "thinking_modes": list(spec["reasoning_modes"]), "thinking_max_tokens": int(spec.get("thinking_max_tokens", 2048)), "thinking_support": "documented DeepSeek V4 API toggle; same model", "worlds": list(spec["worlds"]), "context_seeds": int(spec["context_seeds"]), "k_values": list(spec["k_values"]), "representations": list(spec["representations"]), "probes_per_world": len(grouped[spec["worlds"][0]]), "probe_hash": _probe_hash(tasks), "probe_label_histogram": histogram, "contexts": len(contexts), "planned_logical_queries": expected_query_count(spec), "hard_cost_cap_usd": float(spec["hard_cost_cap_usd"]), "max_physical_attempts": int(spec["max_physical_attempts"]), "reasoning_traces_persisted": False, "k0_deduplicated": True, "old_corrupted_control_renamed": True}
 
 
 async def run_real(path: str | Path = DEFAULT_CONFIG, *, confirm_real: bool = False) -> dict[str, Any]:
@@ -157,7 +157,7 @@ async def run_real(path: str | Path = DEFAULT_CONFIG, *, confirm_real: bool = Fa
     events = [json.loads(line) for line in events_path.read_text().splitlines() if line.strip()] if events_path.exists() else []
     def completion_uses_current_cap(event: dict[str, Any]) -> bool:
         if event.get("reasoning") != "high": return True
-        return int(event.get("max_tokens", 0)) == int(spec.get("thinking_max_tokens", 512))
+        return int(event.get("max_tokens", 0)) == int(spec.get("thinking_max_tokens", 2048))
     existing = {str(event["query_id"]): event for event in events if event.get("event") == "completion" and event.get("error") is None and completion_uses_current_cap(event)}
     environment = HiddenWorldEnvironment(worlds=tuple(spec["worlds"]), x_min=base.environment.x_min, x_max=base.environment.x_max)
     probes = balanced_probe_tasks(environment, probes_per_world=int(spec["probes_per_world"])); grouped = _probe_map(probes)
@@ -198,7 +198,7 @@ async def run_real(path: str | Path = DEFAULT_CONFIG, *, confirm_real: bool = Fa
                 if cost >= float(spec["hard_cost_cap_usd"]): raise RuntimeError("cost cap reached")
                 physical += 1
             started = time.perf_counter()
-            max_tokens = int(spec.get("thinking_max_tokens", 512)) if reasoning != "off" else int(base.agent.max_tokens or 128)
+            max_tokens = int(spec.get("thinking_max_tokens", 2048)) if reasoning != "off" else int(base.agent.max_tokens or 128)
             async with sem: response = await backend.complete(system_prompt=system_prompt, user_prompt=user_prompt, model=base.agent.model, model_parameters={"thinking": reasoning, "reasoning_effort": "high", "max_tokens": max_tokens})
             latency = response.latency_s or (time.perf_counter() - started); token_usage = response.token_usage; observed = float(response.observed_cost_usd or estimate_usage_cost(token_usage, input_per_million_tokens=base.cost.input_per_million_tokens, cached_input_per_million_tokens=base.cost.cached_input_per_million_tokens, output_per_million_tokens=base.cost.output_per_million_tokens) or 0.0)
             error = response.error; error_category = response.error_category; parsed = None; confidence = None; answer_in_domain = None; semantic = None
