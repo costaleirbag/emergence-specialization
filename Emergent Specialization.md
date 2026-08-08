@@ -1599,3 +1599,26 @@ permanece preservada na auditoria de saúde. Não interpretar HSE, Phi, MI,
 utilização ou ganho de oráculo isoladamente como especialização útil; qualquer
 retomada do controle requer revisão humana explícita. Gate 2 e demais extensões
 permanecem bloqueados.
+
+# 38. Clean v2 — campanha 2×2 completa
+
+A correção da semântica de respostas foi congelada no protocolo
+`staged-v3-response-semantics`. JSON válido com `answer` inteiro fora do domínio
+é agora uma conclusão científica incorreta (`answer_in_domain=false`), sem retry;
+falhas de transporte, conteúdo vazio e JSON malformado continuam sendo falhas
+técnicas auditáveis. Os artifacts v1 permanecem legados e não entram na análise
+limpa.
+
+A campanha `developmental-dynamics-v2` executou quatro células pareadas —
+`confidence/private`, `confidence/shared`, `random/private` e `random/shared` —
+com seeds 1--10. Cada run usou quatro agentes, 20 rounds, checkpoints 0/10/20
+e 40 probes por checkpoint. Foram completadas 22.400/22.400 conclusões lógicas
+em 40 runs, com 18 classificadas como `HEALTHY / CLEAN` e 22 como
+`HEALTHY / RECOVERED`; o custo observado foi US$0,649597.
+
+Este resultado é uma base descritiva para a análise factorial posterior, não uma
+confirmação de especialização nem uma conclusão causal. HSE, Phi, MI, utilização,
+ganho de oráculo e alinhamento de routing devem ser interpretados conjuntamente.
+O inventário, as trajetórias, tabelas tidy e figuras estão em
+`reports/campaigns/developmental-dynamics-v2/clean-2x2/`; a discussão de
+proveniência e guardrails está em `docs/CLEAN_2X2_MECHANISM_REPORT.md`.
