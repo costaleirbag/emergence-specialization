@@ -151,7 +151,10 @@ def _load_budget() -> dict[str, Any]:
 
 def _budget_change(*, reserve: float = 0.0, release: float = 0.0, actual: float = 0.0) -> None:
     budget = _load_budget(); held = float(budget.get("reserved_usd", 0.0)); spent = float(budget.get("spent_usd", 0.0))
-    if held + 1e-12 < release or spent + held - release + reserve > GLOBAL_CAP + 1e-12:
+    # Check both reservations and the amount being reconciled.  Without the
+    # ``actual`` term, a final paid response could push the campaign over its
+    # hard cap after the pre-call reservation had passed.
+    if held + 1e-12 < release or spent + held - release + reserve + actual > GLOBAL_CAP + 1e-12:
         raise RuntimeError("ecology qualification budget guard")
     budget["reserved_usd"] = held - release + reserve; budget["spent_usd"] = spent + actual; budget["updated_at_utc"] = now()
     _atomic_json(CAMPAIGN_BUDGET, budget)
