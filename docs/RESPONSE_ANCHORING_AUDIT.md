@@ -38,8 +38,8 @@ replication unit.
 
 ## Clean v2 society observations
 
-At probe checkpoints, last-label and any-label copying increased most strongly
-in shared memory. The mean pairwise answer agreement among four agents was:
+At probe checkpoints, shared-memory agents became much more answer-agreeing. The
+mean pairwise answer agreement among four agents was:
 
 | Cell | t=0 | t=10 | t=20 |
 |---|---:|---:|---:|
@@ -49,11 +49,18 @@ in shared memory. The mean pairwise answer agreement among four agents was:
 | random/shared | 0.398 | 0.671 | 0.708 |
 
 This is consistent with common memory producing behavioral synchronization, but
-it does not establish that anchoring is the sole cause of HSE/Phi changes. In
-the confidence/shared t=20 probe records, last-label anchoring averaged 0.161
-and any-label anchoring 0.947; correctness when anchored was 0.218 versus 0.200
-when not anchored. Thus copying was common without being a clear competence
-advantage.
+it does not establish that anchoring causes HSE/Phi changes. At t=20,
+confidence/shared last-feedback matching was 0.161 versus about 0.188 in
+confidence/private; random/shared was 0.241 versus 0.261 in random/private.
+Therefore last-feedback copying did **not** increase most strongly in shared.
+
+Any-label matching was 0.947 in confidence/shared, but shared displayed memory
+covered about 77.1% of the seven labels on average, versus 46.8% in private.
+Shared agents also displayed eight recent items, while private agents averaged
+4.72--4.88 items and much older contexts at t=20. Any-label overlap is therefore
+mechanically inflated by label-set coverage and cannot serve as direct copying
+evidence without a coverage-aware null. Last-prediction matching and common
+prompt identity remain plausible mechanisms, not isolated causes.
 
 The complete response-level and probe-level tables are in
 `reports/response-anchoring/`. Regenerate with:

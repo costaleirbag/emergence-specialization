@@ -12,7 +12,7 @@ specialization, or select a preferred condition.
 - Seeds: 1–10 in each cell (40 runs)
 - Four agents, 20 interaction rounds, checkpoints `[0, 10, 20]`, 40 probes per checkpoint
 - DeepSeek Direct, `deepseek-v4-flash`, thinking disabled, Python-controlled `recent_k=8` memory
-- Fixed probe-set hash: `cb234422389ff7d5a04566112a483f147e4a3d1212b1c69ec9ca4c55e`
+- Fixed probe-set hash: `cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e`
 - No legacy v1 artifacts were used in the v2 aggregate.
 
 The first 35 runs were recorded under the campaign tooling commit
@@ -113,7 +113,8 @@ No provider, credential, or network access is needed for this command.
 An offline audit found higher pairwise answer agreement at t=20 in shared-memory
 probes: confidence/shared 0.654 versus confidence/private 0.334, and
 random/shared 0.708 versus random/private 0.438. Shared cells also copied labels
-from common memory frequently. This is compatible with a
-memory-to-anchoring-to-synchronization pathway, but is not proof of mechanism or
-useful competence. Full tables are in `reports/response-anchoring/` and the
+from common memory frequently, but their displayed memories also contain more
+and younger experiences and cover more distinct labels. This is compatible with
+a memory-to-synchronization pathway, but does not isolate anchoring or useful
+competence. Full tables are in `reports/response-anchoring/` and the corrected
 definitions/caveats are in `docs/RESPONSE_ANCHORING_AUDIT.md`.

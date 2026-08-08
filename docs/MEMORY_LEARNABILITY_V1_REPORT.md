@@ -33,7 +33,7 @@ Observed latency across attempts was mean 2.041 s, median 2.025 s, minimum
 | same world | 2 | 0.171 | 0.735 | 0.544 | 0.489 |
 | same world | 4 | 0.145 | 0.642 | 0.478 | 0.453 |
 | same world | 8 | 0.172 | 0.641 | 0.459 | 0.523 |
-| corrupted k=8 | 8 | 0.150 | 0.259 | 0.223 | 0.464 |
+| wrong prediction + correct feedback | 8 | 0.150 | 0.259 | 0.223 | 0.464 |
 | unrelated k=8 | 8 | 0.174 | 0.317 | 0.244 | 0.468 |
 | mixed k=8 | 8 | 0.170 | 0.724 | 0.532 | 0.453 |
 
@@ -44,6 +44,15 @@ assuming that `recent_k=8` reliably teaches the hidden rule. In particular, high
 confidence in the memory conditions was not a reliable correctness signal. This
 is precisely why the calibration was run before authorizing a new scientific
 condition.
+
+An exact GF(7) audit later showed that all same-world `k=4` and `k=8`
+contexts were mathematically rank-full, so the weak curve is not generally an
+identifiability failure at those sizes. It also found a holdout flaw: exact
+coordinates were disjoint, but congruent residue pairs were not excluded. At
+`k=8`, 16.3% of probe responses had a modularly equivalent exemplar; accuracy
+was about 0.462 on those aliases and 0.128 on the genuinely non-alias subset.
+The report should therefore be read as a failure to demonstrate reliable rule
+induction, not as a clean estimate of abstract held-out learning.
 
 The repeated-call diagnostic contains 320 contexts × 30 probe-level responses.
 Reliability is grouped by exact probe/task identity as well as context in

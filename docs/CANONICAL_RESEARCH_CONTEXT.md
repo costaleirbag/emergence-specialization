@@ -33,3 +33,18 @@ Labels in this section are deliberately separated:
 - **Observed:** raw events, costs, response agreement, and health counts.
 - **Inference:** memory may synchronize responses through persistent anchors.
 - **Proposal:** validate a provider-safe thinking calibration before any new society run.
+
+## 2026-08-08 identifiability and robustness correction
+
+Exact GF(7) analysis shows that almost every `k=4` and every `k=8` calibration
+context is rank-full and symbolically recoverable. The original holdout was not
+disjoint modulo seven, however, so direct residue aliases inflate reported
+accuracy. Non-alias performance is weaker, reinforcing the narrow conclusion
+that reliable induction was not demonstrated.
+
+The clean-v2 private/shared HSE endpoint contrast survives single/complete/
+average linkage, cosine/Hamming/Jaccard distances, probe bootstrap, and every
+leave-one-probe-out deletion. This establishes robustness of the behavioral-
+diversity observation, not its mechanism. Shared displayed contexts also have
+more, younger, and label-richer memory than private contexts, so anchoring,
+memory volume, recency, and locality are confounded in the society contrast.
