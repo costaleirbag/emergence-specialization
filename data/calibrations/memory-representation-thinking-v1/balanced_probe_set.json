@@ -1,0 +1,436 @@
+{
+  "label_histogram": {
+    "ALPHA": {
+      "0": 2,
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2,
+      "6": 2
+    },
+    "BETA": {
+      "0": 2,
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2,
+      "6": 2
+    },
+    "DELTA": {
+      "0": 2,
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2,
+      "6": 2
+    },
+    "GAMMA": {
+      "0": 2,
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2,
+      "6": 2
+    }
+  },
+  "probe_hash": "7c5370122b553dafbd1ef950f3b4de9ca9636f7c3922cb31800169638b59c2df",
+  "protocol": "memory-representation-thinking-v1",
+  "tasks": [
+    {
+      "correct_answer": 0,
+      "task_id": "balanced-ALPHA-0",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 6
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "balanced-ALPHA-1",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 13
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "balanced-ALPHA-2",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "balanced-ALPHA-3",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 7
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "balanced-ALPHA-4",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 1
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "balanced-ALPHA-5",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 8
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "balanced-ALPHA-6",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 2
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "balanced-ALPHA-7",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 9
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "balanced-ALPHA-8",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 3
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "balanced-ALPHA-9",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 10
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "balanced-ALPHA-10",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "balanced-ALPHA-11",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 11
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "balanced-ALPHA-12",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 5
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "balanced-ALPHA-13",
+      "world": "ALPHA",
+      "x": 0,
+      "y": 12
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "balanced-BETA-0",
+      "world": "BETA",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "balanced-BETA-1",
+      "world": "BETA",
+      "x": 0,
+      "y": 11
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "balanced-BETA-2",
+      "world": "BETA",
+      "x": 0,
+      "y": 2
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "balanced-BETA-3",
+      "world": "BETA",
+      "x": 0,
+      "y": 9
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "balanced-BETA-4",
+      "world": "BETA",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "balanced-BETA-5",
+      "world": "BETA",
+      "x": 0,
+      "y": 7
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "balanced-BETA-6",
+      "world": "BETA",
+      "x": 0,
+      "y": 5
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "balanced-BETA-7",
+      "world": "BETA",
+      "x": 0,
+      "y": 12
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "balanced-BETA-8",
+      "world": "BETA",
+      "x": 0,
+      "y": 3
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "balanced-BETA-9",
+      "world": "BETA",
+      "x": 0,
+      "y": 10
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "balanced-BETA-10",
+      "world": "BETA",
+      "x": 0,
+      "y": 1
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "balanced-BETA-11",
+      "world": "BETA",
+      "x": 0,
+      "y": 8
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "balanced-BETA-12",
+      "world": "BETA",
+      "x": 0,
+      "y": 6
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "balanced-BETA-13",
+      "world": "BETA",
+      "x": 0,
+      "y": 13
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "balanced-GAMMA-0",
+      "world": "GAMMA",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "balanced-GAMMA-1",
+      "world": "GAMMA",
+      "x": 0,
+      "y": 7
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "balanced-GAMMA-2",
+      "world": "GAMMA",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "balanced-GAMMA-3",
+      "world": "GAMMA",
+      "x": 0,
+      "y": 11
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "balanced-GAMMA-4",
+      "world": "GAMMA",
+      "x": 0,
+      "y": 1
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "balanced-GAMMA-5",
+      "world": "GAMMA",
+      "x": 0,
+      "y": 8
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "balanced-GAMMA-6",
+      "world": "GAMMA",
+      "x": 0,
+      "y": 5
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "balanced-GAMMA-7",
+      "world": "GAMMA",
+      "x": 0,
+      "y": 12
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "balanced-GAMMA-8",
+      "world": "GAMMA",
+      "x": 0,
+      "y": 2
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "balanced-GAMMA-9",
+      "world": "GAMMA",
+      "x": 0,
+      "y": 9
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "balanced-GAMMA-10",
+      "world": "GAMMA",
+      "x": 0,
+      "y": 6
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "balanced-GAMMA-11",
+      "world": "GAMMA",
+      "x": 0,
+      "y": 13
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "balanced-GAMMA-12",
+      "world": "GAMMA",
+      "x": 0,
+      "y": 3
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "balanced-GAMMA-13",
+      "world": "GAMMA",
+      "x": 0,
+      "y": 10
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "balanced-DELTA-0",
+      "world": "DELTA",
+      "x": 0,
+      "y": 2
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "balanced-DELTA-1",
+      "world": "DELTA",
+      "x": 0,
+      "y": 9
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "balanced-DELTA-2",
+      "world": "DELTA",
+      "x": 0,
+      "y": 5
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "balanced-DELTA-3",
+      "world": "DELTA",
+      "x": 0,
+      "y": 12
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "balanced-DELTA-4",
+      "world": "DELTA",
+      "x": 0,
+      "y": 1
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "balanced-DELTA-5",
+      "world": "DELTA",
+      "x": 0,
+      "y": 8
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "balanced-DELTA-6",
+      "world": "DELTA",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "balanced-DELTA-7",
+      "world": "DELTA",
+      "x": 0,
+      "y": 11
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "balanced-DELTA-8",
+      "world": "DELTA",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "balanced-DELTA-9",
+      "world": "DELTA",
+      "x": 0,
+      "y": 7
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "balanced-DELTA-10",
+      "world": "DELTA",
+      "x": 0,
+      "y": 3
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "balanced-DELTA-11",
+      "world": "DELTA",
+      "x": 0,
+      "y": 10
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "balanced-DELTA-12",
+      "world": "DELTA",
+      "x": 0,
+      "y": 6
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "balanced-DELTA-13",
+      "world": "DELTA",
+      "x": 0,
+      "y": 13
+    }
+  ]
+}
