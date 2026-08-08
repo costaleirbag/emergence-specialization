@@ -144,3 +144,35 @@ tests, and a cost-ledger check.
   a second review before the experiment can become eligible again.
 - Worker economy changed immediately to at most two concurrent bounded workers.
 
+## 2026-08-08 — AR-001 implementation and safety amendment
+
+- The task-ecology review does not make the explicit-rule control redundant.
+  Offline algebra can prove that a context identifies a rule, but cannot decide
+  whether the frozen model executes that rule reliably. AR-001 therefore still
+  distinguishes live H7 (execution) from H4 (induction/prompting) more directly
+  than another offline ecology analysis. It does **not** validate GF(7) as a
+  broad functional ecology.
+- Frozen config SHA256:
+  `462aa3a7ccbdac52be1d34050eb9c497ee0da9a9eab03740996e0080b23e6d90`.
+- Runner implementation commit: `468a6f2` (`Add fail-closed explicit rule
+  diagnostic`). Frozen module SHA256:
+  `b10f649b902f7f1a93fa9b576740f4a9c0465ed7059cabe0b9495421d6f369d8`.
+- Frozen balanced probe commit: `13f40d9`; probe SHA256 remains
+  `7c5370122b553dafbd1ef950f3b4de9ca9636f7c3922cb31800169638b59c2df`.
+- Retry policy is the original preregistered technical set only: transport,
+  empty response, or parse/schema failure, at most one retry. Rate limits and
+  provider/server errors are not newly authorized categories.
+- Cost controls reserve US$0.005 before each attempt. The frozen price/token
+  bound is US$0.00462336 per attempt; unknown cost retains the entire
+  reservation. The experiment hard observed cap is US$0.05 and the initialized
+  session ledger has US$2.00 available, with experiment-scoped spent/reserved
+  reconciliation.
+- Resume freezes config, probe, prompts/logical IDs, implementation hash, Git
+  HEAD, and relevant worktree state; terminal failures cannot resume without an
+  explicit amendment. Output execution is single-process locked.
+- Offline validation at this amendment: **162 tests passed**, compileall PASS,
+  preflight reports 168 logical calls, 336 physical ceiling, balanced labels,
+  no credential access, and no network access.
+- Three implementation reviews were required. The first two independently
+  blocked unsafe versions; no paid call occurred. Final execution eligibility
+  remains contingent on one last adversarial review of the committed state.
