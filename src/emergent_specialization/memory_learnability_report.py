@@ -84,6 +84,33 @@ def _auc(scores: list[float], labels: list[bool]) -> float | None:
     return wins / (len(pos) * len(neg))
 
 
+def _pairwise_agreement(values: list[Any]) -> float | None:
+    if len(values) < 2:
+        return None
+    pairs = len(values) * (len(values) - 1) // 2
+    return sum(values[i] == values[j] for i in range(len(values)) for j in range(i + 1, len(values))) / pairs
+
+
+def _display_mode(mode: str) -> str:
+    # Historical raw events used this name, but the payload contained truthful
+    # corrective feedback after a wrong previous prediction. It was never a
+    # corrupted-label control. Raw JSONL is immutable; only analysis labels are
+    # corrected here.
+    return "wrong_prediction_with_correct_feedback_k8" if mode == "corrupted_k8" else mode
+
+
+def _anchoring(event: dict[str, Any]) -> dict[str, Any]:
+    answer = event.get("parsed_answer")
+    memory = event.get("context", {}).get("memory", [])
+    if answer is None or not memory:
+        return {"last_prediction": None, "last_label": None, "any_prediction": None, "any_label": None, "modal_label": None}
+    predictions = [item.get("prediction") for item in memory]
+    labels = [item.get("correct_answer") for item in memory]
+    counts = {label: labels.count(label) for label in set(labels)}
+    modal = max(counts, key=lambda label: (-counts[label], label))
+    return {"last_prediction": float(answer == predictions[-1]), "last_label": float(answer == labels[-1]), "any_prediction": float(answer in predictions), "any_label": float(answer in labels), "modal_label": float(answer == modal)}
+
+
 def _svg_line(path: Path, series: dict[str, list[tuple[float, float]]], title: str, y_label: str) -> None:
     width, height = 920, 500; left, top, right, bottom = 90, 55, 30, 65
     points = [p for seq in series.values() for p in seq]
@@ -134,12 +161,20 @@ def generate(input_dir: str | Path = DEFAULT_INPUT, output_dir: str | Path = DEF
     manifest = json.loads((input_dir / "manifest.json").read_text(encoding="utf-8"))
     events = [json.loads(line) for line in (input_dir / "events.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
     completions = [e for e in events if e.get("event") == "completion" and e.get("error") is None]
-    groups: dict[tuple[str, str, int, int], list[dict[str, Any]]] = defaultdict(list)
-    for event in completions: groups[(str(event["mode"]), str(event["target_world"]), int(event["k"]), int(event["context_seed"]))].append(event)
+    # Reliability is defined over identical prompts/probes, not over all probes
+    # in a context. The old report accidentally mixed ten distinct probes with
+    # three replicates.
+    groups: dict[tuple[str, str, int, int, str], list[dict[str, Any]]] = defaultdict(list)
+    for event in completions:
+        probe_id = str((event.get("probe") or {}).get("task_id") or event.get("prompt_hash"))
+        groups[(str(event["mode"]), str(event["target_world"]), int(event["k"]), int(event["context_seed"]), probe_id)].append(event)
     summary_rows: list[dict[str, Any]] = []
-    for (mode, world, k, seed), rows in sorted(groups.items()):
+    context_groups: dict[tuple[str, str, int, int], list[dict[str, Any]]] = defaultdict(list)
+    for (mode, world, k, seed, _probe), rows in groups.items(): context_groups[(mode, world, k, seed)].extend(rows)
+    for (mode, world, k, seed), rows in sorted(context_groups.items()):
         labels = [bool(row.get("correct")) for row in rows]; conf = [float(row.get("confidence", 0.0)) for row in rows]
-        summary_rows.append({"mode": mode, "world": world, "k": k, "context_seed": seed, "n": len(rows), "accuracy": _mean(labels), "accuracy_sd": _sd([float(v) for v in labels]), "mean_confidence": _mean(conf), "confidence_sd": _sd(conf), "confidence_accuracy_r": _corr(conf, [float(v) for v in labels]), "confidence_accuracy_spearman": _corr(_rank(conf), _rank([float(v) for v in labels])), "confidence_auc": _auc(conf, labels), "brier": _mean([(c-float(y))**2 for c, y in zip(conf, labels)])})
+        anchor_rows = [_anchoring(row) for row in rows]
+        summary_rows.append({"mode": _display_mode(mode), "raw_mode": mode, "world": world, "k": k, "context_seed": seed, "n": len(rows), "accuracy": _mean(labels), "accuracy_sd": _sd([float(v) for v in labels]), "mean_confidence": _mean(conf), "confidence_sd": _sd(conf), "confidence_accuracy_r": _corr(conf, [float(v) for v in labels]), "confidence_accuracy_spearman": _corr(_rank(conf), _rank([float(v) for v in labels])), "confidence_auc": _auc(conf, labels), "brier": _mean([(c-float(y))**2 for c, y in zip(conf, labels)]), "last_label_anchoring": _mean(float(row["last_label"]) for row in anchor_rows if row["last_label"] is not None), "any_label_anchoring": _mean(float(row["any_label"]) for row in anchor_rows if row["any_label"] is not None), "accuracy_anchored_last_label": _mean(float(row.get("correct")) for row, anchor in zip(rows, anchor_rows) if anchor["last_label"] == 1.0), "accuracy_unanchored_last_label": _mean(float(row.get("correct")) for row, anchor in zip(rows, anchor_rows) if anchor["last_label"] == 0.0)})
     _write_csv(output_dir / "learnability_by_context.csv", summary_rows)
     curve_rows = []
     for mode in sorted({r["mode"] for r in summary_rows}):
@@ -150,8 +185,9 @@ def generate(input_dir: str | Path = DEFAULT_INPUT, output_dir: str | Path = DEF
     reliability: list[dict[str, Any]] = []
     for key, rows in sorted(groups.items()):
         answers = [row.get("parsed_answer") for row in sorted(rows, key=lambda x: int(x["replicate_id"]))]; correctness = [bool(row.get("correct")) for row in rows]; conf = [float(row.get("confidence", 0)) for row in rows]
-        reliability.append({"mode": key[0], "world": key[1], "k": key[2], "context_seed": key[3], "replicates": len(rows), "exact_answer_agreement": float(len(set(answers)) == 1), "correctness_agreement": float(len(set(correctness)) == 1), "confidence_sd": _sd(conf), "answers": json.dumps(answers)})
+        reliability.append({"mode": _display_mode(key[0]), "raw_mode": key[0], "world": key[1], "k": key[2], "context_seed": key[3], "probe_id": key[4], "replicates": len(rows), "exact_3way_answer_agreement": float(len(rows) == 3 and len(set(answers)) == 1), "pairwise_answer_agreement": _pairwise_agreement(answers), "exact_3way_correctness_agreement": float(len(rows) == 3 and len(set(correctness)) == 1), "pairwise_correctness_agreement": _pairwise_agreement(correctness), "confidence_variance": statistics.pvariance(conf) if len(conf) > 1 else 0.0, "pairwise_confidence_difference": _mean(abs(conf[i] - conf[j]) for i in range(len(conf)) for j in range(i + 1, len(conf))), "answers": json.dumps(answers)})
     _write_csv(output_dir / "replicate_reliability.csv", reliability)
+    _write_csv(output_dir / "anchoring_by_context.csv", summary_rows)
     _svg_line(output_dir / "figures/accuracy_by_k.svg", {mode: [(float(r["k"]), float(r["accuracy"])) for r in curve_rows if r["mode"] == mode] for mode in sorted({r["mode"] for r in curve_rows})}, "Memory learnability calibration", "accuracy")
     _svg_line(output_dir / "figures/confidence_by_k.svg", {mode: [(float(r["k"]), float(r["confidence"])) for r in curve_rows if r["mode"] == mode] for mode in sorted({r["mode"] for r in curve_rows})}, "Confidence calibration", "mean confidence")
     positive = _manual_positive_control(summary_rows); _write_json(output_dir / "synthetic_positive_control.json", positive)
