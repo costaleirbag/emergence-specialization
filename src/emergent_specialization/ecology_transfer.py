@@ -199,19 +199,46 @@ async def run_real(ecology_name: str, *, confirm_real: bool = False) -> dict[str
         raise RuntimeError("frozen transfer manifest count mismatch")
     output = OUTPUT_ROOT / ecology_name.lower(); output.mkdir(parents=True, exist_ok=True)
     events_path = output / "events.jsonl"; status_path = output / "manifest.json"
-    if events_path.exists() or status_path.exists():
-        raise RuntimeError("transfer output already exists; no duplicate run")
-    status = {"protocol": manifest["protocol"], "ecology": ecology_name, "status": "initialized",
-              "tasks_hash": manifest["tasks_hash"], "logical_calls": 1920, "created_at_utc": now()}
+    # A failed qualification is resumable.  Existing terminal logical records
+    # are never re-called; only missing logical IDs (or an explicitly
+    # retryable transport record) may continue.  A completed output remains
+    # immutable and cannot be duplicated.
+    events: list[dict[str, Any]] = []
+    if events_path.exists():
+        events = [json.loads(line) for line in events_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    if status_path.exists():
+        status = json.loads(status_path.read_text(encoding="utf-8"))
+        if status.get("tasks_hash") != manifest["tasks_hash"] or status.get("ecology") != ecology_name:
+            raise RuntimeError("existing transfer output does not match frozen manifest")
+        if status.get("status") == "completed":
+            raise RuntimeError("transfer output already completed; no duplicate run")
+        status["resumed_at_utc"] = now()
+        status["status"] = "resuming"
+    else:
+        status = {"protocol": manifest["protocol"], "ecology": ecology_name, "status": "initialized",
+                  "tasks_hash": manifest["tasks_hash"], "logical_calls": 1920, "created_at_utc": now()}
     _atomic_json(status_path, status)
-    backend = None; events: list[dict[str, Any]] = []; cost_total = 0.0; physical = 0; retries = 0
+    terminal_ids = {event.get("logical_id") for event in events
+                    if event.get("error") is None or event.get("error_category") == "out_of_domain"}
+    attempts_by_id: dict[str, int] = defaultdict(int)
+    for event in events:
+        logical_id = event.get("logical_id")
+        if logical_id:
+            attempts_by_id[logical_id] = max(attempts_by_id[logical_id], int(event.get("attempt", 0)) + 1)
+    backend = None; cost_total = sum(float(event.get("attempt_cost_usd") or 0.0) for event in events)
+    physical = len(events); retries = sum(1 for event in events if int(event.get("attempt", 0)) > 0)
     try:
         key = CredentialStore().get(source="keychain")
         backend = DeepSeekDirectBackend(api_key=key, thinking="off", max_tokens=256)
         ecology = ECOLOGIES[ecology_name]
         for task in manifest["tasks"]:
             logical_id = stable_hash({"ecology": ecology_name, "task": task, "tasks_hash": manifest["tasks_hash"]})
-            for attempt in range(2):
+            if logical_id in terminal_ids:
+                continue
+            start_attempt = attempts_by_id.get(logical_id, 0)
+            if start_attempt >= 2:
+                raise RuntimeError(f"retry exhaustion for logical_id {logical_id}")
+            for attempt in range(start_attempt, 2):
                 _global_ledger_change(reserve=RESERVATION)
                 _budget_change(reserve=RESERVATION)
                 response = await backend.complete(system_prompt="You are a single-agent procedural transfer diagnostic. Use the resolved cases as feedback-only memory.",
@@ -235,7 +262,11 @@ async def run_real(ecology_name: str, *, confirm_real: bool = False) -> dict[str
                          "latency_s": response.latency_s, "token_usage": response.token_usage,
                          "provider_metadata": provider, "attempt_cost_usd": float(value), "finished_at_utc": now()}
                 _append_event(events_path, event); events.append(event)
-                if error is None:
+                # Out-of-domain answers are semantic data (an incorrect/OOD
+                # completion), not a technical failure and never merit a
+                # retry.  They still complete this logical context.
+                if error is None or event["error_category"] == "out_of_domain":
+                    terminal_ids.add(logical_id)
                     break
                 if event["error_category"] not in {"parse_error", "empty_content", "transient_transport", "transport", "malformed"} or not response.retryable:
                     raise RuntimeError(str(error))
@@ -366,12 +397,14 @@ def aggregate(ecology_name: str) -> dict[str, Any]:
     for event in events:
         task = event["task"]; grouped[(task["seed"], task["target"], task["source"], task["h"])].append(event)
         memory = task.get("memory") or []; mem_answers = _memory_answers(memory)
-        answer = event.get("answer"); correct = event.get("correct") if event.get("error") is None else None
+        answer = event.get("answer")
+        semantic_ood = event.get("error_category") == "out_of_domain"
+        correct = event.get("correct") if event.get("error") is None else False if semantic_ood else None
         response_rows.append({"ecology": ecology_name, "seed": task["seed"], "source": task["source"] or "none", "target": task["target"],
                               "h": task["h"], "condition": task["condition"], "replicate": task["replicate"],
                               "case_id": task["case"]["case_id"], "answer": answer, "expected": task["case"]["expected"],
                               "correct": correct, "confidence": event.get("confidence"), "latency_s": event.get("latency_s"),
-                              "error": event.get("error"), "error_category": event.get("error_category"),
+                              "error": event.get("error"), "error_category": event.get("error_category"), "semantic_ood": semantic_ood,
                               "prompt_hash": stable_hash({"task": task, "ecology": ecology_name}),
                               "memory_count": len(memory), "last_memory_answer": mem_answers[-1] if mem_answers else None,
                               "any_memory_match": bool(answer and answer in mem_answers),
@@ -383,11 +416,11 @@ def aggregate(ecology_name: str) -> dict[str, Any]:
     _write_csv(out_dir / "response_level.csv", response_rows)
     rows: list[dict[str, Any]] = []
     for (seed, target, source, h), values in sorted(grouped.items()):
-        valid = [v for v in values if v.get("error") is None and v.get("answer") is not None]
+        valid = [v for v in values if (v.get("error") is None or v.get("error_category") == "out_of_domain") and v.get("answer") is not None]
         rows.append({"ecology": ecology_name, "seed": seed, "source": source or "none", "target": target, "h": h,
                      "n": len(valid), "accuracy": _mean([1.0 if v["correct"] else 0.0 for v in valid]),
                      "mean_confidence": _mean([float(v["confidence"]) for v in valid if v.get("confidence") is not None]),
-                     "errors": len(values) - len(valid)})
+                     "errors": len(values) - len(valid), "semantic_ood": sum(v.get("error_category") == "out_of_domain" for v in values)})
     _atomic_json(out_dir / f"{ecology_name.lower()}_aggregate.json", {"rows": rows, "ecology": ecology_name})
     lookup = {(r["seed"], r["target"]): r for r in rows if r["source"] == "none" and r["h"] == 0}
     environment_rows: list[dict[str, Any]] = []
@@ -438,7 +471,7 @@ def aggregate(ecology_name: str) -> dict[str, Any]:
     confidence_rows: list[dict[str, Any]] = []
     anchoring_rows: list[dict[str, Any]] = []
     for key, values in sorted(grouped.items()):
-        seed, target, source, h = key; valid = [v for v in values if v.get("error") is None and v.get("answer") is not None]
+        seed, target, source, h = key; valid = [v for v in values if (v.get("error") is None or v.get("error_category") == "out_of_domain") and v.get("answer") is not None]
         scores = [float(v["confidence"]) for v in valid if v.get("confidence") is not None]; labels = [bool(v["correct"]) for v in valid if v.get("confidence") is not None]
         mem = [_memory_answers(v["task"].get("memory") or []) for v in valid]
         anchoring_rows.append({"ecology": ecology_name, "seed": seed, "source": source or "none", "target": target, "h": h, "n": len(valid),
