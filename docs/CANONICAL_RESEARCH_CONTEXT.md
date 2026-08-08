@@ -48,3 +48,28 @@ leave-one-probe-out deletion. This establishes robustness of the behavioral-
 diversity observation, not its mechanism. Shared displayed contexts also have
 more, younger, and label-richer memory than private contexts, so anchoring,
 memory volume, recency, and locality are confounded in the society contrast.
+
+## 2026-08-08 task-ecology reframing
+
+The current GF(7) worlds vary coefficients inside one affine-modular operation.
+They remain valuable as an exact mechanistic control and possible null ecology,
+but are not by themselves a construct-valid substrate for broad functional
+roles. The program's stronger open question is now:
+
+> Under what task ecologies do initially exchangeable LLM societies develop
+> acquired functional specialization?
+
+Before another society experiment, estimate a directed causal transfer matrix
+`L_cd(h)`: improvement on held-out family `d` after randomized exposure to
+family `c`, relative to a matched placebo and at explicit retention horizons.
+An ecology must first show learnability and non-flat transfer/comparative-
+advantage structure. Behavioral diversity, competence differentiation, useful
+allocation, and collective gain remain distinct outcomes.
+
+Current evidence supports two simultaneous conclusions: GF(7) is difficult
+under the frozen thinking-off memory protocol, and it is structurally narrow
+even if execution/induction can be repaired. The explicit-rule AR-001 diagnostic
+can separate arithmetic execution from induction; it cannot validate GF(7) as
+a broad functional ecology. No semantic benchmark or society run should be
+launched until generators, exact verifiers, leakage controls, and the
+single-agent transfer gate are validated offline.

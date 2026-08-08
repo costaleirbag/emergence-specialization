@@ -63,3 +63,84 @@ existing-data anchoring tests; theory and HSE robustness. A paid experiment is
 eligible only after a frozen preregistration, implementation review, passing
 tests, and a cost-ledger check.
 
+## 2026-08-08T13:40:02Z — EXPERIMENT AR-001 preregistration
+
+- **Experiment ID:** `AR-001-explicit-rule-execution-v1`.
+- **Discovery/confirmation label:** microscopic diagnostic positive control;
+  neither society evidence nor confirmation of the anchoring hypothesis.
+- **Hypotheses addressed:** H7 (execution bottleneck), with implications for H4
+  (induction bottleneck).
+- **Exact question:** when the correct affine rule is explicitly supplied, can
+  thinking-off `deepseek-v4-flash` reliably execute it on balanced unseen
+  inputs modulo seven?
+- **Why this is higher-value now:** exact GF(7) auditing has already shown that
+  the generator and almost all `k=4/8` contexts are mathematically learnable.
+  Before paying for coefficient induction or memory-order manipulation, the
+  arithmetic-execution link must be isolated. This design is smaller and less
+  confounded than either alternative.
+- **Protocol:** single stateless DeepSeek Direct completion; no society, router,
+  agent identity, memory, or adaptive feedback. Reuse the frozen 56-task
+  balanced probe manifest (14 per world, exactly two per correct label 0--6;
+  hash `7c5370122b553dafbd1ef950f3b4de9ca9636f7c3922cb31800169638b59c2df`).
+  For each task, explicitly state the correct world coefficient triple and the
+  formula `z=(a*x+b*y+c) mod 7`, then request the normal answer/confidence JSON.
+  Use four worlds, all 56 probes, three independent calls per exact prompt,
+  thinking disabled, `max_tokens=128`, and no provider sampling seed (not
+  exposed). Probe order is deterministic and results are append-only.
+- **Primary outcome:** valid-response accuracy overall and by world. This is a
+  gross capability diagnostic; task/world and exact-prompt replicate are
+  reported, not treated as 168 independent scientific societies.
+- **Secondary outcomes:** exact three-way/pairwise answer and correctness
+  agreement, confidence/correctness relationship, semantic OOD responses,
+  technical errors/retries, latency, token usage, provider model/fingerprint,
+  and observed cost.
+- **Expected patterns:** accuracy >=0.85 supports reliable execution and shifts
+  the main bottleneck toward induction/prompting; accuracy <=0.35 supports an
+  execution bottleneck under this exact protocol; an intermediate result is
+  ambiguous. These thresholds were chosen before data inspection and are not
+  publication-level tests.
+- **Technical retry semantics:** transport, empty content, or malformed schema
+  may be retried once. A valid wrong or out-of-domain integer is scientific data
+  and must never be retried.
+- **Stopping rule:** stop after 168 successful logical responses or when a hard
+  cost/attempt guard fires. Do not increase sample size adaptively based on
+  accuracy.
+- **Logical call count:** 56 probes x 3 replicates = **168**.
+- **Maximum physical attempts:** **336**.
+- **Projected cost:** approximately US$0.01 from recent thinking-off calls;
+  conservative experiment hard cap **US$0.05**.
+- **Global cost check before implementation:** cumulative autonomous-session
+  cost US$0.00; worst-case experiment cap leaves US$1.95 of the US$2.00 global
+  budget.
+- **Implementation base:** `e3577ce5a2ca19b5ffce930d5c41ef36d7619ba4`.
+- **Implementation commit/hash:** pending implementation and adversarial review;
+  it must be recorded in a dated amendment before any paid call.
+
+## 2026-08-08 — task-ecology priority steer and AR-001 pause
+
+- New high-level concern: the four GF(7) worlds vary coefficients inside one
+  cognitive operation and may be a poor sole substrate for broad functional
+  specialization.
+- Added H13, task-ecology transfer geometry, and formalized the directed causal
+  learning-transfer matrix `L_cd(h)` in
+  `docs/TASK_ECOLOGY_TRANSFER_GEOMETRY.md`.
+- Existing data already suggest the first GF(7) failure regime: on truly
+  non-alias thinking-off probes, targeted experience does not produce a clear
+  positive same-world gain. This is descriptive because the old protocol was
+  not designed as a full randomized transfer matrix.
+- GF(7) is retained as an exact mechanistic/null ecology. It is not discarded,
+  and its narrow parameter-specialization interpretation remains testable.
+- The literature indicates that task relations should be measured through
+  directed transfer and that recent work already claims spontaneous LLM niche
+  specialists on heterogeneous streams. The prospective novelty is therefore
+  ecology-to-organization prediction, not merely “roles emerge”.
+- `AR-001-explicit-rule-execution-v1` remains scientifically useful for
+  separating arithmetic execution from induction, but paid execution is paused
+  while this construct-validity analysis is completed.
+- An adversarial implementation review independently blocked the initial AR-001
+  runner because token-derived cost guards, global ledger updates, credential
+  configuration, resume identity, provider-model validation, and health states
+  were unsafe. No real call occurred. Remediation is offline-only and must pass
+  a second review before the experiment can become eligible again.
+- Worker economy changed immediately to at most two concurrent bounded workers.
+

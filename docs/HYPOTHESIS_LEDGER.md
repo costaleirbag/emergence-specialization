@@ -230,3 +230,32 @@ level; it never means universal truth.
 - **Last update:** 2026-08-08 session initialization, limited to claim that the
   current data are compatible with and illustrate this separation.
 
+## H13 — task-ecology transfer geometry
+
+- **Statement:** acquired functional specialization requires a task ecology with
+  learnable, capacity-constrained and non-flat transfer geometry; the current
+  coefficient-varying GF(7) worlds may be a mechanistic/null ecology rather than
+  a construct-valid substrate for broad procedural roles.
+- **Mechanism:** targeted exposure creates comparative advantage only when
+  `L_cc` exceeds relevant cross-family `L_cd`, or when the directed transfer
+  matrix has useful block/asymmetric/interference structure.
+- **Prior:** HIGH that ecology matters; MEDIUM that GF(7) is structurally too
+  narrow for the broad role construct.
+- **Supporting evidence:** all worlds share one affine-modular operation; existing
+  non-alias calibrations show little positive same-world learning; current
+  literature on task transfer and recent heterogeneous-agent evolution treats
+  task relations as substantive rather than labels.
+- **Contradicting evidence:** coefficient knowledge is world-specific, so GF(7)
+  could still yield a diagonal `L` and a narrow parameter-specialization result
+  if learning worked. That has not been cleanly demonstrated or refuted under a
+  rule-aware positive-control protocol.
+- **Alternatives:** the task ecology is adequate but DeepSeek thinking-off, the
+  renderer, arithmetic execution, or memory budget is the true bottleneck.
+- **Cheapest discriminating test:** existing-data non-alias estimate of GF(7)
+  diagonal versus unrelated exposure, plus explicit-rule execution to isolate
+  arithmetic.
+- **Stronger test:** prevalidate a generated semantic/procedural ecology and
+  estimate the full randomized single-agent `L_cd(h)` matrix before any society.
+- **Status:** OPEN.
+- **Last update:** 2026-08-08 ecology-priority steer.
+

@@ -129,3 +129,26 @@ H7. No cited source establishes that persistent memory primarily anchors this
 specific model, and none converts the clean-v2 HSE contrast into evidence of
 functional specialization.
 
+## Task ecology and directed transfer
+
+Taskonomy operationalizes relationships between tasks by measuring directed
+transfer rather than assuming semantic relatedness. This motivates treating the
+ecology itself as an empirical object and estimating `L_cd`:
+https://arxiv.org/abs/1804.08328.
+
+Two useful generator/verifier precedents are gSCAN, for grounded command
+execution and systematic compositional splits
+(https://papers.nips.cc/paper_files/paper/2020/hash/e5a90182cc81e12ab5e72d66e0b46fe3-Abstract.html),
+and CLUTRR, for generated relational stories and held-out logical combinations
+(https://arxiv.org/abs/1908.06177). They are still synthetic and can contain
+shortcuts; their value is semantic surface structure plus exact latent
+interpreters, not realism by itself.
+
+Recent EVOCHAMBER claims four to five stable niche specialists from identical
+initial agents on heterogeneous math/code/reasoning streams
+(https://arxiv.org/abs/2605.11136). It is a recent preprint and its claims need
+full comparative review, but it materially weakens novelty based only on
+“identical LLM agents spontaneously acquire roles”. A stronger hypothesis is
+that a measured task-transfer ecology predicts whether behavioral
+differentiation becomes retained comparative advantage and useful allocation.
+
