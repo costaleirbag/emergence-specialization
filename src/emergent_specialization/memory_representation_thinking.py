@@ -157,6 +157,13 @@ async def run_real(path: str | Path = DEFAULT_CONFIG, *, confirm_real: bool = Fa
     existing = {str(event["query_id"]): event for event in events if event.get("event") == "completion" and event.get("error") is None}
     environment = HiddenWorldEnvironment(worlds=tuple(spec["worlds"]), x_min=base.environment.x_min, x_max=base.environment.x_max)
     probes = balanced_probe_tasks(environment, probes_per_world=int(spec["probes_per_world"])); grouped = _probe_map(probes)
+    probe_manifest_path = (ROOT / str(spec["probe_set_path"])).resolve()
+    if not probe_manifest_path.exists():
+        _write_json(probe_manifest_path, {"protocol": PROTOCOL, "probe_hash": _probe_hash(probes), "tasks": [asdict(task) for task in probes], "label_histogram": {world: {label: sum(task.correct_answer == label for task in grouped[world]) for label in range(7)} for world in spec["worlds"]}})
+    else:
+        stored = json.loads(probe_manifest_path.read_text(encoding="utf-8"))
+        if stored.get("probe_hash") != _probe_hash(probes) or stored.get("tasks") != [asdict(task) for task in probes]:
+            raise RuntimeError("existing balanced probe manifest does not match deterministic protocol")
     contexts: list[dict[str, Any]] = []
     for world in spec["worlds"]:
         for seed in range(1, int(spec["context_seeds"]) + 1):
