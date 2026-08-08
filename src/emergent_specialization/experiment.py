@@ -14,7 +14,7 @@ from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any, Iterable, Mapping, Sequence
 
 from .agents import ExperimentalAgent, assert_initial_symmetry, stable_hash
 from .config import RunConfig, config_from_mapping, load_config
@@ -565,10 +565,21 @@ class ExperimentRunner:
                 )
 
     async def _evaluate_checkpoint(
-        self, *, checkpoint: int, probes: Sequence[Task], probe_set_hash: str, logger: RunLogger
+        self,
+        *,
+        checkpoint: int,
+        probes: Sequence[Task],
+        probe_set_hash: str,
+        logger: RunLogger,
+        memory_snapshot: Mapping[str, Sequence[Experience]] | None = None,
     ) -> dict[str, Any]:
         """Evaluate frozen snapshots; this function never calls ``observe``."""
-        memory_before = {agent.agent_id: tuple(agent.memory) for agent in self.agents}
+        current_memory = {agent.agent_id: tuple(agent.memory) for agent in self.agents}
+        memory_before = (
+            current_memory
+            if memory_snapshot is None
+            else {agent.agent_id: tuple(memory_snapshot.get(agent.agent_id, ())) for agent in self.agents}
+        )
         snapshot_payload = {
             agent_id: [experience.prompt_dict() for experience in memory]
             for agent_id, memory in memory_before.items()
@@ -609,7 +620,7 @@ class ExperimentRunner:
             progress.finish()
         flat_results = [result for _, result in sorted(indexed_results)]
         self._log_inferences(logger, flat_results)
-        if any(tuple(agent.memory) != memory_before[agent.agent_id] for agent in self.agents):
+        if any(tuple(agent.memory) != current_memory[agent.agent_id] for agent in self.agents):
             raise AssertionError("Probe evaluation mutated an agent memory")
         if any(result.response is None for result in flat_results):
             logger.event(
@@ -893,8 +904,22 @@ class ExperimentRunner:
                 and not self._checkpoint_completed(checkpoint)
             ]
             for checkpoint in pending_checkpoints:
+                snapshot = self.journal.snapshot(checkpoint) if self.journal is not None else None
+                if snapshot is None:
+                    raise ValueError(
+                        f"Checkpoint {checkpoint} is incomplete but has no immutable memory snapshot; refusing to resume"
+                    )
+                _, snapshot_payload = snapshot
+                checkpoint_memory = {
+                    agent_id: tuple(Experience(**item) for item in values)
+                    for agent_id, values in snapshot_payload.items()
+                }
                 await self._evaluate_checkpoint(
-                    checkpoint=checkpoint, probes=probes, probe_set_hash=probe_set_hash, logger=logger
+                    checkpoint=checkpoint,
+                    probes=probes,
+                    probe_set_hash=probe_set_hash,
+                    logger=logger,
+                    memory_snapshot=checkpoint_memory,
                 )
             for round_id in range(1, self.config.experiment.num_rounds + 1):
                 if round_id in self._completed_rounds:
