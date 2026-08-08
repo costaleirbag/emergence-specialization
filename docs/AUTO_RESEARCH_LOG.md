@@ -192,3 +192,18 @@ tests, and a cost-ledger check.
 - Residual conservative behavior: a paid transport failure without usage holds
   its US$0.005 reservation and makes the run terminal rather than risking an
   unaccounted retry.
+
+## 2026-08-08 — AR-001 zero-call credential boundary incident
+
+- The first launch attempt failed while reading macOS Keychain from the
+  filesystem-sandboxed process. It ended before backend construction and before
+  any physical request: **0 model calls, US$0.00 cost, 0 ledger reservation**.
+- A status-only check outside that sandbox returned `status=configured` using
+  the expected macOS Keyring backend; no credential value was printed or
+  persisted.
+- The terminal manifest was preserved at
+  `data/auto-research/explicit-rule-execution-v1-precall-failure-20260808T140745Z/`.
+  It was not treated as a resumable scientific run. Because no request occurred,
+  one fresh launch in the original frozen output path is authorized outside the
+  sandbox. This is an infrastructure-boundary correction, not a scientific
+  retry, protocol change, or added call.
