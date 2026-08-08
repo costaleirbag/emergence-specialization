@@ -17,6 +17,7 @@ import math
 import os
 import random
 import statistics
+import subprocess
 import tempfile
 from collections import defaultdict
 from datetime import UTC, datetime
@@ -238,7 +239,11 @@ def freeze_manifest(geometry: str) -> dict[str, Any]:
     if len(tasks) != expected:
         raise RuntimeError(f"geometry task count mismatch {len(tasks)} != {expected}")
     ecology = GEOMETRY_ECOLOGIES[geometry]
-    manifest = {"protocol": PROTOCOL, "geometry": geometry, "seeds": list(SEEDS), "families": list(ecology.families),
+    try:
+        git_head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    except Exception:
+        git_head = "unknown"
+    manifest = {"protocol": PROTOCOL, "geometry": geometry, "git_head": git_head, "seeds": list(SEEDS), "families": list(ecology.families),
                 "model": MODEL, "backend": "deepseek_direct", "thinking": "off", "replicates": REPLICATES,
                 "probe_count": PROBE_COUNT, "tasks_hash": stable_hash(tasks), "logical_calls": len(tasks),
                 "created_at_utc": now(), "tasks": tasks,
