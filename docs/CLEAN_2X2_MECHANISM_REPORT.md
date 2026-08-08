@@ -107,3 +107,13 @@ No provider, credential, or network access is needed for this command.
    40 runs alone are not a causal conclusion.
 7. The old v1 runs remain `LEGACY / EXPLORATORY` and must not be mixed into this
    clean v2 dataset.
+
+## Response anchoring and synchronization audit
+
+An offline audit found higher pairwise answer agreement at t=20 in shared-memory
+probes: confidence/shared 0.654 versus confidence/private 0.334, and
+random/shared 0.708 versus random/private 0.438. Shared cells also copied labels
+from common memory frequently. This is compatible with a
+memory-to-anchoring-to-synchronization pathway, but is not proof of mechanism or
+useful competence. Full tables are in `reports/response-anchoring/` and the
+definitions/caveats are in `docs/RESPONSE_ANCHORING_AUDIT.md`.

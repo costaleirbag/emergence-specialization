@@ -1642,3 +1642,27 @@ protocolo precisa corrigir/validar learnability antes de outra sociedade.
 Os artefatos estão em `data/calibrations/memory-learnability-v1/` e o relatório
 offline em `docs/MEMORY_LEARNABILITY_V1_REPORT.md`. A calibração não deve ser
 misturada aos resultados do clean v2.
+
+# 40. Response anchoring — 2026-08-08
+
+Uma correção offline mostrou que a primeira tabela de reliability agrupava
+probes diferentes como se fossem replicates do mesmo prompt. A unidade correta é
+`mode × world × k × context_seed × probe_id`; os raw JSONL permanecem imutáveis.
+Também corrigimos a semântica de `corrupted_k8`: os artifacts contêm uma previsão
+anterior errada acompanhada de feedback corretivo verdadeiro, não rótulos
+corrompidos. O nome analítico agora é
+`wrong_prediction_with_correct_feedback_k8`.
+
+No clean v2, a concordância entre agentes cresceu nos braços shared (confidence:
+0,385 em $t=0$ para 0,654 em $t=20$; random: 0,398 para 0,708), compatível com
+anchors comuns, mas sem prova causal nem evidência de competência útil.
+
+# 41. Memory representation × thinking — 2026-08-08
+
+Foi preflightado um desenho single-agent com memória `full_experience` versus
+`feedback_only`, probes balanceadas e o toggle oficial de thinking do mesmo
+`deepseek-v4-flash`. O braço `thinking=off` completou 16.800 consultas. O braço
+thinking-on foi interrompido pelo guard de custo porque o modelo consumia o
+limite de output em reasoning sem produzir JSON final; não há comparação
+factorial válida. O relatório parcial está em
+`docs/MEMORY_REPRESENTATION_THINKING_REPORT.md`.

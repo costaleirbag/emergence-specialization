@@ -46,10 +46,10 @@ is precisely why the calibration was run before authorizing a new scientific
 condition.
 
 The repeated-call diagnostic contains 320 contexts × 30 probe-level responses.
-Answer agreement and confidence variance are in
-`reports/calibrations/memory-learnability-v1/replicate_reliability.csv`; these
-records should be used to quantify stochasticity rather than treating a single
-completion as a deterministic capability measurement.
+Reliability is grouped by exact probe/task identity as well as context in
+`reports/calibrations/memory-learnability-v1/replicate_reliability.csv`. The
+historical `corrupted_k8` label is displayed as
+`wrong_prediction_with_correct_feedback_k8`; its feedback labels were truthful.
 
 ## Controls and positive control
 
