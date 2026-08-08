@@ -18,7 +18,10 @@ new society run and is not evidence that specialization emerged.
 The real calibration used exactly 9,600 logical queries and 9,669 physical
 attempts. It completed at an observed cost of **US$0.398420**, below the
 authorized US$1.00 cap. The provider fingerprint was constant in all successful
-records. Raw append-only data are in
+records. There were 69 recovered attempts (66 empty-content and 3 technical
+parse failures), no rate-limit/server errors, and no missing token-usage records.
+Observed latency across attempts was mean 2.041 s, median 2.025 s, minimum
+0.844 s, maximum 7.390 s. Raw append-only data are in
 `data/calibrations/memory-learnability-v1/`.
 
 ## Descriptive learnability results
