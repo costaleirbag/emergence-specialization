@@ -1622,3 +1622,23 @@ ganho de oráculo e alinhamento de routing devem ser interpretados conjuntamente
 O inventário, as trajetórias, tabelas tidy e figuras estão em
 `reports/campaigns/developmental-dynamics-v2/clean-2x2/`; a discussão de
 proveniência e guardrails está em `docs/CLEAN_2X2_MECHANISM_REPORT.md`.
+
+# 39. Calibration de learnability — 2026-08-08
+
+Antes de autorizar qualquer nova campanha de sociedades, foi executada uma
+calibração single-agent separada (`memory-learnability-v1`). Ela reutilizou o
+renderer de prompt, parser, mundos e memória controlada congelados no v2, sem
+router, feedback ou estado multiagente. Foram feitas 9.600 consultas lógicas
+(9.669 tentativas físicas), com custo observado de US$0,398420, usando somente
+DeepSeek Direct.
+
+O resultado é uma auditoria de mensuração: a acurácia same-world não cresceu
+monotonicamente em `k = 0,1,2,4,8` (0,192; 0,150; 0,171; 0,145; 0,172), enquanto a
+confiança média cresceu em vários contextos e perdeu calibração. Portanto não se
+deve assumir que `recent_k=8` ensina a regra oculta de forma confiável. Isso não
+é evidência contra emergência; é um gate para decidir se uma nova versão do
+protocolo precisa corrigir/validar learnability antes de outra sociedade.
+
+Os artefatos estão em `data/calibrations/memory-learnability-v1/` e o relatório
+offline em `docs/MEMORY_LEARNABILITY_V1_REPORT.md`. A calibração não deve ser
+misturada aos resultados do clean v2.
