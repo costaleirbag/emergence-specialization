@@ -879,6 +879,23 @@ class ExperimentRunner:
                 await self._evaluate_checkpoint(
                     checkpoint=0, probes=probes, probe_set_hash=probe_set_hash, logger=logger
                 )
+            # A run can fail after completing the interaction round at a
+            # checkpoint (for example, a transient probe outage).  On resume,
+            # ``_completed_rounds`` already contains that round, so the normal
+            # loop would skip it and never revisit the incomplete checkpoint.
+            # Repair pending checkpoints before advancing to later rounds;
+            # cached logical completions keep this bounded to missing work.
+            pending_checkpoints = [
+                checkpoint
+                for checkpoint in self.config.experiment.checkpoints
+                if checkpoint > 0
+                and checkpoint in self._completed_rounds
+                and not self._checkpoint_completed(checkpoint)
+            ]
+            for checkpoint in pending_checkpoints:
+                await self._evaluate_checkpoint(
+                    checkpoint=checkpoint, probes=probes, probe_set_hash=probe_set_hash, logger=logger
+                )
             for round_id in range(1, self.config.experiment.num_rounds + 1):
                 if round_id in self._completed_rounds:
                     continue

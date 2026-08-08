@@ -327,6 +327,49 @@ class OnlineAndBatchTests(unittest.TestCase):
             asyncio.run(ExperimentRunner(config, backend=repeated, resume_dir=run_dir).run())
             self.assertEqual(repeated.calls, 0)
 
+    def test_resume_revisits_incomplete_checkpoint_after_round_is_committed(self) -> None:
+        class FailFirstFinalProbeBackend(MockBackend):
+            def __init__(self) -> None:
+                self.calls = 0
+
+            async def complete(self, **kwargs: object) -> BackendResponse:
+                self.calls += 1
+                # checkpoint 0 = 8 calls, two interaction rounds = 4 calls;
+                # fail the first call of checkpoint 2.
+                if self.calls == 13:
+                    return BackendResponse(raw_response=None, latency_s=0.0, retryable=False)
+                return await super().complete(**kwargs)  # type: ignore[arg-type]
+
+        class CountingBackend(MockBackend):
+            def __init__(self) -> None:
+                self.calls = 0
+
+            async def complete(self, **kwargs: object) -> BackendResponse:
+                self.calls += 1
+                return await super().complete(**kwargs)  # type: ignore[arg-type]
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            probes = root / "probes.json"
+            write_probe_set(probes, generate_probe_payload(HiddenWorldEnvironment(), per_world=1))
+            config = RunConfig(
+                experiment=ExperimentSettings(
+                    num_agents=2, num_rounds=2, checkpoints=(0, 2),
+                    technical_retries=0, console_summary=False,
+                ),
+                agent=AgentSettings(backend="mock"),
+                condition=ConditionSettings(memory_mode="private"),
+                logging=LoggingSettings(output_dir=str(root / "runs"), probe_set_path=str(probes)),
+            )
+            with self.assertRaises(RuntimeError):
+                asyncio.run(ExperimentRunner(config, backend=FailFirstFinalProbeBackend()).run())
+            run_dir = next((root / "runs").iterdir())
+            recovery = CountingBackend()
+            asyncio.run(ExperimentRunner(config, backend=recovery, resume_dir=run_dir).run())
+            self.assertEqual(recovery.calls, 1)
+            summary = json.loads((run_dir / "summary.json").read_text())
+            self.assertEqual(summary["status"], "completed")
+
     def test_retryable_physical_attempt_is_recorded_and_recovered(self) -> None:
         class RetryOnceBackend(MockBackend):
             def __init__(self) -> None:
