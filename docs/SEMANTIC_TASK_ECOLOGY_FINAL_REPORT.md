@@ -9,7 +9,8 @@ division of labor.
 ## Provenance
 
 - branch: `research/developmental-dynamics`
-- final HEAD: `15931de20908b09f03e1b37e321161ebdf730b5f`
+- final report commit: `3f328c8` (the raw qualification manifests were created
+  under the preceding frozen execution commits)
 - model: DeepSeek Direct `deepseek-v4-flash`
 - thinking: off
 - predeclared environment seeds: `1701..1705`
