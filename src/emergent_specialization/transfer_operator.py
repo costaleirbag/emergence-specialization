@@ -159,3 +159,39 @@ def rayleigh(matrix: Iterable[Iterable[float]], vector: Iterable[float]) -> floa
         raise ValueError("vector must be nonzero")
     v = v / norm
     return float(v @ M @ v)
+
+
+def numerical_abscissa(matrix: Iterable[Iterable[float]]) -> float:
+    """Largest instantaneous growth rate of the Euclidean norm."""
+    M = np.asarray(matrix, dtype=float)
+    return float(np.max(np.linalg.eigvalsh((M + M.T) / 2)))
+
+
+def transient_amplification(matrix: Iterable[Iterable[float]], times: Iterable[float]) -> list[dict[str, float]]:
+    """Compute ``||expm(T t)||_2`` on a declared small time grid.
+
+    SciPy is part of the optional report stack.  A short eigendecomposition
+    fallback keeps the analysis usable in minimal environments for the small
+    matrices used here.
+    """
+    M = np.asarray(matrix, dtype=float)
+    try:
+        from scipy.linalg import expm
+        def exponential(t: float) -> np.ndarray:
+            return np.asarray(expm(M * t), dtype=float)
+    except Exception:  # pragma: no cover - exercised only without report deps
+        values, vectors = np.linalg.eig(M)
+        inverse = np.linalg.inv(vectors)
+        def exponential(t: float) -> np.ndarray:
+            return np.real_if_close(vectors @ np.diag(np.exp(values * t)) @ inverse).astype(float)
+    return [{"t": float(t), "amplification": float(np.linalg.norm(exponential(float(t)), 2))} for t in times]
+
+
+def eigenvector_condition(matrix: Iterable[Iterable[float]]) -> float | None:
+    """Condition number of the eigenvector basis, when diagonalizable."""
+    M = np.asarray(matrix, dtype=float)
+    values, vectors = np.linalg.eig(M)
+    if np.linalg.matrix_rank(vectors) < M.shape[0]:
+        return None
+    value = float(np.linalg.cond(vectors))
+    return value if math.isfinite(value) else None

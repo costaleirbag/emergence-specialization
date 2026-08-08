@@ -13,8 +13,11 @@ from emergent_specialization.transfer_operator import (
     centered_transfer,
     finite_difference_jacobian,
     geometry_metrics,
+    eigenvector_condition,
+    numerical_abscissa,
     projection,
     rayleigh,
+    transient_amplification,
     toy_rhs,
 )
 
@@ -52,6 +55,14 @@ class TransferOperatorTests(unittest.TestCase):
         result = geometry_metrics(matrix)
         expected = float(np.max(np.real(np.linalg.eigvals(centered_transfer(matrix)))))
         self.assertAlmostEqual(result["chi"], expected)
+
+    def test_nonnormal_diagnostics_are_explicit_analysis_objects(self):
+        matrix = np.array([[0.0, 3.0], [0.0, -1.0]])
+        self.assertGreater(numerical_abscissa(matrix), 0.0)
+        curve = transient_amplification(matrix, (0.0, 0.5, 1.0))
+        self.assertEqual([row["t"] for row in curve], [0.0, 0.5, 1.0])
+        self.assertAlmostEqual(curve[0]["amplification"], 1.0)
+        self.assertIsNotNone(eigenvector_condition(matrix))
 
 
 class GeometryGeneratorTests(unittest.TestCase):
