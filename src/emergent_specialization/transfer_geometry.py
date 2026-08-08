@@ -490,7 +490,13 @@ def validate_geometry_output(geometry: str) -> dict[str, Any]:
     terminal = {logical_id: [event for event in values if event.get("error") is None or event.get("error_category") == "out_of_domain"]
                 for logical_id, values in by_id.items()}
     provider_models = {event.get("provider_metadata", {}).get("model") for event in events}
-    retry_categories = [event.get("error_category") or event.get("error") for event in events if int(event.get("attempt", 0)) > 0]
+    # A recovered retry is identified by the failed predecessor, not by the
+    # successful attempt (whose error field is necessarily empty).
+    retry_categories = []
+    for values in by_id.values():
+        if len(values) > 1:
+            retry_categories.extend(event.get("error_category") or event.get("error")
+                                    for event in values if event.get("error") and event.get("error_category") != "out_of_domain")
     ood = sum(event.get("error_category") == "out_of_domain" for event in events)
     health = {"geometry": geometry, "status": status.get("status"), "expected_logical": manifest["logical_calls"],
               "unique_logical": len(by_id), "complete_logical": sum(bool(v) for v in terminal.values()),
