@@ -59,7 +59,7 @@ def _auc(scores: list[float], labels: list[bool]) -> float | None:
 def _anchor(event: dict[str, Any]) -> dict[str, float | None]:
     memory = event.get("rendered_memory") or []; answer = event.get("parsed_answer")
     if not memory or answer is None: return {"last_prediction": None, "last_label": None, "any_label": None, "modal_label": None}
-    labels = [item.get("correct_answer") for item in memory]; predictions = [item.get("prediction") for item in memory if "prediction" in item]; counts = {label: labels.count(label) for label in set(labels)}; modal = max(counts, key=lambda label: (-counts[label], label))
+    labels = [item.get("correct_answer") for item in memory]; predictions = [item.get("prediction") for item in memory if "prediction" in item]; counts = {label: labels.count(label) for label in set(labels)}; modal = min(counts, key=lambda label: (-counts[label], label))
     return {"last_prediction": float(bool(predictions) and answer == predictions[-1]), "last_label": float(answer == labels[-1]), "any_label": float(answer in labels), "modal_label": float(answer == modal)}
 
 

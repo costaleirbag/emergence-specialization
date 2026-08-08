@@ -107,7 +107,7 @@ def _anchoring(event: dict[str, Any]) -> dict[str, Any]:
     predictions = [item.get("prediction") for item in memory]
     labels = [item.get("correct_answer") for item in memory]
     counts = {label: labels.count(label) for label in set(labels)}
-    modal = max(counts, key=lambda label: (-counts[label], label))
+    modal = min(counts, key=lambda label: (-counts[label], label))
     return {"last_prediction": float(answer == predictions[-1]), "last_label": float(answer == labels[-1]), "any_prediction": float(answer in predictions), "any_label": float(answer in labels), "modal_label": float(answer == modal)}
 
 
