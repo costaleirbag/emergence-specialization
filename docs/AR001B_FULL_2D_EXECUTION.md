@@ -22,3 +22,17 @@ The probe hash and raw result are recorded after execution in this document's
 corresponding report directory. No follow-up or society run is authorized based
 on the outcome.
 
+## Observed result
+
+- status: completed
+- logical/physical calls: 112 / 112
+- technical retries: 0; errors: 0
+- two-dimensional coverage: 56/56 probes had `x != 0` and `y != 0`
+- exact answer accuracy: `38/112 = 0.3393`
+- usage: 11,088 input tokens, 1,459 output tokens, 12,547 total; 100% usage
+  coverage; configured-price estimate US$0.00196084
+
+The pre-registered interpretation is **accuracy < 0.70: serious arithmetic
+execution substrate problem**. This is a diagnostic result only. It does not
+measure single-agent transfer or society-level specialization, and it did not
+change the frozen ecology qualification protocol.

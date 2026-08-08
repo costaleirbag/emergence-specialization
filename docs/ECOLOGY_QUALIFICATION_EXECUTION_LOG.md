@@ -61,3 +61,26 @@ redesigned.
 The result is therefore not evidence that the semantic ecologies will or will
 not qualify. It is evidence that the old GF(7) explicit execution control is a
 weak positive control for this model under the selected prompt and decoding.
+
+## Paid transfer qualification results
+
+The two candidates were run in the frozen order after passing offline gates.
+Both used exactly 1,920 logical contexts and 1,920 physical attempts. There
+were no technical retries. Semantic out-of-domain answers were retained as
+incorrect completed observations: one for OPE and four for CWDE.
+
+| candidate | status | cost (USD) | baseline | D | O | Q | B_OPE | classification |
+|---|---|---:|---:|---:|---:|---:|---:|---|
+| OPE | completed/recovered | 0.04292984 | 0.41875 | 0.13125 | 0.03229 | 0.09896 | 0.01250 | PROMISING SPECIALIZATION SUBSTRATE |
+| CWDE | completed | 0.03843200 | 0.22500 | 0.13438 | 0.04271 | 0.09167 | n/a | PROMISING SPECIALIZATION SUBSTRATE |
+
+The OPE run initially stopped on one semantic OOD answer after 1,663
+physical attempts. The tested append-only resume fix (`13128d3`) skipped all
+existing logical IDs and completed the remaining 257 without duplicate
+scientific calls. The aggregation fix keeps OPE/CWDE tables in separate
+candidate directories and emits combined root tables.
+
+The qualification labels are descriptive transfer-geometry gates only. They do
+not establish role formation, specialization, division of labor, or a causal
+society result. No society experiment, Gate 2, new model, tuning, or additional
+context seed was run in this phase.
