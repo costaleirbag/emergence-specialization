@@ -241,8 +241,10 @@ level; it never means universal truth.
   matrix has useful block/asymmetric/interference structure.
 - **Prior:** HIGH that ecology matters; MEDIUM that GF(7) is structurally too
   narrow for the broad role construct.
-- **Supporting evidence:** all worlds share one affine-modular operation; existing
-  non-alias calibrations show little positive same-world learning; current
+- **Supporting evidence:** all worlds share one affine-modular operation;
+  non-alias same-world `k=8` accuracy is about 0.128 versus 0.174 with unrelated
+  context in the old calibration, and about 0.122--0.124 versus 0.126 at `k=0`
+  in the newer thinking-off calibration; current
   literature on task transfer and recent heterogeneous-agent evolution treats
   task relations as substantive rather than labels.
 - **Contradicting evidence:** coefficient knowledge is world-specific, so GF(7)
@@ -258,4 +260,3 @@ level; it never means universal truth.
   estimate the full randomized single-agent `L_cd(h)` matrix before any society.
 - **Status:** OPEN.
 - **Last update:** 2026-08-08 ecology-priority steer.
-

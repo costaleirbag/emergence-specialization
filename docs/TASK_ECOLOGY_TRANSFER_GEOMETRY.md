@@ -32,6 +32,17 @@ a diagonal transfer geometry and support a narrow, controlled form of niche
 specialization. Existing non-alias calibration evidence does not show that
 channel.
 
+The strongest offline diagnostic is specifically negative on that microscopic
+precondition. In the old calibration, non-alias same-world `k=8` accuracy was
+about `0.128`, versus `0.174` under unrelated `k=8` context. In the newer
+balanced thinking-off calibration, non-alias accuracy was about `0.124`
+(`feedback_only`) and `0.122` (`full_experience`) at `k=8`, versus `0.126` at
+`k=0`. These are nested descriptive means, not a preregistered estimate of
+`L_cd`; they show no positive same-world learning signal after removing exact
+modular aliases. Exact GF(7) auditing simultaneously shows that truthful
+rank-full contexts are symbolically sufficient, so generator identifiability is
+not the main explanation at `k=8`.
+
 ## Directed learning-transfer matrix
 
 Let `c` be the exposure family and `d` the evaluation family. With matched
