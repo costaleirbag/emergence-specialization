@@ -81,3 +81,27 @@ prompt representation. A post-run audit found that all frozen balanced probes
 had `x=0`, however. AR-001 therefore validates only the one-dimensional
 `b*y+c` slice; it does not test the `a*x` term or general bivariate execution.
 The raw result is retained, and the limitation is not repaired retroactively.
+
+## 2026-08-08 transfer-geometry control (frozen protocol)
+
+The next microscopic calibration treats the task ecology as a designed object.
+`OPE-GEOMETRY-V2` preserves the four canonical semantic families and exact OPE
+verifier while tying run-specific procedural parameters into three predeclared
+geometries: GLOBAL (dense sharing), BLOCK (ACCESS/RELEASE and
+INCIDENT/PROVENANCE sharing), and DIAGONAL (family-unique). The experimenter
+stores factor incidence `S` and designed overlap `G`; these are not model-visible
+labels.
+
+The primary empirical object is the single-agent source-to-target transfer
+matrix `L_cd(h)`, with natural exposure primary and greedy teaching exposure as
+an upper-bound control. The centered operator `T(L)=P L^T D_rho P` and its
+linearized effective dynamics are mathematical analysis objects only. The
+frozen design uses five paired environment seeds, h=4/8 nested streams, eight
+balanced probes per family, two stateless replicates, and 11,520 logical calls
+under a US$1.50 cap. No society run or Gate 2 is part of this protocol.
+
+Status labels for future reporting remain separate: **designed** (`G`),
+**measured** (`L`), **derived** (`T` and spectra), and **model-dependent**
+(symmetry-breaking susceptibility). A null or flat result is valid: it would
+show that this OPE extension did not operationalize controllable transfer
+geometry.

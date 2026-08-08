@@ -188,6 +188,95 @@ class OPEcology(Ecology):
                 "Determine the appropriate organizational resolution.")
 
 
+class OPEGeometryV2Ecology(OPEcology):
+    """OPE extension with preregistered latent-factor sharing geometries.
+
+    The semantic surface and exact OPE verifier are retained.  Only the
+    run-specific parameter tying changes across GLOBAL/BLOCK/DIAGONAL.  The
+    factor incidence and parameter table are kept in experimenter metadata and
+    are never rendered to the model.
+    """
+
+    GEOMETRIES = ("GLOBAL", "BLOCK", "DIAGONAL")
+
+    def __init__(self, geometry: str) -> None:
+        if geometry not in self.GEOMETRIES:
+            raise ValueError(f"unknown OPE geometry: {geometry}")
+        self.geometry = geometry
+        self.name = f"OPE-GEOMETRY-V2-{geometry}"
+
+    def _factor_ids(self, family: str) -> tuple[str, str, str]:
+        if self.geometry == "GLOBAL":
+            return ("global.threshold", "global.compatibility", f"unique.{family}.exception")
+        if self.geometry == "BLOCK":
+            block = 0 if family in ("ACCESS", "RELEASE") else 1
+            return (f"block{block}.threshold", f"block{block}.compatibility", f"unique.{family}.exception")
+        return (f"unique.{family}.threshold", f"unique.{family}.compatibility", f"unique.{family}.exception")
+
+    @staticmethod
+    def _factor_value(factor_id: str, seed: int) -> Any:
+        # Three bits give a compact, deterministic parameter code.  Adjacent
+        # paired seeds therefore cannot accidentally produce an identical
+        # three-factor theta, while each factor remains independently valued.
+        code = (seed + sum(ord(x) for x in factor_id) * 17) % 8
+        if factor_id.endswith("threshold"):
+            return 2 + (code & 1)
+        if factor_id.endswith("compatibility"):
+            return ("strict", "broad")[(code >> 1) & 1]
+        return ("ESCALATE", "DENY")[(code >> 2) & 1]
+
+    def generate_environment(self, seed: int) -> Environment:
+        factor_ids = {family: self._factor_ids(family) for family in self.families}
+        all_ids = sorted({factor for factors in factor_ids.values() for factor in factors})
+        factor_values = {factor: self._factor_value(factor, seed) for factor in all_ids}
+        theta: dict[str, dict[str, Any]] = {}
+        for family, factors in factor_ids.items():
+            theta[family] = {
+                "threshold": factor_values[factors[0]],
+                "compatibility": factor_values[factors[1]],
+                "exception": factor_values[factors[2]],
+                "factor_ids": factors,
+            }
+        incidence = [[int(factor in factors) for factor in all_ids] for factors in factor_ids.values()]
+        overlap = []
+        for row in incidence:
+            overlap.append([sum(a * b for a, b in zip(row, other)) / 3.0 for other in incidence])
+        metadata = {
+            "geometry": self.geometry,
+            "factor_ids_by_family": factor_ids,
+            "factor_values": factor_values,
+            "factor_incidence": incidence,
+            "factor_order": all_ids,
+            "designed_overlap": overlap,
+            "blocks": {"ACCESS": 0, "RELEASE": 0, "INCIDENT": 1, "PROVENANCE": 1},
+        }
+        return Environment(self.name, seed, theta, metadata)
+
+    def candidate_thetas(self, family: str, environment: Environment) -> list[dict[str, Any]]:
+        # All three substantive factors are independently variable in the
+        # local hypothesis space.  The environment only determines truth.
+        return [{"threshold": threshold, "compatibility": compatibility,
+                 "exception": exception, "block": environment.metadata["blocks"][family]}
+                for threshold in (2, 3) for compatibility in ("strict", "broad")
+                for exception in ("ESCALATE", "DENY")]
+
+    def solve_with_theta(self, theta: dict[str, Any], family: str, fields: dict[str, Any]) -> str:
+        if fields["exception"]:
+            return theta["exception"]
+        if fields["criticality"] >= theta["threshold"]:
+            return "ESCALATE"
+        compatible = (fields["role"] == fields["resource"] if theta["compatibility"] == "strict"
+                      else fields["role"] in {"operator", "owner"})
+        if not compatible:
+            return "DENY"
+        if fields["approval"] != "approved":
+            return "DEFER"
+        return "APPROVE"
+
+    def solve(self, environment: Environment, family: str, fields: dict[str, Any]) -> str:
+        return self.solve_with_theta(environment.theta[family], family, fields)
+
+
 class CWDEcology(Ecology):
     """Causal Workflow Diagnosis Ecology with mostly niche-specific codebooks."""
 
@@ -251,6 +340,9 @@ class CWDEcology(Ecology):
 
 
 ECOLOGIES: dict[str, Ecology] = {"OPE": OPEcology(), "CWDE": CWDEcology()}
+GEOMETRY_ECOLOGIES: dict[str, OPEGeometryV2Ecology] = {
+    geometry: OPEGeometryV2Ecology(geometry) for geometry in OPEGeometryV2Ecology.GEOMETRIES
+}
 
 
 def parse_action(raw: str | None) -> tuple[str | None, float | None, str | None]:

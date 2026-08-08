@@ -416,6 +416,8 @@ source = { editable = "." }
 dependencies = [
     { name = "httpx" },
     { name = "keyring" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "openai" },
     { name = "pyyaml" },
 ]
@@ -439,6 +441,7 @@ report = [
 requires-dist = [
     { name = "httpx", specifier = ">=0.27" },
     { name = "keyring", specifier = ">=25.0" },
+    { name = "numpy", specifier = ">=2.1" },
     { name = "openai", specifier = ">=1.0" },
     { name = "pyyaml", specifier = ">=6.0" },
 ]
