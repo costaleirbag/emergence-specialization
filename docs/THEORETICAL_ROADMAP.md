@@ -28,3 +28,32 @@ specialization.
 
 The eigenvalue condition is a result of the explicit effective model only. It is
 not a claim about DeepSeek internals and does not replace a future society test.
+
+## Theory-to-observable map
+
+| theoretical object | empirical observable | interpretation |
+|---|---|---|
+| `L_cd(h)` | held-out source→target gain | directed learning/transfer |
+| `T(L)` | centered transfer matrix | niche-contrast drive in the effective model |
+| `chi(L)` | largest real eigenvalue | model-dependent susceptibility, not specialization |
+| contrast eigenspace | competence-mode projection | alignment of differentiation with ecology |
+| competence vector `a_i` | competence matrix `A(t)` / `Phi` | functional differentiation, not HSE |
+| agent allocation `p_i(c)` | `I(C;R)`, utilization, `eta_route` | organized labor/allocation |
+| team utility | oracle gain / matching gain | useful complementarity |
+| behavioral output vector | HSE | response diversity only |
+
+## Future predictions, conditional on a controlled ecology
+
+These are hypotheses for a separately approved society protocol:
+
+- weak centered spectrum in GLOBAL should favor comparatively generalist
+  competence under moderate competence-sensitive allocation;
+- a BLOCK operator with a dominant `(1,1,-1,-1)` mode should produce earliest
+  competence contrasts aligned with that block mode;
+- a DIAGONAL operator with near-degenerate contrast modes should permit
+  different agent-label assignments across runs while preserving ensemble
+  permutation symmetry;
+- non-normal transfer may produce transient competence differentiation without
+  persistent roles.
+
+None of these predictions licenses a society run in the present protocol.
