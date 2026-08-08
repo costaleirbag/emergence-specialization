@@ -16,6 +16,7 @@ from emergent_specialization.config import (
     InitialConditionSettings,
     LoggingSettings,
     RunConfig,
+    RouterSettings,
     load_config,
     normalize_checkpoints,
 )
@@ -30,7 +31,7 @@ from emergent_specialization.interventions import (
 from emergent_specialization.agents import ExperimentalAgent
 from emergent_specialization.models import Experience
 from emergent_specialization.metrics.information import mi_null_diagnostic
-from emergent_specialization.metrics.online import online_observables
+from emergent_specialization.metrics.online import online_observables, online_team_accuracy
 from emergent_specialization.metrics.permutation import (
     align_competence_profiles,
     argmax_label_counts,
@@ -38,6 +39,7 @@ from emergent_specialization.metrics.permutation import (
     world_argmax_label_counts,
     within_run_asymmetry,
 )
+from emergent_specialization.gate1_report import _pearson
 from emergent_specialization.probes import generate_probe_payload, write_probe_set
 from emergent_specialization.providers.mock import MockBackend
 from emergent_specialization.models import BackendResponse
@@ -130,6 +132,35 @@ class CheckpointAndFeedbackTests(unittest.TestCase):
         shared = execute("shared")
         self.assertEqual([event["task"] for event in private], [event["task"] for event in shared])
 
+    def test_random_private_shared_pair_keeps_tasks_and_routes_identical(self) -> None:
+        def execute(mode: str) -> list[dict[str, object]]:
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                probes = root / "probes.json"
+                write_probe_set(probes, generate_probe_payload(HiddenWorldEnvironment(), per_world=1))
+                config = RunConfig(
+                    experiment=ExperimentSettings(
+                        num_agents=4, num_rounds=6, checkpoints=(), seed=11,
+                        task_seed=31, router_seed=41, technical_retries=0, console_summary=False,
+                    ),
+                    agent=AgentSettings(backend="mock"),
+                    router=RouterSettings(strategy="random"),
+                    condition=ConditionSettings(memory_mode=mode),
+                    logging=LoggingSettings(output_dir=str(root / "runs"), probe_set_path=str(probes)),
+                )
+                run_dir = asyncio.run(ExperimentRunner(config, backend=MockBackend()).run())
+                return [
+                    json.loads(line)
+                    for line in (run_dir / "events.jsonl").read_text().splitlines()
+                    if json.loads(line).get("event") == "round_complete"
+                ]
+
+        private = execute("private")
+        shared = execute("shared")
+        self.assertEqual([event["task"] for event in private], [event["task"] for event in shared])
+        self.assertEqual([event["selected_agent_id"] for event in private], [event["selected_agent_id"] for event in shared])
+        self.assertEqual([event["selection_mode"] for event in private], ["random"] * 6)
+
 
 class OnlineAndBatchTests(unittest.TestCase):
     def test_online_observables_are_cumulative_and_probe_free(self) -> None:
@@ -169,6 +200,19 @@ class OnlineAndBatchTests(unittest.TestCase):
         rows = online_observables(events, num_agents=2, mi_permutations=10, mi_min_samples=8)
         self.assertNotIn("mi_null_diagnostic", rows[0])
         self.assertIn("mi_null_diagnostic", rows[-1])
+
+    def test_online_team_accuracy_is_explicitly_interaction_level(self) -> None:
+        events = [
+            {"event": "round_complete", "round": 1, "task": {"world": "ALPHA"}, "selected_correct": True},
+            {"event": "round_complete", "round": 2, "task": {"world": "BETA"}, "selected_correct": False},
+            {"event": "round_complete", "round": 3, "task": {"world": "ALPHA"}, "selected_correct": True},
+            {"event": "round_complete", "round": 4, "task": {"world": "BETA"}, "selected_correct": True},
+        ]
+        summary = online_team_accuracy(events)
+        self.assertAlmostEqual(summary["online_interaction_accuracy"], 0.75)
+        self.assertAlmostEqual(summary["rounds_first_half_accuracy"], 0.5)
+        self.assertAlmostEqual(summary["rounds_second_half_accuracy"], 1.0)
+        self.assertEqual(summary["accuracy_by_world"], {"ALPHA": 1.0, "BETA": 0.5})
 
     def test_batch_plan_counts_nominal_and_retry_ceiling(self) -> None:
         root = Path(__file__).resolve().parents[1]
@@ -334,6 +378,11 @@ class OnlineAndBatchTests(unittest.TestCase):
 
 
 class PermutationAndMIDiagnosticsTests(unittest.TestCase):
+    def test_behavioral_vector_correlation_constant_convention_is_explicit(self) -> None:
+        self.assertEqual(_pearson([1.0, 1.0], [1.0, 1.0]), 1.0)
+        self.assertEqual(_pearson([1.0, 1.0], [0.0, 0.0]), 0.0)
+        self.assertEqual(_pearson([1.0, 1.0], [0.0, 1.0]), 0.0)
+
     def test_alignment_ignores_agent_labels(self) -> None:
         reference = {"agent_0": {"ALPHA": 1.0, "BETA": 0.0}, "agent_1": {"ALPHA": 0.0, "BETA": 1.0}}
         candidate = {"agent_x": {"ALPHA": 0.0, "BETA": 1.0}, "agent_y": {"ALPHA": 1.0, "BETA": 0.0}}
@@ -361,6 +410,9 @@ class PermutationAndMIDiagnosticsTests(unittest.TestCase):
         second = mi_null_diagnostic(["A", "A", "B", "B"], ["x", "x", "y", "y"], permutations=20, seed=4)
         self.assertEqual(first, second)
         self.assertIn("excess_mi", first)
+        self.assertIn("null_std", first)
+        self.assertIn("null_95th_percentile", first)
+        self.assertIn("normalized_excess_mi", first)
 
 
 class InterventionTests(unittest.TestCase):

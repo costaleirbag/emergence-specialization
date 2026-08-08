@@ -33,8 +33,11 @@ CAMPAIGN_ID = "developmental-dynamics-v1"
 PROTOCOL_VERSION = "staged-v2"
 GATE_1 = "gate_1_replication"
 GATE_2 = "gate_2_replication"
+GATE_RANDOM_10 = "gate_random_routing_10"
 HARD_COST_CAP_USD = 7.50  # legacy full-campaign cap; no longer an execution authorization
 GATE_1_HARD_BUDGET_USD = 1.00
+GATE_RANDOM_10_HARD_BUDGET_USD = 1.00
+GATE_RANDOM_10_MAX_PHYSICAL_ATTEMPTS = 14_000
 FUTURE_BUDGET_REFERENCE_USD = 8.80
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST_RELATIVE = Path("data/campaigns") / CAMPAIGN_ID / "campaign.json"
@@ -133,7 +136,7 @@ def _incomplete_candidate(row: CampaignRun) -> tuple[Path, dict[str, Any]] | Non
     return None
 
 
-def _row(stage: str, seed: int, config_path: str) -> CampaignRun:
+def _row(stage: str, seed: int, config_path: str, *, gate_override: str | None = None) -> CampaignRun:
     config, absolute, probe_hash, config_hash = _config_for(config_path)
     probes, _ = load_probe_set(_resolve(config.logging.probe_set_path))
     counts = nominal_call_counts(config, len(probes))
@@ -141,9 +144,9 @@ def _row(stage: str, seed: int, config_path: str) -> CampaignRun:
         raise ValueError(f"campaign configs must use DeepSeek Direct, got {config.agent.backend!r}")
     condition = config.condition.memory_mode
     identity = ":".join((CAMPAIGN_ID, PROTOCOL_VERSION, stage, str(seed), condition, config_hash))
-    gate = GATE_1 if stage == "A" and seed <= 10 else GATE_2 if stage == "A" and seed <= 50 else (
+    gate = gate_override or (GATE_1 if stage == "A" and seed <= 10 else GATE_2 if stage == "A" and seed <= 50 else (
         "candidate_random_routing" if stage == "B" else "candidate_long_horizon"
-    )
+    ))
     return CampaignRun(
         stage=stage,
         seed=seed,
@@ -170,6 +173,17 @@ def build_campaign_plan() -> list[CampaignRun]:
         rows.extend((_row("B", seed, "configs/research/campaigns/random_private_20.yaml"), _row("B", seed, "configs/research/campaigns/random_shared_20.yaml")))
     for seed in range(1001, 1011):
         rows.extend((_row("C", seed, "configs/research/campaigns/long_private_100.yaml"), _row("C", seed, "configs/research/campaigns/long_shared_100.yaml")))
+    return rows
+
+
+def build_random_gate_plan() -> list[CampaignRun]:
+    """Build the explicitly authorized 10-seed random-routing mechanism gate."""
+    rows: list[CampaignRun] = []
+    for seed in range(1, 11):
+        rows.extend((
+            _row("R", seed, "configs/research/campaigns/random_private_20.yaml", gate_override=GATE_RANDOM_10),
+            _row("R", seed, "configs/research/campaigns/random_shared_20.yaml", gate_override=GATE_RANDOM_10),
+        ))
     return rows
 
 
@@ -260,7 +274,7 @@ def _gate_definition(rows: list[CampaignRun], gate: str, cost_per_logical: float
     seeds = sorted({row.seed for row in rows if row.gate == gate})
     return {
         **summary,
-        "status": "planned" if gate == GATE_1 else "locked",
+        "status": "planned" if gate in {GATE_1, GATE_RANDOM_10} else "locked",
         "seeds": seeds,
         "conditions": ["private", "shared"],
         "requires_human_confirmation": True,
@@ -269,12 +283,54 @@ def _gate_definition(rows: list[CampaignRun], gate: str, cost_per_logical: float
     }
 
 
+def _random_gate_definition(rows: list[CampaignRun], cost_per_logical: float) -> dict[str, Any]:
+    summary = _gate_summary(rows, GATE_RANDOM_10, cost_per_logical)
+    summary.update({
+        "status": "planned",
+        "seeds": sorted({row.seed for row in rows}),
+        "conditions": ["private", "shared"],
+        "router": "random",
+        "requires_human_confirmation": True,
+        "depends_on": [],
+        "target_total_paired_seeds": 10,
+        "hard_budget_usd": GATE_RANDOM_10_HARD_BUDGET_USD,
+        "max_physical_attempts": GATE_RANDOM_10_MAX_PHYSICAL_ATTEMPTS,
+    })
+    return summary
+
+
+def _ensure_random_gate(manifest: dict[str, Any]) -> dict[str, Any]:
+    """Add the small random-routing gate without rebuilding executed history."""
+    if GATE_RANDOM_10 in manifest.get("gates", {}):
+        return manifest
+    rows = build_random_gate_plan()
+    existing_identities = {str(row.get("identity")) for row in manifest.get("runs", [])}
+    additions = [asdict(row) for row in rows if row.identity not in existing_identities]
+    for row in additions:
+        row["status"] = "planned"
+    manifest.setdefault("runs", []).extend(additions)
+    cost_per_logical = float(manifest.get("cost_forecast", {}).get("cost_per_logical_completion_usd", 0.0) or 0.0)
+    manifest.setdefault("cost_forecast", {})[GATE_RANDOM_10] = {
+        "gate": GATE_RANDOM_10,
+        "nominal_logical_completions": sum(row.nominal_calls for row in rows),
+        "expected_nominal_cost_usd": sum(row.nominal_calls for row in rows) * cost_per_logical,
+        "cost_per_logical_completion_usd": cost_per_logical,
+        "hard_budget_usd": GATE_RANDOM_10_HARD_BUDGET_USD,
+        "max_physical_attempts": GATE_RANDOM_10_MAX_PHYSICAL_ATTEMPTS,
+    }
+    manifest.setdefault("gates", {})[GATE_RANDOM_10] = _random_gate_definition(rows, cost_per_logical)
+    manifest.setdefault("state", {}).setdefault("active_gate", GATE_1)
+    manifest.setdefault("state", {})["random_gate_added_at_utc"] = datetime.now(UTC).isoformat()
+    _json_write(manifest_path(), manifest)
+    return manifest
+
+
 def create_manifest(*, force: bool = False) -> dict[str, Any]:
     path = manifest_path()
     if path.exists() and not force:
         existing = json.loads(path.read_text(encoding="utf-8"))
         if int(existing.get("schema_version", 1)) >= 2:
-            return existing
+            return _ensure_random_gate(existing)
         # The previous v1 manifest only planned runs and had not started any
         # paid execution, so it can be migrated into the staged schema.
         if existing.get("state", {}).get("status") not in {None, "ready", "blocked_budget_forecast"}:
@@ -341,7 +397,7 @@ def create_manifest(*, force: bool = False) -> dict[str, Any]:
         "health_policy": {"clean": "100% logical coverage and no retry/error", "recovered": "100% logical coverage with recovered technical errors", "invalid": "missing logical completions or failed run"},
     }
     _json_write(path, manifest)
-    return manifest
+    return _ensure_random_gate(manifest)
 
 
 def _manifest_file(manifest: dict[str, Any], value: str | Path | None = None) -> Path:
@@ -556,8 +612,8 @@ def run_gate(
     executor: Callable[[list[str]], int] | None = None,
 ) -> int:
     """Run one explicitly selected gate, sequentially, or simulate it offline."""
-    if gate not in {GATE_1, GATE_2}:
-        raise ValueError("only replication gates can be executed")
+    if gate not in {GATE_1, GATE_2, GATE_RANDOM_10}:
+        raise ValueError("unknown executable gate")
     definition = manifest.get("gates", {}).get(gate, {})
     if definition.get("status") not in {"planned", "approved", "running", "in_progress"}:
         raise ValueError(f"gate {gate} is not unlocked (status={definition.get('status')!r})")
@@ -566,6 +622,8 @@ def run_gate(
     _reconcile_rows(manifest, gate)
     if gate == GATE_1:
         hard_budget = float(definition.get("hard_budget_usd", GATE_1_HARD_BUDGET_USD))
+    elif gate == GATE_RANDOM_10:
+        hard_budget = float(definition.get("hard_budget_usd", GATE_RANDOM_10_HARD_BUDGET_USD))
     else:
         hard_budget = float(definition.get("approved_budget_usd")) if definition.get("approved_budget_usd") is not None else None
     selected_seeds = _select_pending_pairs(manifest, gate, max_new_pairs)
@@ -786,12 +844,12 @@ def main(argv: Iterable[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Plan/status/report a human-gated developmental-dynamics campaign")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--plan", action="store_true", help="print full staged plan; never calls a model")
-    mode.add_argument("--plan-gate", choices=[GATE_1, GATE_2], help="print one gate plan")
+    mode.add_argument("--plan-gate", choices=[GATE_1, GATE_2, GATE_RANDOM_10], help="print one gate plan")
     mode.add_argument("--status", action="store_true", help="show current campaign state")
     mode.add_argument("--cost", action="store_true", help="show offline cost state")
     mode.add_argument("--report-gate", choices=[GATE_1], help="generate an offline interim report")
     mode.add_argument("--approve-gate", choices=[GATE_2], help="record explicit human approval for Gate 2")
-    mode.add_argument("--run-gate", choices=[GATE_1, GATE_2], help="execute one gate; requires --confirm-real")
+    mode.add_argument("--run-gate", choices=[GATE_1, GATE_2, GATE_RANDOM_10], help="execute one gate; requires --confirm-real")
     mode.add_argument("--resume", action="store_true", help="resume the active unlocked gate; requires --confirm-real")
     parser.add_argument("--max-new-pairs", type=int, help="deterministically limit a gate plan/run to pending paired seeds")
     parser.add_argument("--budget-usd", type=float, help="approved budget for --approve-gate")

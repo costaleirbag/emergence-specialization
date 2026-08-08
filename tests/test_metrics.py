@@ -35,6 +35,21 @@ class MetricTests(unittest.TestCase):
     def test_phi_is_zero_for_identical_competence_rows(self) -> None:
         self.assertEqual(competence_differentiation_phi([[0.5, 0.25], [0.5, 0.25]]), 0.0)
 
+    def test_phi_level_and_developmental_contrasts_are_distinct_and_label_invariant(self) -> None:
+        private_0 = [[0.0, 0.0], [1.0, 1.0]]
+        shared_0 = [[0.0, 0.0], [0.0, 0.0]]
+        private_t = [[0.0, 0.0], [0.0, 0.0]]
+        shared_t = [[0.0, 0.0], [1.0, 1.0]]
+        phi_private_0 = competence_differentiation_phi(private_0)
+        phi_shared_0 = competence_differentiation_phi(shared_0)
+        phi_private_t = competence_differentiation_phi(private_t)
+        phi_shared_t = competence_differentiation_phi(shared_t)
+        level = phi_private_t - phi_shared_t
+        developmental = (phi_private_t - phi_private_0) - (phi_shared_t - phi_shared_0)
+        self.assertNotEqual(level, developmental)
+        self.assertAlmostEqual(competence_differentiation_phi(list(reversed(private_t))), phi_private_t)
+        self.assertEqual(competence_differentiation_phi([[0.0, 0.0], [0.0, 0.0]]), 0.0)
+
     def test_phi_is_label_permutation_invariant_and_positive_for_differentiation(self) -> None:
         matrix = [[1.0, 0.0], [0.0, 1.0]]
         self.assertGreater(competence_differentiation_phi(matrix), 0.0)

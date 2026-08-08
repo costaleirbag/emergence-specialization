@@ -40,6 +40,36 @@ def _variance(values: Sequence[float]) -> float | None:
     return sum((value - mean) ** 2 for value in values) / len(values)
 
 
+def online_team_accuracy(events: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    """Summarize correctness of the routed interaction decisions.
+
+    This is explicitly online interaction accuracy, not held-out probe
+    accuracy. The returned halves use chronological completed rounds and the
+    world breakdown preserves the task labels without treating rounds as IID.
+    """
+    rounds = sorted(
+        (event for event in events if event.get("event") == "round_complete"),
+        key=lambda event: int(event["round"]),
+    )
+    values = [float(bool(event.get("selected_correct", False))) for event in rounds]
+    midpoint = len(values) // 2
+    by_world: dict[str, list[float]] = {}
+    for event, value in zip(rounds, values):
+        by_world.setdefault(str((event.get("task") or {}).get("world", "unknown")), []).append(value)
+
+    def mean(items: Sequence[float]) -> float | None:
+        return sum(items) / len(items) if items else None
+
+    return {
+        "online_interaction_accuracy": mean(values),
+        "rounds_total": len(values),
+        "rounds_first_half_accuracy": mean(values[:midpoint]),
+        "rounds_second_half_accuracy": mean(values[midpoint:]),
+        "accuracy_by_world": {world: mean(items) for world, items in sorted(by_world.items())},
+        "correct_rounds": int(sum(values)),
+    }
+
+
 def online_observables(
     events: Iterable[dict[str, Any]], *, num_agents: int | None = None, rolling_window: int = 5,
     mi_permutations: int | None = None, mi_min_samples: int = 8, mi_seed: int = 0,

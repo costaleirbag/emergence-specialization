@@ -10,6 +10,7 @@ from pathlib import Path
 from emergent_specialization.campaign import (
     GATE_1,
     GATE_2,
+    GATE_RANDOM_10,
     HARD_COST_CAP_USD,
     CampaignRun,
     _apply_reuse,
@@ -17,6 +18,7 @@ from emergent_specialization.campaign import (
     _gate_summary,
     approve_gate,
     build_campaign_plan,
+    build_random_gate_plan,
     generate_gate_report,
     observed_baseline_cost_per_logical,
     run_gate,
@@ -59,6 +61,16 @@ class CampaignPlanningTests(unittest.TestCase):
         summary = _gate_summary(rows, GATE_1, observed_baseline_cost_per_logical())
         self.assertEqual(summary["new_runs"], 18)
         self.assertLess(float(summary["expected_nominal_cost_usd"]), 1.0)
+
+    def test_random_gate_plan_is_ten_paired_seeds_and_11200_calls(self) -> None:
+        rows = build_random_gate_plan()
+        self.assertEqual(len(rows), 20)
+        self.assertEqual({row.seed for row in rows}, set(range(1, 11)))
+        self.assertEqual({row.condition for row in rows}, {"private", "shared"})
+        self.assertEqual({row.gate for row in rows}, {GATE_RANDOM_10})
+        self.assertEqual({row.router for row in rows}, {"random"})
+        self.assertEqual(sum(row.nominal_calls for row in rows), 11_200)
+        self.assertEqual(sum(row.max_physical_calls for row in rows), 14_000)
 
     def test_mock_gate_lifecycle_resume_report_and_human_approval(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -36,7 +36,7 @@ HSE measures behavioral diversity; ΔHSE is baseline-relative. The plotted ribbo
 
 ![Delta HSE](figures/delta_hse_trajectory.png)
 
-At checkpoint 20, the mean paired effect D is **0.2151** across seeds 1–10 and **0.2216** excluding seed 1. These are descriptive summaries; no inferential claim is made here.
+At checkpoint 20, the mean paired effect D_HSE is **0.2151** across seeds 1–10 and **0.2216** excluding seed 1. These are descriptive summaries; no inferential claim is made here.
 
 ![Paired endpoint effect](figures/paired_delta_hse.png)
 
@@ -85,12 +85,73 @@ The raw-label usage plot is included to expose obvious imbalance. Because labels
 
 ![Seed 1 routing matrices](figures/routing_heatmaps_seed1.png)
 
+## Explicit developmental contrasts
+
+The paired table separates level and developmental competence contrasts. `phi_level_private_minus_shared` is Φ(private,t)−Φ(shared,t); `delta_phi_private_minus_shared` is the difference of within-condition changes from each condition's own t=0 baseline. They are not interchangeable.
+
+- Table A: `tables/paired_developmental_outcomes.csv` (including `delta_hse_private_minus_shared`, `phi_level_private_minus_shared`, `delta_phi_private_minus_shared`).
+- Mean endpoint D_Φ across paired seeds: **0.0031**; fraction positive: **0.6000**.
+
+![Delta Phi](figures/delta_phi_trajectory.png)
+
+![Paired Delta Phi](figures/paired_delta_phi.png)
+
+## MI permutation-null diagnostic
+
+Each run uses 10,000 deterministic permutations of selected-agent labels with the observed world sequence fixed. This is an exploratory finite-sample diagnostic, not a formal p-value. Mean normalized MI excess is private **0.0492** and shared **0.0307**.
+
+- Table C: `tables/mi_permutation_null.csv`.
+- Reported fields include raw/normalized observed MI, null mean/std/95th percentile, excess MI and observed-null percentile.
+
+![Routing entropy versus MI excess](figures/routing_entropy_vs_excess_mi.png)
+
+## Online interaction accuracy
+
+The routed interaction accuracy (not held-out probe accuracy) averages **0.1700** for private and **0.2050** for shared. First/second-half and world-level values are retained in `tables/online_team_accuracy.csv`.
+
+![Online team accuracy](figures/online_team_accuracy.png)
+
+## Empty-state measurement reliability
+
+At t=0 both conditions have empty controlled memory, but stochastic model responses can differ. Across paired seeds, same-label/same-probe correctness agreement averages **0.7944** and the mean behavioral-vector correlation averages **0.3620**. Constant-vector correlation uses the documented convention: identical constants → 1, unequal constants or one-constant pairs → 0.
+
+The t=0 panels are treated as an empirical empty-state measurement baseline, not a formal statistical null. See Table D (`tables/measurement_reliability_t0.csv`) and `empty_state_measurement_baseline.json`.
+
+![t=0 measurement reliability](figures/t0_measurement_reliability.png)
+
+## Utility and functional-structure diagnostics
+
+Table B (`tables/paired_utility.csv`) keeps separate: online team accuracy, oracle gain (item-level complementarity potential), U_match and Δ_match (one-to-one domain/niche potential), U_route/U_rand/U_oracle_domain and η_route (whether observed routing exploits competence). Undefined η_route values remain NA rather than being replaced by zero.
+
+![Oracle gain](figures/oracle_gain.png)
+
+![Delta match](figures/delta_match.png)
+
+![Routing alignment](figures/eta_route.png)
+
 ## What the data show (descriptive)
 
 1. The paired design completed technically: all 20 runs contain the expected interaction and probe logical completions.
 2. Private and shared trajectories are not identical across seeds; the magnitude and direction of D are seed-dependent rather than a single deterministic path.
 3. Shared runs necessarily accumulate feedback in every agent, while private runs accumulate it only in selected agents; this manipulation is visible in `memory_trajectories.csv`.
 4. The endpoint observables do not all encode the same construct. In particular, routing concentration, HSE, competence variance, MI and oracle gain can disagree.
+
+## Interpretation boundary
+
+### Strongly supported by Gate 1
+
+- The matched private/shared manipulation changes developmental behavioral trajectories in the completed paired dataset.
+- Shared feedback produces equal recipient counts by construction, while private feedback localizes each selected experience; the health and provenance records are complete enough to audit this distinction.
+
+### Suggestive
+
+- Private runs tend to retain higher endpoint behavioral diversity and item-level complementarity potential than shared runs in these descriptive artifacts.
+- Confidence routing and feedback locality may jointly shape the type of differentiation, but the competence-alignment diagnostics are mixed.
+
+### Not established
+
+- Gate 1 does not establish emergent specialization, stable task-specific roles, useful division of labor, or a causal mechanism beyond the pre-specified manipulation.
+- HSE, Φ, MI, utilization entropy, oracle gain and matching are not interchangeable objectives and should not be optimized directly.
 
 ## What the data may suggest
 

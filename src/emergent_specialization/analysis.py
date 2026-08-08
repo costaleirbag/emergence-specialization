@@ -249,9 +249,9 @@ def checkpoint_rows(bundle: RunBundle) -> list[dict[str, Any]]:
         competence = checkpoint.get("competence_matrix", {})
         derived = {
             "phi": competence_differentiation_phi_from_mapping(competence),
-            "routing_alignment_eta": routing_alignment(
+            **routing_alignment(
                 checkpoint.get("routing_counts_by_world_agent", {}), competence
-            ).get("eta_route"),
+            ),
         }
         matching = division_of_labor_matching(competence) if competence and len(competence) == len({world for profile in competence.values() for world in profile}) else {
             "u_match": None, "u_single": None, "delta_match": None,
@@ -264,11 +264,15 @@ def checkpoint_rows(bundle: RunBundle) -> list[dict[str, Any]]:
             "checkpoint": int(checkpoint["checkpoint"]),
             **{name: checkpoint.get(name) for name in CHECKPOINT_SCALARS},
             "phi": derived["phi"],
-            "routing_alignment_eta": derived["routing_alignment_eta"],
+            "u_route": derived.get("u_route"),
+            "u_rand": derived.get("u_rand"),
+            "u_oracle_domain": derived.get("u_oracle_domain"),
+            "routing_alignment_eta": derived.get("eta_route"),
             "division_of_labor_match": matching.get("u_match"),
             "single_agent_accuracy": matching.get("u_single"),
             "delta_match": matching.get("delta_match"),
             "effective_competence_dimensionality": spectral["participation_ratio"],
+            "competence_differentiation_eigenvalues": json.dumps(spectral.get("eigenvalues", [])),
         })
     return rows
 
