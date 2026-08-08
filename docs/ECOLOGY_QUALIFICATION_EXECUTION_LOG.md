@@ -41,3 +41,23 @@ redesigned.
 - Both manifests: five fixed environment seeds, 1,920 logical calls each
 - AR-001B probe hash: `ac0a8df29f25f1ed5f85f5e48b8ece8cf3947203fd1d27b479b2cd071adb2936`
 - Offline generator criteria passed without model calls.
+
+## AR-001B result
+
+- Run directory: `data/auto-research/ar001b-full-2d/`
+- Status: completed; all 112 logical completions recovered on the first
+  physical attempt; retries: 0; errors: 0
+- Model/provider: DeepSeek Direct `deepseek-v4-flash`; all provider records
+  reported the expected model
+- Full-2D probe coverage: 56/56 probes had nonzero `x` and nonzero `y`
+- Exact answer accuracy: `38/112 = 0.3393`
+- Usage: 11,088 input tokens, 1,459 output tokens, 12,547 total; usage
+  coverage 100%; configured-price estimate: US$0.00196084
+- Interpretation gate (pre-registered): accuracy below 0.70 leaves arithmetic
+  execution a serious substrate problem. This is a diagnostic limitation, not
+  a reason to redesign or retune the candidate ecologies; the frozen protocol
+  requires reporting it before transfer qualification.
+
+The result is therefore not evidence that the semantic ecologies will or will
+not qualify. It is evidence that the old GF(7) explicit execution control is a
+weak positive control for this model under the selected prompt and decoding.

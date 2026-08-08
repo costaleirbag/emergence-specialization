@@ -10,6 +10,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import statistics
 import tempfile
 from collections import defaultdict
@@ -248,21 +249,206 @@ async def run_real(ecology_name: str, *, confirm_real: bool = False) -> dict[str
     return status
 
 
+def _mean(values: list[float]) -> float | None:
+    return statistics.mean(values) if values else None
+
+
+def _sample_sd(values: list[float]) -> float | None:
+    return statistics.stdev(values) if len(values) > 1 else (0.0 if values else None)
+
+
+def _auc(scores: list[float], labels: list[bool]) -> float | None:
+    positives = [(score, index) for index, (score, label) in enumerate(zip(scores, labels)) if label]
+    negatives = [(score, index) for index, (score, label) in enumerate(zip(scores, labels)) if not label]
+    if not positives or not negatives:
+        return None
+    wins = sum(1.0 if p[0] > n[0] else 0.5 if p[0] == n[0] else 0.0 for p in positives for n in negatives)
+    return wins / (len(positives) * len(negatives))
+
+
+def _point_biserial(scores: list[float], labels: list[bool]) -> float | None:
+    if len(set(labels)) < 2 or len(scores) < 2:
+        return None
+    mean_score = statistics.mean(scores)
+    mean_pos = statistics.mean([score for score, label in zip(scores, labels) if label])
+    mean_neg = statistics.mean([score for score, label in zip(scores, labels) if not label])
+    sd = statistics.stdev(scores)
+    if sd == 0:
+        return None
+    p = sum(labels) / len(labels)
+    return (mean_pos - mean_neg) / sd * math.sqrt(p * (1 - p))
+
+
+def _memory_answers(memory: list[str]) -> list[str]:
+    answers: list[str] = []
+    for item in memory:
+        match = re.search(r"Correct resolution:\s*([A-Z]+)", item)
+        if match:
+            answers.append(match.group(1))
+    return answers
+
+
+def _write_csv(path: Path, rows: list[dict[str, Any]], fields: list[str] | None = None) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if fields is None:
+        fields = sorted({key for row in rows for key in row})
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields, extrasaction="ignore")
+        writer.writeheader(); writer.writerows(rows)
+
+
+def _svg_heatmap(path: Path, matrix: dict[tuple[str, str], float | None], families: tuple[str, ...], title: str) -> None:
+    cell = 92; left = 150; top = 72; width = left + cell * len(families) + 20; height = top + cell * len(families) + 30
+    def color(value: float | None) -> str:
+        if value is None: return "#e7e5e4"
+        clipped = max(-1.0, min(1.0, value)); intensity = int(128 + 100 * clipped)
+        if clipped >= 0: return f"rgb(30,{intensity},120)"
+        return f"rgb({intensity},100,120)"
+    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
+             '<style>text{font-family:Arial,sans-serif;fill:#1c1917} .small{font-size:11px} .title{font-size:16px;font-weight:700}</style>',
+             f'<text class="title" x="12" y="24">{title}</text>']
+    for j, target in enumerate(families):
+        parts.append(f'<text class="small" text-anchor="middle" x="{left + j*cell + cell/2}" y="50">{target}</text>')
+    for i, source in enumerate(families):
+        y = top + i * cell
+        parts.append(f'<text class="small" text-anchor="end" x="{left-8}" y="{y + cell/2 + 4}">{source}</text>')
+        for j, target in enumerate(families):
+            value = matrix.get((source, target)); x = left + j * cell
+            text_value = "NA" if value is None else f"{value:+.2f}"
+            parts.append(f'<rect x="{x}" y="{y}" width="{cell-2}" height="{cell-2}" fill="{color(value)}" rx="4"/>')
+            parts.append(f'<text class="small" text-anchor="middle" x="{x + cell/2}" y="{y + cell/2 + 4}">{text_value}</text>')
+    parts.append("</svg>")
+    path.write_text("".join(parts), encoding="utf-8")
+
+
+def _svg_learning(path: Path, rows: list[dict[str, Any]], families: tuple[str, ...], title: str) -> None:
+    width, height, left, top, right, bottom = 760, 360, 70, 48, 20, 48
+    points: list[tuple[float, float]] = []
+    grouped: dict[int, list[float]] = defaultdict(list)
+    for row in rows:
+        if row["source"] == row["target"] and row["h"] in (0, 4, 8) and row["accuracy"] is not None:
+            grouped[int(row["h"])].append(float(row["accuracy"]))
+    values = {h: _mean(v) for h, v in grouped.items()}
+    for h in (0, 4, 8):
+        if values.get(h) is not None:
+            x = left + (width-left-right) * h / 8; y = height-bottom - (height-top-bottom) * values[h]
+            points.append((x, y))
+    poly = " ".join(f"{x:.1f},{y:.1f}" for x, y in points)
+    content = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}">',
+               '<style>text{font-family:Arial,sans-serif;fill:#1c1917}.title{font-size:16px;font-weight:700}.small{font-size:11px}</style>',
+               f'<text class="title" x="12" y="24">{title}</text>',
+               f'<line x1="{left}" y1="{top}" x2="{left}" y2="{height-bottom}" stroke="#78716c"/>',
+               f'<line x1="{left}" y1="{height-bottom}" x2="{width-right}" y2="{height-bottom}" stroke="#78716c"/>',
+               f'<polyline points="{poly}" fill="none" stroke="#0f766e" stroke-width="3"/>']
+    for h in (0, 4, 8):
+        x = left + (width-left-right) * h / 8
+        content.append(f'<text class="small" text-anchor="middle" x="{x}" y="{height-bottom+20}">h={h}</text>')
+    for x, y in points:
+        content.append(f'<circle cx="{x}" cy="{y}" r="5" fill="#0f766e"/>')
+    content.append("</svg>"); path.write_text("".join(content), encoding="utf-8")
+
+
 def aggregate(ecology_name: str) -> dict[str, Any]:
+    """Materialize preregistered transfer tables from completed raw events.
+
+    All rows remain indexed by environment seed; model replicates are repeated
+    measurements and are never treated as independent environments.
+    """
     path = OUTPUT_ROOT / ecology_name.lower() / "events.jsonl"
-    events = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+    events = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    ecology = ECOLOGIES[ecology_name]
+    out_dir = REPORT_ROOT; figure_dir = out_dir / "figures"; figure_dir.mkdir(parents=True, exist_ok=True)
+    response_rows: list[dict[str, Any]] = []
     grouped: dict[tuple[int, str, str | None, int], list[dict[str, Any]]] = defaultdict(list)
     for event in events:
         task = event["task"]; grouped[(task["seed"], task["target"], task["source"], task["h"])].append(event)
+        memory = task.get("memory") or []; mem_answers = _memory_answers(memory)
+        answer = event.get("answer"); correct = event.get("correct") if event.get("error") is None else None
+        response_rows.append({"ecology": ecology_name, "seed": task["seed"], "source": task["source"] or "none", "target": task["target"],
+                              "h": task["h"], "condition": task["condition"], "replicate": task["replicate"],
+                              "case_id": task["case"]["case_id"], "answer": answer, "expected": task["case"]["expected"],
+                              "correct": correct, "confidence": event.get("confidence"), "latency_s": event.get("latency_s"),
+                              "error": event.get("error"), "error_category": event.get("error_category"),
+                              "prompt_hash": stable_hash({"task": task, "ecology": ecology_name}),
+                              "memory_count": len(memory), "last_memory_answer": mem_answers[-1] if mem_answers else None,
+                              "any_memory_match": bool(answer and answer in mem_answers),
+                              "last_memory_match": bool(answer and mem_answers and answer == mem_answers[-1]),
+                              "input_tokens": (event.get("token_usage") or {}).get("prompt_tokens"),
+                              "output_tokens": (event.get("token_usage") or {}).get("completion_tokens"),
+                              "total_tokens": (event.get("token_usage") or {}).get("total_tokens"),
+                              "cost_usd": event.get("attempt_cost_usd")})
+    _write_csv(out_dir / "response_level.csv", response_rows)
     rows: list[dict[str, Any]] = []
     for (seed, target, source, h), values in sorted(grouped.items()):
         valid = [v for v in values if v.get("error") is None and v.get("answer") is not None]
         rows.append({"ecology": ecology_name, "seed": seed, "source": source or "none", "target": target, "h": h,
-                     "n": len(valid), "accuracy": sum(v["correct"] for v in valid) / len(valid) if valid else None,
-                     "mean_confidence": sum(float(v["confidence"]) for v in valid) / len(valid) if valid else None,
+                     "n": len(valid), "accuracy": _mean([1.0 if v["correct"] else 0.0 for v in valid]),
+                     "mean_confidence": _mean([float(v["confidence"]) for v in valid if v.get("confidence") is not None]),
                      "errors": len(values) - len(valid)})
-    REPORT_ROOT.mkdir(parents=True, exist_ok=True)
-    out = REPORT_ROOT / f"{ecology_name.lower()}_aggregate.json"; _atomic_json(out, {"rows": rows, "ecology": ecology_name}); return {"rows": rows}
+    _atomic_json(out_dir / f"{ecology_name.lower()}_aggregate.json", {"rows": rows, "ecology": ecology_name})
+    lookup = {(r["seed"], r["target"]): r for r in rows if r["source"] == "none" and r["h"] == 0}
+    environment_rows: list[dict[str, Any]] = []
+    for r in rows:
+        if r["source"] == "none" or r["h"] not in (4, 8): continue
+        baseline = lookup.get((r["seed"], r["target"]), {}).get("accuracy")
+        environment_rows.append({**r, "baseline_accuracy": baseline,
+                                  "learning_gain": r["accuracy"] - baseline if r["accuracy"] is not None and baseline is not None else None})
+    _write_csv(out_dir / "environment_level_transfer.csv", environment_rows)
+    aggregate_rows: list[dict[str, Any]] = []
+    for h in (4, 8):
+        for source in ecology.families:
+            targets = (source,) if h == 4 else ecology.families
+            for target in targets:
+                vals = [r["learning_gain"] for r in environment_rows if r["h"] == h and r["source"] == source and r["target"] == target and r["learning_gain"] is not None]
+                baselines = [r["baseline_accuracy"] for r in environment_rows if r["h"] == h and r["source"] == source and r["target"] == target and r["baseline_accuracy"] is not None]
+                aggregate_rows.append({"ecology": ecology_name, "h": h, "source": source, "target": target,
+                                       "n_seeds": len(vals), "mean_baseline_accuracy": _mean(baselines),
+                                       "mean_transfer_gain": _mean(vals), "sd_transfer_gain": _sample_sd(vals)})
+    _write_csv(out_dir / "aggregate_transfer_matrices.csv", aggregate_rows)
+    h8 = {(r["source"], r["target"]): r["mean_transfer_gain"] for r in aggregate_rows if r["h"] == 8}
+    diagonal = [h8[(f, f)] for f in ecology.families if h8.get((f, f)) is not None]
+    offdiag = [v for (s, t), v in h8.items() if s != t and v is not None]
+    q = {f: h8.get((f, f), 0.0) - _mean([h8.get((f, t), 0.0) for t in ecology.families if t != f]) for f in ecology.families}
+    block_stat = None
+    if ecology_name == "OPE":
+        blocks = {"ACCESS": 0, "RELEASE": 0, "INCIDENT": 1, "PROVENANCE": 1}
+        within = [v for (s, t), v in h8.items() if s != t and blocks[s] == blocks[t] and v is not None]
+        cross = [v for (s, t), v in h8.items() if blocks[s] != blocks[t] and v is not None]
+        block_stat = (_mean(within) - _mean(cross)) if within and cross else None
+    summary = {"ecology": ecology_name, "protocol": "ECOLOGY-TRANSFER-QUALIFICATION-V1", "offline_pass": True,
+               "baseline_accuracy": _mean([r["accuracy"] for r in rows if r["source"] == "none" and r["h"] == 0]),
+               "D": _mean(diagonal), "O": _mean(offdiag), "Q": (_mean(diagonal) - _mean(offdiag)) if diagonal and offdiag else None,
+               "q_c": q, "B_OPE": block_stat, "criteria": {"D_ge_010": bool(diagonal and _mean(diagonal) >= .10),
+               "Q_ge_007": bool(diagonal and offdiag and _mean(diagonal) - _mean(offdiag) >= .07),
+               "three_q_gt_005": sum(v > .05 for v in q.values()) >= 3},
+               "classification": "PENDING_QUALIFICATION"}
+    if summary["criteria"]["D_ge_010"] and summary["criteria"]["Q_ge_007"] and summary["criteria"]["three_q_gt_005"]:
+        summary["classification"] = "PROMISING SPECIALIZATION SUBSTRATE"
+    elif summary["criteria"]["D_ge_010"]:
+        summary["classification"] = "LEARNABLE-BUT-GENERAL"
+    else:
+        summary["classification"] = "MODEL-NONLEARNABLE"
+    audit_path = out_dir / "offline_generator_audit.csv"
+    if audit_path.exists():
+        with audit_path.open(newline="", encoding="utf-8") as handle: audit_rows = [dict(row) for row in csv.DictReader(handle) if row["ecology"] == ecology_name]
+        _write_csv(out_dir / "identifiability.csv", audit_rows)
+    confidence_rows: list[dict[str, Any]] = []
+    anchoring_rows: list[dict[str, Any]] = []
+    for key, values in sorted(grouped.items()):
+        seed, target, source, h = key; valid = [v for v in values if v.get("error") is None and v.get("answer") is not None]
+        scores = [float(v["confidence"]) for v in valid if v.get("confidence") is not None]; labels = [bool(v["correct"]) for v in valid if v.get("confidence") is not None]
+        mem = [_memory_answers(v["task"].get("memory") or []) for v in valid]
+        anchoring_rows.append({"ecology": ecology_name, "seed": seed, "source": source or "none", "target": target, "h": h, "n": len(valid),
+                               "last_memory_match_rate": _mean([bool(v["answer"] and m and v["answer"] == m[-1]) for v, m in zip(valid, mem)]) if valid else None,
+                               "any_memory_match_rate": _mean([bool(v["answer"] and v["answer"] in m) for v, m in zip(valid, mem)]) if valid else None})
+        confidence_rows.append({"ecology": ecology_name, "seed": seed, "source": source or "none", "target": target, "h": h,
+                                "n": len(valid), "mean_confidence": _mean(scores), "accuracy": _mean([1.0 if v else 0.0 for v in labels]),
+                                "point_biserial": _point_biserial(scores, labels), "auroc": _auc(scores, labels)})
+    _write_csv(out_dir / "confidence.csv", confidence_rows); _write_csv(out_dir / "anchoring.csv", anchoring_rows)
+    _svg_heatmap(figure_dir / f"{ecology_name.lower()}_L8.svg", h8, ecology.families, f"{ecology_name} learning gain L(8)")
+    _svg_learning(figure_dir / f"{ecology_name.lower()}_diagonal.svg", rows, ecology.families, f"{ecology_name} same-niche transfer")
+    _atomic_json(out_dir / "qualification_summary.json", summary)
+    return {"rows": rows, "summary": summary}
 
 
 def main() -> None:
