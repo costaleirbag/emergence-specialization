@@ -10,7 +10,7 @@ interventions.
 ## Frozen repository state
 
 - Branch: `research/developmental-dynamics`
-- Analysis/tooling HEAD before the real control: recorded in the campaign manifest
+- Analysis/tooling HEAD before the real control: `8de87c6`
 - Gate 1: complete; 20/20 runs complete and logically covered
 - Gate 2: locked
 - Probe-set SHA-256: `cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e`
