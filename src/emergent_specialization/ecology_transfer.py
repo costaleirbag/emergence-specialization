@@ -392,6 +392,30 @@ def _svg_learning(path: Path, rows: list[dict[str, Any]], families: tuple[str, .
     content.append("</svg>"); path.write_text("".join(content), encoding="utf-8")
 
 
+def _refresh_combined_outputs() -> None:
+    """Merge candidate-specific tables into the protocol-level report root."""
+    REPORT_ROOT.mkdir(parents=True, exist_ok=True)
+    for filename in ("environment_level_transfer.csv", "aggregate_transfer_matrices.csv", "response_level.csv",
+                     "identifiability.csv", "confidence.csv", "anchoring.csv"):
+        merged: list[dict[str, Any]] = []
+        for ecology_name in ECOLOGIES:
+            path = REPORT_ROOT / ecology_name.lower() / filename
+            if path.exists():
+                with path.open(newline="", encoding="utf-8") as handle:
+                    merged.extend(dict(row) for row in csv.DictReader(handle))
+        if merged:
+            _write_csv(REPORT_ROOT / filename, merged)
+    combined: dict[str, Any] = {"protocol": "ECOLOGY-TRANSFER-QUALIFICATION-V1", "candidates": {}}
+    for ecology_name in ECOLOGIES:
+        path = REPORT_ROOT / ecology_name.lower() / "qualification_summary.json"
+        if path.exists():
+            combined["candidates"][ecology_name] = json.loads(path.read_text(encoding="utf-8"))
+            for figure in (REPORT_ROOT / ecology_name.lower() / "figures").glob("*.svg"):
+                target = REPORT_ROOT / "figures" / figure.name; target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(figure.read_text(encoding="utf-8"), encoding="utf-8")
+    _atomic_json(REPORT_ROOT / "qualification_summary.json", combined)
+
+
 def aggregate(ecology_name: str) -> dict[str, Any]:
     """Materialize preregistered transfer tables from completed raw events.
 
@@ -401,7 +425,7 @@ def aggregate(ecology_name: str) -> dict[str, Any]:
     path = OUTPUT_ROOT / ecology_name.lower() / "events.jsonl"
     events = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
     ecology = ECOLOGIES[ecology_name]
-    out_dir = REPORT_ROOT; figure_dir = out_dir / "figures"; figure_dir.mkdir(parents=True, exist_ok=True)
+    out_dir = REPORT_ROOT / ecology_name.lower(); figure_dir = out_dir / "figures"; figure_dir.mkdir(parents=True, exist_ok=True)
     response_rows: list[dict[str, Any]] = []
     grouped: dict[tuple[int, str, str | None, int], list[dict[str, Any]]] = defaultdict(list)
     for event in events:
@@ -474,7 +498,7 @@ def aggregate(ecology_name: str) -> dict[str, Any]:
         summary["classification"] = "LEARNABLE-BUT-GENERAL"
     else:
         summary["classification"] = "MODEL-NONLEARNABLE"
-    audit_path = out_dir / "offline_generator_audit.csv"
+    audit_path = REPORT_ROOT / "offline_generator_audit.csv"
     if audit_path.exists():
         with audit_path.open(newline="", encoding="utf-8") as handle: audit_rows = [dict(row) for row in csv.DictReader(handle) if row["ecology"] == ecology_name]
         _write_csv(out_dir / "identifiability.csv", audit_rows)
@@ -494,6 +518,7 @@ def aggregate(ecology_name: str) -> dict[str, Any]:
     _svg_heatmap(figure_dir / f"{ecology_name.lower()}_L8.svg", h8, ecology.families, f"{ecology_name} learning gain L(8)")
     _svg_learning(figure_dir / f"{ecology_name.lower()}_diagonal.svg", rows, ecology.families, f"{ecology_name} same-niche transfer")
     _atomic_json(out_dir / "qualification_summary.json", summary)
+    _refresh_combined_outputs()
     return {"rows": rows, "summary": summary}
 
 
