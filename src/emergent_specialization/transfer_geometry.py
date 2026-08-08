@@ -518,7 +518,7 @@ def aggregate_all() -> dict[str, Any]:
 def plan() -> dict[str, Any]:
     calls = expected_calls(); recent = []
     for candidate in ("ope", "cwde"):
-        path = ROOT / f"reports/task-ecology/qualification-v1/{candidate}/qualification_summary.json"
+        path = ROOT / f"data/auto-research/ecology-transfer-qualification-v1/{candidate}/manifest.json"
         if path.exists():
             report = json.loads(path.read_text(encoding="utf-8")); recent.append((float(report.get("observed_cost_usd", 0.0) or 0.0), int(report.get("logical_calls", 1920))))
     observed_rates = [cost / logical for cost, logical in recent if logical > 0 and cost >= 0]
