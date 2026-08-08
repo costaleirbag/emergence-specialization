@@ -1,0 +1,399 @@
+{
+  "old_probe_pairs_excluded": true,
+  "probe_hash": "ac0a8df29f25f1ed5f85f5e48b8ece8cf3947203fd1d27b479b2cd071adb2936",
+  "protocol": "AR-001B-FULL-2D-EXECUTION",
+  "tasks": [
+    {
+      "correct_answer": 0,
+      "task_id": "ar001b-ALPHA-0",
+      "world": "ALPHA",
+      "x": 10,
+      "y": 7
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "ar001b-ALPHA-1",
+      "world": "ALPHA",
+      "x": 20,
+      "y": 1
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "ar001b-ALPHA-2",
+      "world": "ALPHA",
+      "x": 16,
+      "y": 17
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "ar001b-ALPHA-3",
+      "world": "ALPHA",
+      "x": 3,
+      "y": 15
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "ar001b-ALPHA-4",
+      "world": "ALPHA",
+      "x": 14,
+      "y": 15
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "ar001b-ALPHA-5",
+      "world": "ALPHA",
+      "x": 15,
+      "y": 13
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "ar001b-ALPHA-6",
+      "world": "ALPHA",
+      "x": 10,
+      "y": 10
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "ar001b-ALPHA-7",
+      "world": "ALPHA",
+      "x": 18,
+      "y": 15
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "ar001b-ALPHA-8",
+      "world": "ALPHA",
+      "x": 14,
+      "y": 3
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "ar001b-ALPHA-9",
+      "world": "ALPHA",
+      "x": 14,
+      "y": 17
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "ar001b-ALPHA-10",
+      "world": "ALPHA",
+      "x": 12,
+      "y": 1
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "ar001b-ALPHA-11",
+      "world": "ALPHA",
+      "x": 16,
+      "y": 14
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "ar001b-ALPHA-12",
+      "world": "ALPHA",
+      "x": 14,
+      "y": 19
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "ar001b-ALPHA-13",
+      "world": "ALPHA",
+      "x": 16,
+      "y": 15
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "ar001b-BETA-14",
+      "world": "BETA",
+      "x": 3,
+      "y": 10
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "ar001b-BETA-15",
+      "world": "BETA",
+      "x": 2,
+      "y": 1
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "ar001b-BETA-16",
+      "world": "BETA",
+      "x": 10,
+      "y": 1
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "ar001b-BETA-17",
+      "world": "BETA",
+      "x": 2,
+      "y": 20
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "ar001b-BETA-18",
+      "world": "BETA",
+      "x": 18,
+      "y": 15
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "ar001b-BETA-19",
+      "world": "BETA",
+      "x": 20,
+      "y": 12
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "ar001b-BETA-20",
+      "world": "BETA",
+      "x": 1,
+      "y": 7
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "ar001b-BETA-21",
+      "world": "BETA",
+      "x": 5,
+      "y": 15
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "ar001b-BETA-22",
+      "world": "BETA",
+      "x": 20,
+      "y": 8
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "ar001b-BETA-23",
+      "world": "BETA",
+      "x": 17,
+      "y": 2
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "ar001b-BETA-24",
+      "world": "BETA",
+      "x": 15,
+      "y": 3
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "ar001b-BETA-25",
+      "world": "BETA",
+      "x": 8,
+      "y": 10
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "ar001b-BETA-26",
+      "world": "BETA",
+      "x": 5,
+      "y": 9
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "ar001b-BETA-27",
+      "world": "BETA",
+      "x": 1,
+      "y": 8
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "ar001b-GAMMA-28",
+      "world": "GAMMA",
+      "x": 19,
+      "y": 18
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "ar001b-GAMMA-29",
+      "world": "GAMMA",
+      "x": 8,
+      "y": 19
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "ar001b-GAMMA-30",
+      "world": "GAMMA",
+      "x": 12,
+      "y": 8
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "ar001b-GAMMA-31",
+      "world": "GAMMA",
+      "x": 14,
+      "y": 18
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "ar001b-GAMMA-32",
+      "world": "GAMMA",
+      "x": 12,
+      "y": 12
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "ar001b-GAMMA-33",
+      "world": "GAMMA",
+      "x": 19,
+      "y": 12
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "ar001b-GAMMA-34",
+      "world": "GAMMA",
+      "x": 16,
+      "y": 15
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "ar001b-GAMMA-35",
+      "world": "GAMMA",
+      "x": 11,
+      "y": 4
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "ar001b-GAMMA-36",
+      "world": "GAMMA",
+      "x": 12,
+      "y": 6
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "ar001b-GAMMA-37",
+      "world": "GAMMA",
+      "x": 13,
+      "y": 4
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "ar001b-GAMMA-38",
+      "world": "GAMMA",
+      "x": 8,
+      "y": 11
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "ar001b-GAMMA-39",
+      "world": "GAMMA",
+      "x": 12,
+      "y": 3
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "ar001b-GAMMA-40",
+      "world": "GAMMA",
+      "x": 19,
+      "y": 14
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "ar001b-GAMMA-41",
+      "world": "GAMMA",
+      "x": 7,
+      "y": 10
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "ar001b-DELTA-42",
+      "world": "DELTA",
+      "x": 2,
+      "y": 5
+    },
+    {
+      "correct_answer": 0,
+      "task_id": "ar001b-DELTA-43",
+      "world": "DELTA",
+      "x": 9,
+      "y": 19
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "ar001b-DELTA-44",
+      "world": "DELTA",
+      "x": 16,
+      "y": 15
+    },
+    {
+      "correct_answer": 1,
+      "task_id": "ar001b-DELTA-45",
+      "world": "DELTA",
+      "x": 1,
+      "y": 17
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "ar001b-DELTA-46",
+      "world": "DELTA",
+      "x": 1,
+      "y": 6
+    },
+    {
+      "correct_answer": 2,
+      "task_id": "ar001b-DELTA-47",
+      "world": "DELTA",
+      "x": 1,
+      "y": 20
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "ar001b-DELTA-48",
+      "world": "DELTA",
+      "x": 2,
+      "y": 7
+    },
+    {
+      "correct_answer": 3,
+      "task_id": "ar001b-DELTA-49",
+      "world": "DELTA",
+      "x": 8,
+      "y": 2
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "ar001b-DELTA-50",
+      "world": "DELTA",
+      "x": 12,
+      "y": 4
+    },
+    {
+      "correct_answer": 4,
+      "task_id": "ar001b-DELTA-51",
+      "world": "DELTA",
+      "x": 12,
+      "y": 11
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "ar001b-DELTA-52",
+      "world": "DELTA",
+      "x": 10,
+      "y": 4
+    },
+    {
+      "correct_answer": 5,
+      "task_id": "ar001b-DELTA-53",
+      "world": "DELTA",
+      "x": 6,
+      "y": 19
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "ar001b-DELTA-54",
+      "world": "DELTA",
+      "x": 14,
+      "y": 13
+    },
+    {
+      "correct_answer": 6,
+      "task_id": "ar001b-DELTA-55",
+      "world": "DELTA",
+      "x": 2,
+      "y": 9
+    }
+  ]
+}

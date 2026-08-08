@@ -1,0 +1,10 @@
+protocol: ECOLOGY-TRANSFER-QUALIFICATION-V1
+backend: deepseek_direct
+model: deepseek-v4-flash
+thinking: off
+environment_seeds: [1701, 1702, 1703, 1704, 1705]
+probe_count: 8
+replicates: 2
+h8_full_matrix: true
+h4_diagonal: true
+hard_new_inference_cap_usd: 0.50
