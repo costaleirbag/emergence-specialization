@@ -84,3 +84,13 @@ The qualification labels are descriptive transfer-geometry gates only. They do
 not establish role formation, specialization, division of labor, or a causal
 society result. No society experiment, Gate 2, new model, tuning, or additional
 context seed was run in this phase.
+
+## Handoff
+
+- pre-handoff documentation HEAD: `5b5fb49`
+- final package: `semantic-task-ecology-qualification-v1-package.tar.gz`
+- package excludes `.git`, `.venv`, caches, and credentials; it includes the
+  frozen source/config/tests, manifests, raw AR-001B/OPE/CWDE JSONL artifacts,
+  candidate-specific transfer tables, combined tables, figures, and reports.
+- final test suite after implementation: 165 passed
+- final compileall: PASS
