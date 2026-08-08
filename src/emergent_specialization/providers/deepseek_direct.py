@@ -94,8 +94,8 @@ class DeepSeekDirectBackend:
     ) -> None:
         if not api_key:
             raise ValueError("DeepSeek API key must be supplied in memory")
-        if thinking != "off":
-            raise ValueError("DeepSeek Direct baseline requires thinking='off'")
+        if thinking not in {"off", "minimal", "low", "medium", "high", "xhigh", "max", "auto"}:
+            raise ValueError("DeepSeek Direct thinking must be 'off' or a documented reasoning level")
         if max_tokens < 1:
             raise ValueError("max_tokens must be positive")
         self._api_key = api_key
@@ -147,7 +147,8 @@ class DeepSeekDirectBackend:
             "base_url": self.base_url,
             "credential_source": self.credential_source,
             "sdk_max_retries": 0,
-            "thinking": "disabled",
+            "thinking": "disabled" if self.thinking == "off" else "enabled",
+            "reasoning_effort": None if self.thinking == "off" else ("max" if self.thinking in {"xhigh", "max"} else "high"),
             "stream": False,
             "response_format": {"type": "json_object"},
             "user_id": self.user_id,
@@ -183,6 +184,8 @@ class DeepSeekDirectBackend:
         model_parameters: dict[str, Any],
     ) -> BackendResponse:
         started = time.perf_counter()
+        thinking = str(model_parameters.get("thinking") or self.thinking)
+        enabled = thinking != "off"
         request = {
             "model": model,
             "messages": [
@@ -192,8 +195,10 @@ class DeepSeekDirectBackend:
             "response_format": {"type": "json_object"},
             "max_tokens": int(model_parameters.get("max_tokens") or self.max_tokens),
             "stream": False,
-            "extra_body": {"thinking": {"type": "disabled"}, "user_id": self.user_id},
+            "extra_body": {"thinking": {"type": "enabled" if enabled else "disabled"}, "user_id": self.user_id},
         }
+        if enabled:
+            request["reasoning_effort"] = "max" if thinking in {"xhigh", "max"} else "high"
         try:
             response = await self.client.chat.completions.create(**request)
         except Exception as exc:  # provider/transport boundary

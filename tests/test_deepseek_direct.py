@@ -49,6 +49,19 @@ class Usage:
 
 
 class DirectBackendTests(unittest.TestCase):
+    def test_thinking_enabled_uses_same_model_documented_toggle(self) -> None:
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content='{"answer": 4, "confidence": 0.73}', reasoning_content="not persisted"))],
+            usage=Usage(), id="resp-thinking", model="deepseek-v4-flash", system_fingerprint="fp-1", _request_id="req-1",
+        )
+        client = FakeClient(response=response)
+        backend = DeepSeekDirectBackend(api_key="secret-never-logged", thinking="high", client=client)
+        result = asyncio.run(backend.complete(system_prompt="json", user_prompt="json", model="deepseek-v4-flash", model_parameters={"thinking": "high", "max_tokens": 128}))
+        self.assertIsNone(result.error)
+        self.assertEqual(client.chat.completions.kwargs["extra_body"]["thinking"], {"type": "enabled"})
+        self.assertEqual(client.chat.completions.kwargs["reasoning_effort"], "high")
+        self.assertEqual(backend.metadata()["thinking"], "enabled")
+
     def test_success_uses_documented_stateless_json_request(self) -> None:
         response = SimpleNamespace(
             choices=[SimpleNamespace(message=SimpleNamespace(content='{"answer": 4, "confidence": 0.73}'))],
