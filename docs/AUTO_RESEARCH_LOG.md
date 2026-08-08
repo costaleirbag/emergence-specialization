@@ -207,3 +207,27 @@ tests, and a cost-ledger check.
   one fresh launch in the original frozen output path is authorized outside the
   sandbox. This is an infrastructure-boundary correction, not a scientific
   retry, protocol change, or added call.
+
+## 2026-08-08T14:12:07Z — AR-001 completed and audited
+
+- Health: **COMPLETE/CLEAN**. 168/168 unique logical responses, 168 physical
+  attempts, 0 retries, 0 errors, 0 semantic OOD responses, one requested/returned
+  model (`deepseek-v4-flash`) and one provider fingerprint.
+- Primary result: 153/168 correct = **0.910714**, above the preregistered 0.85
+  execution-reliability threshold. World accuracies: ALPHA 39/42, BETA 41/42,
+  GAMMA 37/42, DELTA 36/42.
+- Reliability: 44/56 exact prompts had three-way answer agreement; mean pairwise
+  answer agreement was 0.845. Confidence was 1.0 for every response, including
+  all 15 errors, so it provided no discrimination in this control.
+- Usage/cost: 18,060 input + 2,030 output = 20,090 tokens with 100% usage
+  coverage; configured-price cost US$0.0030968. Ledger and manifest reconcile;
+  no reservation remains.
+- **Post-run design limitation:** direct raw/probe audit found `x=0` for all 56
+  tasks (`y=0..13`). The frozen probe constructor selected the first two items
+  per answer label in lexicographic order. Consequently AR-001 tests explicit
+  modular execution only on `z=b*y+c`; it cannot establish execution of `a*x`
+  or general bivariate affine rules. The result is not discarded, but H7 is
+  only weakened/partially refuted.
+- Independent raw validation reproduced counts, accuracy, agreement, usage,
+  cost, latency, provider identity, and ledger reconciliation without reading
+  `report.json` as authority.

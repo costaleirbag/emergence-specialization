@@ -72,15 +72,19 @@ level; it never means universal truth.
   identifiability.
 - **Prior:** HIGH.
 - **Supporting evidence:** two calibrations show weak, non-monotone held-out
-  accuracy close to balanced-label baseline.
-- **Contradicting evidence:** the rank/identifiability of the exact contexts has
-  not yet been audited; arithmetic execution may be the bottleneck.
+  accuracy close to balanced-label baseline; exact auditing finds all truthful
+  `k=8` contexts rank-full and symbolically sufficient; removing modular aliases
+  eliminates the apparent same-world gain.
+- **Contradicting evidence:** AR-001 reaches 153/168 correct when the formula is
+  supplied, but its probes all have `x=0`, so it isolates only the `b*y+c`
+  execution slice rather than full bivariate affine execution.
 - **Alternatives:** rank-deficient contexts; execution failure; serialization;
   output-protocol interference.
 - **Cheapest discriminating test:** exact GF(7) rank audit.
 - **Stronger test:** rank-full coefficient-inference control evaluated offline.
-- **Status:** OPEN.
-- **Last update:** 2026-08-08 session initialization.
+- **Status:** SUPPORTED under the frozen thinking-off memory protocol.
+- **Last update:** 2026-08-08 after exact identifiability, alias, and AR-001
+  audits.
 
 ## H5 — memory serialization bottleneck
 
@@ -128,14 +132,18 @@ level; it never means universal truth.
 - **Prior:** MEDIUM.
 - **Supporting evidence:** current end-to-end accuracy is weak, but induction and
   execution are confounded.
-- **Contradicting evidence:** no explicit-rule control has yet isolated
-  execution.
+- **Contradicting evidence:** AR-001 produces 153/168 correct (0.911) with the
+  explicit rule, above the preregistered 0.85 reliability threshold, with zero
+  technical errors. However every probe has `x=0`; accuracy by world ranges
+  from 0.857 to 0.976, and full bivariate execution remains untested.
 - **Alternatives:** induction alone fails while execution is strong.
-- **Cheapest discriminating test:** explicit-rule balanced held-out control.
+- **Cheapest discriminating test:** a fresh, preregistered explicit-rule probe
+  set with both coordinates varied; do not reuse the degenerate balanced set.
 - **Stronger test:** compare model answer with offline execution of a separately
   inferred coefficient triple.
-- **Status:** OPEN.
-- **Last update:** 2026-08-08 session initialization.
+- **Status:** WEAKENED; refuted for the tested one-dimensional slice, unresolved
+  for general bivariate affine execution.
+- **Last update:** 2026-08-08 AR-001.
 
 ## H8 — confidence bottleneck
 
@@ -144,7 +152,8 @@ level; it never means universal truth.
   rather than correctness.
 - **Prior:** HIGH.
 - **Supporting evidence:** calibration AUROC is near/below 0.5 in several cells;
-  clean-v2 routing alignment is weak despite confidence routing.
+  clean-v2 routing alignment is weak despite confidence routing; in AR-001 the
+  model reported confidence 1.0 on all 168 responses, including 15 errors.
 - **Contradicting evidence:** pooled AUROC may obscure conditional signal by
   world/context; ten-seed power is limited.
 - **Alternatives:** competence itself is absent, so no confidence signal could
@@ -165,13 +174,15 @@ level; it never means universal truth.
 - **Prior:** MEDIUM.
 - **Supporting evidence:** k=1 and k=2 cannot uniquely identify three
   coefficients in principle.
-- **Contradicting evidence:** k=4/k=8 random contexts are likely often full rank,
-  but exact audit is pending.
+- **Contradicting evidence:** exact audit shows almost every `k=4` and every
+  truthful `k=8` context is rank-full; offline recovery and symbolic probe
+  accuracy are 1.0 for uniquely identified truthful contexts.
 - **Alternatives:** contexts are identifiable and the model still fails.
 - **Cheapest discriminating test:** exact rank audit of every context.
 - **Stronger test:** rank-full-only coefficient-inference experiment.
-- **Status:** OPEN.
-- **Last update:** 2026-08-08 session initialization.
+- **Status:** WEAKENED as an explanation for `k=4/8`; remains true by dimension
+  for `k=1/2`.
+- **Last update:** 2026-08-08 exact GF(7) audit.
 
 ## H10 — stochastic measurement
 

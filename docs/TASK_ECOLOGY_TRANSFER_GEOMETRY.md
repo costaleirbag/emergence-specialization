@@ -43,6 +43,15 @@ modular aliases. Exact GF(7) auditing simultaneously shows that truthful
 rank-full contexts are symbolically sufficient, so generator identifiability is
 not the main explanation at `k=8`.
 
+AR-001 adds a partial positive control: with the correct formula supplied,
+thinking-off V4 Flash answered 153/168 calls correctly (0.911). This makes a
+pure “the model cannot do modular arithmetic” explanation less plausible. The
+balanced probe generator was discovered post hoc to have selected only `x=0`,
+so the control tested `b*y+c` rather than the complete bivariate rule. The
+present synthesis is therefore two-dimensional: the frozen memory protocol has
+an induction/representation problem, while GF(7) is independently narrow as a
+functional ecology. Neither conclusion substitutes for the other.
+
 ## Directed learning-transfer matrix
 
 Let `c` be the exposure family and `d` the evaluation family. With matched

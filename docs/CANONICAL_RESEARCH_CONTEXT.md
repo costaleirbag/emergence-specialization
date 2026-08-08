@@ -73,3 +73,11 @@ can separate arithmetic execution from induction; it cannot validate GF(7) as
 a broad functional ecology. No semantic benchmark or society run should be
 launched until generators, exact verifiers, leakage controls, and the
 single-agent transfer gate are validated offline.
+
+AR-001 completed 168/168 calls without retries or errors and obtained 153/168
+correct (0.911), above its preregistered 0.85 threshold. This weakens a generic
+arithmetic-execution explanation and shifts attention toward induction and
+prompt representation. A post-run audit found that all frozen balanced probes
+had `x=0`, however. AR-001 therefore validates only the one-dimensional
+`b*y+c` slice; it does not test the `a*x` term or general bivariate execution.
+The raw result is retained, and the limitation is not repaired retroactively.
