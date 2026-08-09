@@ -48,5 +48,7 @@ to be inferred from this gate.
 - Learner qualification: **PARTIAL**. A–H results and raw-derived matrices are
   in `docs/OBSERVABLE_LEARNER_CALIBRATION_V1_REPORT.md` and
   `reports/task-ecology/observable-learner-calibration-v1/`.
+- Package: `observable-learner-calibration-v1-package.tar.gz` (SHA-256 is stored
+  in the adjacent `.sha256` file).
 - External inference is stopped. No society, Gate 2, tuning, model switch, or
   follow-up paid call was executed.
