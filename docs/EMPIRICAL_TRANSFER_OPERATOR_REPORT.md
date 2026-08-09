@@ -55,6 +55,17 @@ out-of-domain answers remained completed, incorrect scientific observations;
 none received a second chance. Provider identity was `deepseek-v4-flash` for
 every recorded attempt. No duplicate terminal logical IDs were found.
 
+Recorded inference latency was usually short but had a long tail:
+
+| geometry | mean (s) | median (s) | p95 (s) | max (s) |
+|---|---:|---:|---:|---:|
+| GLOBAL | 1.131 | 1.077 | 1.622 | 5.587 |
+| BLOCK | 1.035 | 1.014 | 1.275 | 1.871 |
+| DIAGONAL | 1.156 | 1.060 | 1.615 | 128.311 |
+
+The DIAGONAL tail is an infrastructure/runtime observation, not a semantic
+finding; it was preserved rather than hidden or retried as a scientific unit.
+
 ## Estimand
 
 For source family `c`, target family `d`, and eight experiences,
