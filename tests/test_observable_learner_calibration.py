@@ -51,7 +51,7 @@ class ObservableLearnerCalibrationTests(unittest.TestCase):
         self.assertEqual(parse_decisions('{"decisions":[0,1,0]}'), ([0, 1, 0], None))
         self.assertEqual(parse_decisions('text {"decisions":[1,0,1]}'), ([1, 0, 1], None))
         self.assertEqual(parse_decisions('{"decisions":[0,1]}')[1], "out_of_domain")
-        self.assertEqual(parse_decisions('{"answer":"APPROVE"}')[1], "parse_error")
+        self.assertEqual(parse_decisions('{"answer":"APPROVE"}')[1], "out_of_domain")
         self.assertEqual(parse_decisions(None)[1], "empty_content")
 
 

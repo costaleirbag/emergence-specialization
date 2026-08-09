@@ -323,7 +323,10 @@ def parse_decisions(raw: str | None) -> tuple[list[int] | None, str | None]:
         if isinstance(value, list) and len(value) == 3 and all(isinstance(bit, int) and bit in (0, 1) and not isinstance(bit, bool) for bit in value):
             return list(value), None
         return None, "out_of_domain"
-    return None, "parse_error"
+    # A syntactically valid JSON value with the wrong schema is an observed
+    # scientific/domain failure, not a second chance for the model.  Only the
+    # absence of any parseable JSON is a technical parse error.
+    return (None, "out_of_domain") if objects else (None, "parse_error")
 
 
 def _cost(response: BackendResponse) -> float | None:
