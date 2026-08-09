@@ -106,3 +106,28 @@ map itself a scientific object while leaving all social claims untested.
   family and nuisance structure are genuinely matched.
 - Projection by `P` is a modeling choice, not observed finite capacity.
 - `T` is not automatically an LLM-society Jacobian.
+
+## 11. Harness-corrected learner response
+
+**ALREADY EMPIRICAL:** V2 removed the V1 concrete-vector and probe-support
+confounds while preserving V3.1. DeepSeek Direct completed 1,920 calls cleanly.
+It realized positive diagonal gains in GLOBAL, BLOCK, and DIAGONAL, but did not
+recover the preregistered dense GLOBAL transfer or BLOCK within-block structure;
+the `Q_GLOBAL < Q_BLOCK < Q_DIAGONAL` ordering failed. The learner geometry is
+**PARTIAL**. The result is informative about `M_m(E)` but does not authorize a
+society.
+
+**INTERPRETATION:** the evidence supports a measured but heterogeneous learner
+map from observable ecological opportunity to realized transfer. It does not
+support treating `L^DeepSeek` as Bayes efficiency, a universal model property,
+or an LLM-society Jacobian. V1's apparent vector shift is a harness artifact and
+must not be combined with V2 metrics.
+
+## 12. Decision boundary
+
+**FUTURE HYPOTHESIS:** only after a separately reviewed learner calibration
+qualifies the transfer geometry should a society test ask whether feedback and
+allocation amplify its contrast modes. If qualification fails, the next study
+should remain a cheap single-agent diagnosis of semantic parsing, context
+interference, answer priors, or joint-output composition. The society remains
+untested.

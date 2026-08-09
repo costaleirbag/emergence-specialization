@@ -160,6 +160,27 @@ The V3.1 phase is offline only. No empirical LLM result exists and no society
 result exists. The semantic instrument is a controlled construct-validity tool,
 not an external-validity benchmark.
 
+## 2026-08-09 observable learner calibration V2
+
+V2 corrected the V1 harness rather than changing the ecology: no concrete answer
+vector appears in static instructions, natural h=8 histories are unchanged, and
+each seed uses eight unique history-disjoint probes with exactly balanced input
+marginals. The exact prompt-level Bayes precondition passed (`A*=0.984375` in
+informative cells and `0.125` in independent cells).
+
+The single DeepSeek Direct run completed 1,920/1,920 logical calls cleanly at
+US$0.0406882448. DeepSeek showed positive diagonal gains in GLOBAL, BLOCK, and
+DIAGONAL, but realized GLOBAL off-diagonal transfer was negative, BLOCK
+within-block transfer was absent (`B=-0.0156`), and the preregistered Q ordering
+failed. The learner geometry is therefore **PARTIAL**, not qualified. This
+supersedes any clean-geometry interpretation of V1 while preserving V1 raw data
+as a harness-confounded legacy artifact. No society, routing, Gate 2, or
+specialization claim has been tested.
+
+The current hierarchy is explicit: `G` designed; `J_obs` and `L*_obs` measured
+offline; `L^DeepSeek` measured in V2; `T(L^DeepSeek)` is derived only under an
+explicit effective model; social organization remains unmeasured.
+
 ## 2026-08-09 observable learner calibration V1
 
 The V3.1 observable ecology was followed by one preregistered single-agent

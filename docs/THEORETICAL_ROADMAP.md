@@ -96,3 +96,21 @@ ordering. Therefore `L^DeepSeek` is measured, but its mapping from `J_obs` and
 `L*_obs` is not yet a validated substrate for social dynamics. `T(L^DeepSeek)`
 may be computed as an effective-model object, but must not be described as a
 society Jacobian or used to authorize a society run.
+
+## Learner calibration V2 (2026-08-09)
+
+V2 is the harness-corrected realization layer. The exact observable ecology had
+strong Bayes opportunity before inference, but DeepSeek realized only a partial
+geometry: diagonal gains were positive, GLOBAL off-diagonal transfer was
+negative, BLOCK within-block transfer was absent, and the preregistered Q
+ordering failed. The appropriate theoretical status is therefore:
+
+`G -> J_obs -> L*_obs` established offline; `L^DeepSeek` measured but not
+qualified; `T(L^DeepSeek)` analyzable only as a conditional effective-model
+object; society dynamics not tested.
+
+New learner-level questions are whether `M_m` preserves locality, flattens or
+rotates ecological geometry, how context length and semantic parsing alter the
+map, and whether zero-information transfer reflects a pretrained prior. No
+society experiment should be designed around a partial learner geometry without
+principal-researcher review.
