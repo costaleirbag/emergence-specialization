@@ -22,7 +22,7 @@
     "safety_margin_50pct_usd": 0.19411644000000003,
     "within_cap_with_margin": true
   },
-  "created_at_utc": "2026-08-09T13:32:21.842482+00:00",
+  "created_at_utc": "2026-08-09T13:33:47.241481+00:00",
   "families": [
     "ACCESS",
     "RELEASE",
@@ -34,7 +34,7 @@
     "BLOCK",
     "DIAGONAL"
   ],
-  "git_head": "1fe88ac4d6884e7a08cf084bad3720042d301a28",
+  "git_head": "827f7b2a0b5249c2e916fa319b9374bf818fe287",
   "h": 8,
   "hard_cap_usd": 0.2,
   "j_source": "/Users/costaleirbag/dev/emergence-specialization/reports/task-ecology/ecological-information-v31/observable_J_natural.csv",
