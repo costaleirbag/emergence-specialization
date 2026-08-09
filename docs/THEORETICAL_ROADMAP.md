@@ -58,6 +58,26 @@ These are hypotheses for a separately approved society protocol:
 
 None of these predictions licenses a society run in the present protocol.
 
+## Ecology-level prerequisite (V3)
+
+Before interpreting a measured `L` or its centered operator, the task ecology
+must itself be audited. V3 defines `J_cd(h)=I(Y_d;H_c^(h)|X_d)` and Bayes gain
+`L*` under an explicit synthetic prior. Its tested hierarchy is `G -> J -> L*`;
+the subsequent `L_model -> T(L)` link remains empirical/model-dependent. The
+V3 synthetic gates pass, but this is only a construct-validity precondition. A
+future model calibration must still test objective held-out transfer, natural
+vs teaching exposure, and foreign-theta specificity before any society run.
+
+## Observation-channel questions
+
+V3.1 adds an explicit measurement layer between ecology and learner:
+`G -> J_latent -> psi -> J_obs -> L^m`. Open questions are which semantic
+observation channels preserve transfer geometry; how to quantify representation
+loss; how learner parsing changes `J_obs -> L^m`; whether two learners in one
+latent ecology experience different effective ecologies; whether pretrained
+semantics introduce cross-niche transfer absent from the ecology; and how
+stochastic/noisy observation should enter the future social dynamical model.
+
 ## Calibration status (2026-08-09)
 
 The transfer-geometry control completed, but the primary natural matrices did

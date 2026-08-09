@@ -126,3 +126,36 @@ geometry. This is a calibration warning, not evidence about society-level
 specialization. The next decision is principal-researcher review of whether to
 repair the ecology/identifiability gate or retain this result as a negative
 control before any society experiment.
+
+## 2026-08-09 ecological information geometry V3
+
+The offline V3 phase inserted the missing ecology-level layer:
+`G -> J -> L* -> L_model -> T(L)`. `J_cd(h)=I(Y_d;H_c^(h)|X_d)` is predictive
+information under an explicit ecology prior; `L*` is Bayes 0-1 decision gain,
+not a universal LLM upper bound. V3 uses four procedural families, 64 valid
+symbolic cases per family, six balanced Boolean maps, and GLOBAL/BLOCK/DIAGONAL
+latent sharing. Natural histories are primary; teaching is diagnostic only.
+
+The Bayes gates pass offline (see `docs/ECOLOGICAL_INFORMATION_GEOMETRY_V3_REPORT.md`
+and `reports/task-ecology/ecological-information-v3/v3_gates.csv`), establishing
+that this synthetic ecology has the intended predictive geometry. This does not
+establish model learnability, semantic realism, functional specialization, or
+society dynamics. The next permissible step is a separately reviewed cheap
+single-agent calibration; no society/Gate 2 run is authorized by V3.
+
+## 2026-08-09 V3.1 observation-channel correction
+
+Review identified a privileged-oracle mismatch in V3: the exact Bayes learner
+received source/target family IDs while the old renderer omitted family identity.
+V3.1 therefore preserves the latent V3 prior but adds `O=psi(C,X)` semantic
+observables and `Z=phi(O)` deterministic text. It evaluates `J_obs` and
+`L*_obs` with a learner interface receiving only observable histories and target
+observations, plus a genuinely family-blind diagnostic control.
+
+V3.1 also corrects two measurement issues: component 1/2/3 are stored and gated
+separately, and natural/teaching histories are sampled once at h=8 and reused as
+prefixes at h=1,2,4,8. The previous V3 outputs remain historical and unchanged.
+
+The V3.1 phase is offline only. No empirical LLM result exists and no society
+result exists. The semantic instrument is a controlled construct-validity tool,
+not an external-validity benchmark.

@@ -63,6 +63,25 @@ division of labor, persistence, finite-capacity effects, or a causal mapping fro
 `L` to an LLM society. Those require a separately reviewed, preregistered next
 phase and must not be inferred from HSE or from a toy trajectory.
 
+## 8. Ecology information geometry
+
+**ALREADY EMPIRICAL (OFFLINE):** the V3 synthetic instrument makes the missing
+ecology layer explicit. Predictive information `J` and ideal decision gain `L*`
+recover the preregistered GLOBAL/BLOCK/DIAGONAL ordering before any model sees a
+case. **FUTURE EMPIRICAL:** whether a language model realizes any of that
+information under natural memory exposure. This separates a valid information
+substrate from a society-level claim and retains the old OPE/GF(7) ecology as a
+mechanistic/null control.
+
+## 9. Observable ecological information
+
+**DERIVED/IMPLEMENTED OFFLINE:** the environment-to-society chain requires an
+observation channel. V3.1 distinguishes latent predictive information `J_latent`
+from learner-visible `J_obs` and Bayes value `L*_obs`. The semantic renderer can
+preserve the exact task-relevant state without implying that an LLM will parse
+it. **FUTURE EMPIRICAL:** realized `L^m` and any false/missed transfer relative
+to `J_obs`. The social operator remains a later model-dependent layer.
+
 ## Adversarial objections to retain
 
 - `G` may correlate with template/surface similarity rather than reusable latent
