@@ -38,3 +38,15 @@ After execution, append the final run status, physical attempts, retries by
 category, semantic OOD count, provider model/fingerprint, usage coverage,
 latency, observed cost, analysis paths, and package SHA-256. No society result is
 to be inferred from this gate.
+
+## Final execution record (2026-08-09)
+
+- Status: completed CLEAN; logical coverage 1,440/1,440.
+- Physical attempts: 1,440; technical retries: 0; semantic OOD: 0.
+- Model: `deepseek-v4-flash`; one recorded provider fingerprint.
+- Observed cost: US$0.0268121448; mean/median latency: 1.0829/1.0566 s.
+- Learner qualification: **PARTIAL**. A–H results and raw-derived matrices are
+  in `docs/OBSERVABLE_LEARNER_CALIBRATION_V1_REPORT.md` and
+  `reports/task-ecology/observable-learner-calibration-v1/`.
+- External inference is stopped. No society, Gate 2, tuning, model switch, or
+  follow-up paid call was executed.

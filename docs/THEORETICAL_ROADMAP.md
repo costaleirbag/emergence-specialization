@@ -86,3 +86,13 @@ therefore a conditional analysis tool, not a validated predictor of society
 dynamics. Before a society protocol, the ecology gate must decide whether the
 weak and variable natural transfer is a meaningful negative control or whether
 the task generator requires a separately approved identifiability repair.
+
+## Learner calibration V1 (2026-08-09)
+
+The observable ecology now has a direct model-response layer. DeepSeek Direct
+realized small and heterogeneous gains after natural h=8 histories, with a
+partial BLOCK diagonal signal but no preregistered GLOBAL/BLOCK/DIAGONAL
+ordering. Therefore `L^DeepSeek` is measured, but its mapping from `J_obs` and
+`L*_obs` is not yet a validated substrate for social dynamics. `T(L^DeepSeek)`
+may be computed as an effective-model object, but must not be described as a
+society Jacobian or used to authorize a society run.

@@ -462,6 +462,22 @@ def _centered(a: np.ndarray) -> np.ndarray:
     p = np.eye(a.shape[0]) - np.ones_like(a) / a.shape[0]; return p @ a @ p
 
 
+def _spearman(a: np.ndarray, b: np.ndarray) -> float | None:
+    av, bv = list(map(float, a.ravel())), list(map(float, b.ravel()))
+    if len(set(av)) < 2 or len(set(bv)) < 2:
+        return None
+    def ranks(values: list[float]) -> list[float]:
+        order = sorted(range(len(values)), key=lambda i: values[i]); out = [0.0] * len(values); i = 0
+        while i < len(order):
+            j = i
+            while j + 1 < len(order) and values[order[j + 1]] == values[order[i]]: j += 1
+            rank = (i + j) / 2.0 + 1.0
+            for k in range(i, j + 1): out[order[k]] = rank
+            i = j + 1
+        return out
+    return _cosine(np.asarray(ranks(av)), np.asarray(ranks(bv)))
+
+
 def _svg_heatmap(path: Path, matrix: np.ndarray, title: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True); cell, left, top = 110, 155, 72
     vals = [float(v) for v in matrix.ravel()]; scale = max(abs(v) for v in vals) or 1.0
@@ -501,7 +517,7 @@ def analyze() -> dict[str, Any]:
                     row = {"geometry": geometry, "seed": seed, "source": source, "target": target, "baseline_accuracy": bacc, "transfer_accuracy": tacc, "L_DS": gain, "L_star": lstar[(geometry, source, target)]["L_star"], "J_obs": lstar[(geometry, source, target)]["J_obs"], "n": len(vals)}; rows_seed.append(row); seed_matrix_rows.append(row)
                     for j in range(3):
                         bcomp = statistics.mean(int(item["decisions"] is not None and item["decisions"][j] == item["expected"][j]) for item in base)
-                        tcomp = statistics.mean(int(item["decisions"] is not None and item["decisions"][j] == item["expected"][j]) for item in vals)
+                        tcomp = statistics.mean(int(item["decisions"] is not None and item["decisions"][j] == item["task"]["probe"]["y"][j]) for item in vals)
                         component_rows.append({"geometry": geometry, "seed": seed, "source": source, "target": target, "component": j + 1, "baseline_accuracy": bcomp, "transfer_accuracy": tcomp, "L_DS": tcomp - bcomp})
                     for item in vals:
                         memory = item["task"]["memory"]; decisions = item["decisions"]; labels = [m["y"] for m in memory]
@@ -525,7 +541,10 @@ def analyze() -> dict[str, Any]:
     alignment: list[dict[str, Any]] = []; zero_rows: list[dict[str, Any]] = []; missed_rows: list[dict[str, Any]] = []; projections: list[dict[str, Any]] = []; residual_rows: list[dict[str, Any]] = []
     for geometry in GEOMETRIES:
         ds = matrices_l[geometry]; ls = _matrix([row for row in aggregate_rows if row["geometry"] == geometry], "L_star"); residual = ds - (float(np.sum(ds * ls)) / float(np.sum(ls * ls)) if np.sum(ls*ls) else 0.0) * ls; alpha = float(np.sum(ds * ls) / np.sum(ls * ls)) if np.sum(ls * ls) else 0.0
-        alignment.append({"geometry": geometry, "raw_cosine": _cosine(ds, ls), "centered_cosine": _cosine(_centered(ds), _centered(ls)), "alpha": alpha})
+        centered = _centered(ls)
+        alignment.append({"geometry": geometry, "raw_cosine": _cosine(ds, ls),
+                          "centered_cosine": _cosine(_centered(ds), centered) if np.linalg.norm(centered) else None,
+                          "spearman": _spearman(ds, ls), "alpha": alpha})
         projections.append({"geometry": geometry, "alpha": alpha, "ds_frobenius": float(np.linalg.norm(ds)), "lstar_frobenius": float(np.linalg.norm(ls)), "residual_frobenius": float(np.linalg.norm(residual))})
         for i, source in enumerate(FAMILIES):
             for j, target in enumerate(FAMILIES):
@@ -534,9 +553,62 @@ def analyze() -> dict[str, Any]:
                 missed_rows.append({**row, "missed_transfer": float(ls[i,j] - ds[i,j])})
     write_csv(REPORT_ROOT / "geometry_alignment.csv", alignment); write_csv(REPORT_ROOT / "learner_projection.csv", projections); write_csv(REPORT_ROOT / "residual_transfer.csv", residual_rows); write_csv(REPORT_ROOT / "zero_information_transfer.csv", zero_rows); write_csv(REPORT_ROOT / "missed_transfer.csv", missed_rows)
     for geometry in GEOMETRIES: _svg_heatmap(REPORT_ROOT / "figures" / f"L_DS_{geometry.lower()}.svg", matrices_l[geometry], f"L DeepSeek {geometry}")
-    health = {"protocol": PROTOCOL, "logical_expected": manifest["logical_calls"], "logical_terminal": len(terminal), "physical_attempts": len(events), "technical_retries": sum(int(e.get("attempt", 0)) for e in events), "semantic_ood": sum(e.get("error_category") == "out_of_domain" for e in events), "error_categories": dict(__import__("collections").Counter(e.get("error_category") for e in events if e.get("error_category"))), "coverage": len(terminal) / manifest["logical_calls"], "usage_coverage": sum(bool(e.get("token_usage")) for e in events) / len(events) if events else 0.0, "observed_cost_usd": sum(float(e.get("attempt_cost_usd") or 0) for e in events), "latency_mean_s": statistics.mean(float(e.get("latency_s") or 0) for e in events), "latency_median_s": statistics.median(float(e.get("latency_s") or 0) for e in events), "models": sorted({(e.get("provider_metadata") or {}).get("model") for e in events}), "fingerprints": sorted({(e.get("provider_metadata") or {}).get("system_fingerprint") for e in events})}
+    health = {"protocol": PROTOCOL, "logical_expected": manifest["logical_calls"], "logical_terminal": len(terminal), "physical_attempts": len(events), "technical_retries": sum(int(e.get("attempt", 0)) for e in events), "semantic_ood": sum(e.get("error_category") == "out_of_domain" for e in events), "error_categories": dict(__import__("collections").Counter(e.get("error_category") for e in events if e.get("error_category"))), "coverage": len(terminal) / manifest["logical_calls"], "usage_coverage": sum(bool(e.get("token_usage")) for e in events) / len(events) if events else 0.0, "observed_cost_usd": sum(float(e.get("attempt_cost_usd") or 0) for e in events), "latency_mean_s": statistics.mean(float(e.get("latency_s") or 0) for e in events), "latency_median_s": statistics.median(float(e.get("latency_s") or 0) for e in events), "latency_min_s": min(float(e.get("latency_s") or 0) for e in events), "latency_max_s": max(float(e.get("latency_s") or 0) for e in events), "models": sorted({(e.get("provider_metadata") or {}).get("model") for e in events}), "fingerprints": sorted({(e.get("provider_metadata") or {}).get("system_fingerprint") for e in events}), "classification": "CLEAN" if len(terminal) == manifest["logical_calls"] and not any(e.get("error_category") for e in events) else "COMPLETE_WITH_RETRIES"}
     atomic_json(REPORT_ROOT / "technical_health.json", health); atomic_json(REPORT_ROOT / "cost.json", {"observed_cost_usd": health["observed_cost_usd"], "hard_cap_usd": HARD_CAP_USD, "remaining_usd": HARD_CAP_USD - health["observed_cost_usd"]})
-    return {"health": health, "alignment": alignment, "aggregate": aggregate_rows}
+    # Materialize the preregistered gate summary and theoretical heatmaps next
+    # to the raw-derived matrices.  These values are descriptive; no response
+    # is treated as an independent seed.
+    summary: dict[str, Any] = {"geometries": {}, "component_summary": {}, "qualification_gates": {}}
+    q_values: dict[str, float] = {}
+    for geometry in GEOMETRIES:
+        ds = matrices_l[geometry]; ls = _matrix([row for row in aggregate_rows if row["geometry"] == geometry], "L_star")
+        d = statistics.mean(float(ds[i, i]) for i in range(4)); o = statistics.mean(float(ds[i, j]) for i in range(4) for j in range(4) if i != j); q = d - o; q_values[geometry] = q
+        item: dict[str, Any] = {"D_DS": d, "O_DS": o, "Q_DS": q, "R_DS": o / d if d else None,
+                                "Q_Lstar": statistics.mean(float(ls[i, i]) for i in range(4)) - statistics.mean(float(ls[i, j]) for i in range(4) for j in range(4) if i != j)}
+        if geometry == "BLOCK":
+            within = statistics.mean([float(ds[0, 1]), float(ds[1, 0]), float(ds[2, 3]), float(ds[3, 2])])
+            cross = statistics.mean(float(ds[i, j]) for i in range(4) for j in range(4) if i != j and ((i < 2) != (j < 2)))
+            item.update({"within_block": within, "cross_block": cross, "B_DS": within - cross})
+        summary["geometries"][geometry] = item
+        _svg_heatmap(REPORT_ROOT / "figures" / f"Lstar_{geometry.lower()}.svg", ls, f"L* observable {geometry}")
+        jmat = np.zeros((4, 4), dtype=float)
+        for row in [r for r in seed_matrix_rows if r["geometry"] == geometry]: jmat[FAMILIES.index(row["source"]), FAMILIES.index(row["target"])] = float(row["J_obs"])
+        _svg_heatmap(REPORT_ROOT / "figures" / f"J_obs_{geometry.lower()}.svg", jmat, f"J observable {geometry}")
+    for component in (1, 2, 3):
+        summary["component_summary"][str(component)] = {}
+        for geometry in GEOMETRIES:
+            rows_c = [r for r in component_rows if int(r["component"]) == component and r["geometry"] == geometry]
+            d = statistics.mean(float(r["L_DS"]) for r in rows_c if r["source"] == r["target"]); o = statistics.mean(float(r["L_DS"]) for r in rows_c if r["source"] != r["target"])
+            summary["component_summary"][str(component)][geometry] = {"D": d, "O": o, "Q": d - o}
+    gates = {
+        "A_global_diagonal_learning": summary["geometries"]["GLOBAL"]["D_DS"] >= .10,
+        "B_block_diagonal_learning": summary["geometries"]["BLOCK"]["D_DS"] >= .10,
+        "C_diagonal_diagonal_learning": summary["geometries"]["DIAGONAL"]["D_DS"] >= .10,
+        "D_global_density": (summary["geometries"]["GLOBAL"]["R_DS"] is not None and summary["geometries"]["GLOBAL"]["R_DS"] >= .50),
+        "E_block_structure": summary["geometries"]["BLOCK"]["B_DS"] >= .05,
+        "F_diagonal_locality": (summary["geometries"]["DIAGONAL"]["R_DS"] is None or summary["geometries"]["DIAGONAL"]["R_DS"] <= .50),
+        "G_Q_ordering": q_values["GLOBAL"] < q_values["BLOCK"] < q_values["DIAGONAL"],
+        "H_geometry_alignment": all((row["raw_cosine"] > 0 or (row["centered_cosine"] is not None and row["centered_cosine"] > 0)) for row in alignment),
+    }
+    summary["qualification_gates"] = {key: {"status": "PASS" if value else "FAIL"} for key, value in gates.items()}; summary["qualified"] = all(gates.values()); summary["overall_status"] = "QUALIFIED" if summary["qualified"] else ("PARTIAL" if any(gates.values()) else "NOT_QUALIFIED")
+    summary["zero_information"] = {"mean_L_DS": statistics.mean(float(r["L_DS"]) for r in zero_rows) if zero_rows else None, "fraction_positive": statistics.mean(float(r["L_DS"]) > 0 for r in zero_rows) if zero_rows else None, "n_cells": len(zero_rows)}
+    summary["missed_transfer"] = {"mean": statistics.mean(float(r["missed_transfer"]) for r in missed_rows), "n_cells": len(missed_rows)}
+    atomic_json(REPORT_ROOT / "qualification.json", summary)
+    write_csv(REPORT_ROOT / "seed_level_accuracy.csv", seed_acc_rows)
+    (REPORT_ROOT / "report.md").write_text(_report_markdown(summary, health, manifest, alignment), encoding="utf-8")
+    return {"health": health, "alignment": alignment, "aggregate": aggregate_rows, "summary": summary}
+
+
+def _report_markdown(summary: dict[str, Any], health: dict[str, Any], manifest: dict[str, Any], alignment: list[dict[str, Any]]) -> str:
+    lines = ["# Observable Ecology Learner Calibration V1 — Raw-Derived Report", "", f"Status: **{summary['overall_status']}** (qualification gates are fixed engineering criteria; no society was run.)", "", "## Technical health", "", f"- Logical coverage: {health['logical_terminal']}/{health['logical_expected']} ({health['coverage']:.3f})", f"- Physical attempts: {health['physical_attempts']}; technical retries: {health['technical_retries']}; semantic OOD: {health['semantic_ood']}", f"- Provider model: {', '.join(health['models'])}; fingerprint: {', '.join(health['fingerprints'])}", f"- Cost: US${health['observed_cost_usd']:.8f} of US${HARD_CAP_USD:.2f}; latency mean/median: {health['latency_mean_s']:.3f}/{health['latency_median_s']:.3f}s", "", "## Realized geometry", "", "| Geometry | D (diag) | O (off-diag) | Q=D-O | O/D | Block B | Q(L*) |", "|---|---:|---:|---:|---:|---:|---:|"]
+    for geometry in GEOMETRIES:
+        item = summary["geometries"][geometry]; lines.append(f"| {geometry} | {item['D_DS']:+.4f} | {item['O_DS']:+.4f} | {item['Q_DS']:+.4f} | {item['R_DS'] if item['R_DS'] is not None else 'n/a'} | {item.get('B_DS', 'n/a')} | {item['Q_Lstar']:+.4f} |")
+    lines += ["", "## Fixed qualification gates", "", "| Gate | Status |", "|---|---|"]
+    lines += [f"| {key} | {value['status']} |" for key, value in summary["qualification_gates"].items()]
+    lines += ["", "## Interpretation", "", "The ecology was established offline in V3.1, but this pilot tests the learner-specific arrow only. Positive transfer in cells with zero `J_obs` is learner-/prior-induced transfer, not ecological transfer. The aggregate gate result is descriptive and based on four environment seeds; API responses are not independent replications.", "", "The observed ordering is not the preregistered `Q_GLOBAL < Q_BLOCK < Q_DIAGONAL`; diagonal same-niche gain is small, while global off-diagonal transfer is negative on average. This does not establish a society effect and does not authorize prompt tuning, a model switch, or a follow-up paid campaign.", "", "## Alignment", "", "| Geometry | raw cosine | centered cosine | Spearman | alpha |", "|---|---:|---:|---:|---:|"]
+    for row in alignment: lines.append(f"| {row['geometry']} | {row['raw_cosine']:.4f} | {row['centered_cosine'] if row['centered_cosine'] is not None else 'undefined'} | {row['spearman'] if row['spearman'] is not None else 'undefined'} | {row['alpha']:.4f} |")
+    lines += ["", "## Provenance", "", f"- Manifest tasks hash: `{manifest['tasks_hash']}`", f"- Frozen code commit recorded in manifest: `{manifest['git_head']}`", "- Primary outputs are in this directory; raw events are in `data/auto-research/observable-learner-calibration-v1/events.jsonl`.", "- Society specialization, Gate 2, thinking-on, extra seeds, and follow-up inference: **not run**."]
+    return "\n".join(lines) + "\n"
 
 
 def main() -> None:

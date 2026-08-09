@@ -159,3 +159,15 @@ prefixes at h=1,2,4,8. The previous V3 outputs remain historical and unchanged.
 The V3.1 phase is offline only. No empirical LLM result exists and no society
 result exists. The semantic instrument is a controlled construct-validity tool,
 not an external-validity benchmark.
+
+## 2026-08-09 observable learner calibration V1
+
+The V3.1 observable ecology was followed by one preregistered single-agent
+DeepSeek Direct calibration: three geometries, four paired environment seeds,
+h=8 natural resolved histories, six held-out probes per target cell, and 1,440
+logical calls. Execution was CLEAN (1,440/1,440, zero retries/OOD, observed cost
+US$0.02681214). The realized learner geometry was **PARTIAL**, not qualified:
+BLOCK diagonal gain narrowly exceeded 0.10, but GLOBAL and DIAGONAL did not;
+BLOCK structure was below threshold and Q ordering was reversed. This is
+evidence about the learner-response arrow only, not society specialization. No
+society or Gate 2 run was executed.

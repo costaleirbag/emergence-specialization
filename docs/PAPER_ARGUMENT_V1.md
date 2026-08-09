@@ -82,6 +82,16 @@ preserve the exact task-relevant state without implying that an LLM will parse
 it. **FUTURE EMPIRICAL:** realized `L^m` and any false/missed transfer relative
 to `J_obs`. The social operator remains a later model-dependent layer.
 
+## 10. Realized learner geometry
+
+**ALREADY EMPIRICAL (PILOT):** a clean 1,440-call DeepSeek Direct calibration
+measured `L^DeepSeek` under the frozen V3.1 semantic interface. **RESULT:** the
+learner gate is PARTIAL, not qualified: one BLOCK diagonal threshold passes, but
+global density, block contrast, diagonal learning, and the required Q ordering
+fail. **INTERPRETATION:** ecological opportunity (`L*_obs`) need not become
+realized model competence after eight natural examples. This makes the learner
+map itself a scientific object while leaving all social claims untested.
+
 ## Adversarial objections to retain
 
 - `G` may correlate with template/surface similarity rather than reusable latent
