@@ -31,6 +31,13 @@ families and output classes but tie run-specific procedural parameters
 differently. Natural exposure is primary; greedy teaching is an upper-bound
 control; foreign-theta is a specificity control.
 
+**ALREADY EMPIRICAL:** the frozen calibration completed all 11,520 logical
+observations. Natural `Q` was 0.0313 (GLOBAL), 0.0375 (BLOCK), and 0.0479
+(DIAGONAL), with unstable paired contrasts. The intended designed-geometry
+ordering was therefore not established. Teaching increased `Q` in GLOBAL and
+BLOCK but not DIAGONAL, so it remains a positive control rather than a primary
+result.
+
 ## 5. Effective stability theory
 
 **DERIVED IN EFFECTIVE MODEL:** centering `P` removes the generalist direction;
@@ -45,7 +52,9 @@ future society should remain comparatively generalist under moderate
 competence-sensitive allocation. If BLOCK has a dominant block mode, early
 functional competence contrasts should align with it. If DIAGONAL has
 near-degenerate modes, independent societies may choose different agent-label
-assignments while preserving ensemble symmetry.
+assignments while preserving ensemble symmetry. The current measured operators
+do not license a society run: the prerequisite is only **PARTIAL** because
+natural transfer did not cleanly track designed `G`.
 
 ## 7. What remains untested
 

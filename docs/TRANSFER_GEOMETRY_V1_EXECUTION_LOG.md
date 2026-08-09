@@ -19,6 +19,24 @@ It is not a society experiment and contains no router or adaptive agent state.
 The existing OPE and CWDE qualification artifacts remain unchanged. The new
 generator and manifests are versioned separately as OPE-GEOMETRY-V2.
 
+## Frozen campaign completion
+
+- GLOBAL: `3840/3840` logical, `3841` physical, one recovered `parse_error`, one
+  semantic OOD, cost `US$0.087910732`.
+- BLOCK: `3840/3840` logical, `3840` physical, one semantic OOD, cost
+  `US$0.0817363904`.
+- DIAGONAL: `3840/3840` logical, `3840` physical, one semantic OOD, cost
+  `US$0.0711607456`.
+- Total: `11520` logical, `11521` physical, `US$0.240807868`, final reserved
+  amount `US$0.00`.
+- All provider model metadata was `deepseek-v4-flash`; no duplicate terminal
+  logical IDs were found.
+
+Offline aggregation is materialized in
+`reports/task-ecology/transfer-geometry-v1/`. Natural transfer is primary and
+did not cleanly recover the preregistered geometry ordering; the detailed
+boundary analysis is in `docs/EMPIRICAL_TRANSFER_OPERATOR_REPORT.md`.
+
 ## Execution rule
 
 Offline generator/operator gates precede credential access. The only permitted

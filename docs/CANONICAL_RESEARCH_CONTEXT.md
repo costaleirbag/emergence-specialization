@@ -105,3 +105,24 @@ Status labels for future reporting remain separate: **designed** (`G`),
 (symmetry-breaking susceptibility). A null or flat result is valid: it would
 show that this OPE extension did not operationalize controllable transfer
 geometry.
+
+## 2026-08-09 transfer-geometry campaign result
+
+The frozen GLOBAL/BLOCK/DIAGONAL campaign completed with 11,520/11,520 logical
+observations, 11,521 physical attempts, and US$0.240807868 observed cost. All
+three geometries reported the intended DeepSeek Direct model. GLOBAL had one
+recovered parse retry; each geometry had one terminal semantic OOD answer.
+
+Natural transfer was primary. Mean `Q=D-O` was 0.0313 (GLOBAL), 0.0375
+(BLOCK), and 0.0479 (DIAGONAL); paired seed contrasts did not preserve a stable
+designed ordering. Teaching produced larger Q in GLOBAL and BLOCK but not
+DIAGONAL, so it is an upper-bound control rather than evidence for the intended
+ecology law. Foreign-theta specificity was weak and sign-heterogeneous.
+
+The controlled-geometry prerequisite is therefore **PARTIAL**: plumbing,
+verifiers, pairing, transfer reconstruction, and health accounting are
+validated, but latent factor overlap did not yield a clean natural transfer
+geometry. This is a calibration warning, not evidence about society-level
+specialization. The next decision is principal-researcher review of whether to
+repair the ecology/identifiability gate or retain this result as a negative
+control before any society experiment.

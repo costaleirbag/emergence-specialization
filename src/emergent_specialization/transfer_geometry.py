@@ -424,7 +424,11 @@ def _aggregate_geometry(geometry: str) -> dict[str, Any]:
                               "cost_usd": event.get("attempt_cost_usd"), "memory_count": len(task.get("memory") or [])})
     _write_csv(out_dir / "response_level.csv", response_rows)
     rows: list[dict[str, Any]] = []
-    for (seed, target, source, h, policy), vals in sorted(grouped.items()):
+    # ``source`` is ``None`` for baseline rows and a string for exposed rows;
+    # normalize it for deterministic ordering instead of comparing None/str.
+    grouped_items = sorted(grouped.items(), key=lambda item: (
+        item[0][0], item[0][1], item[0][2] or "", item[0][3], item[0][4]))
+    for (seed, target, source, h, policy), vals in grouped_items:
         valid = [v for v in vals if _logical_observation(v)]
         rows.append({"geometry": geometry, "seed": seed, "source": source or "none", "target": target, "h": h,
                      "exposure_policy": policy, "n": len(valid), "accuracy": _mean([float(v.get("correct", False)) for v in valid]),

@@ -6,6 +6,7 @@ import numpy as np
 
 from emergent_specialization.semantic_ecology import GEOMETRY_ECOLOGIES
 from emergent_specialization.transfer_geometry import SEEDS, build_tasks, expected_calls
+from emergent_specialization.transfer_analysis import _alignment, _stable_seed
 from emergent_specialization.transfer_operator import (
     analytical_jacobian,
     block_matrix,
@@ -23,6 +24,12 @@ from emergent_specialization.transfer_operator import (
 
 
 class TransferOperatorTests(unittest.TestCase):
+    def test_offline_alignment_and_bootstrap_seed_are_deterministic(self):
+        identity = np.eye(4)
+        first = _alignment("DIAGONAL", "natural", identity)
+        second = _alignment("DIAGONAL", "natural", identity)
+        self.assertEqual(first, second)
+        self.assertEqual(_stable_seed("geometry", "policy"), _stable_seed("geometry", "policy"))
     def test_projection_properties(self):
         p = projection(4)
         self.assertTrue(np.allclose(p @ p, p))

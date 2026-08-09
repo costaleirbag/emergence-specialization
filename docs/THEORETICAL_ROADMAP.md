@@ -57,3 +57,12 @@ These are hypotheses for a separately approved society protocol:
   persistent roles.
 
 None of these predictions licenses a society run in the present protocol.
+
+## Calibration status (2026-08-09)
+
+The transfer-geometry control completed, but the primary natural matrices did
+not recover a stable GLOBAL/BLOCK/DIAGONAL ordering. The effective theory is
+therefore a conditional analysis tool, not a validated predictor of society
+dynamics. Before a society protocol, the ecology gate must decide whether the
+weak and variable natural transfer is a meaningful negative control or whether
+the task generator requires a separately approved identifiability repair.
