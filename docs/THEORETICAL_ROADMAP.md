@@ -159,3 +159,25 @@ joint-output composition, target semantic parsing, and context/order effects
 before any social amplification is modeled. The frozen V1 population cannot
 identify BLOCK cross-block or DIAGONAL cross-domain contrasts, so those missing
 cells must not be filled by theoretical assumptions.
+
+## Track separation after local plasticity V1 (2026-08-10)
+
+### Track A — minimal developmental society
+
+The local-plasticity curve passed all six microscopic qualification gates:
+same-niche experience produced useful absolute gain and exceeded independent
+foreign context at h=8, with a positive descriptive dose response. Track A can
+now be designed as a minimal causal society experiment using adaptive routing,
+private memory, and preregistered controls.
+
+### Track B — learner ecology / transfer
+
+The `J`, `G`, relation, and `Pi` questions remain informative but are not a
+prerequisite for the first clean Track A test. Keep cross-domain scaffolding
+closed unless a separately approved learner question reopens it.
+
+### Track C — strong effective theory
+
+Measured transfer operators and `T(L)` remain conditional theoretical objects.
+They are not automatically an LLM-society Jacobian and should not be used to
+complicate the minimal society protocol.

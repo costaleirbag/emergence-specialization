@@ -228,6 +228,34 @@ gate. Any-memory action copying was high (about 0.87–0.88), so positive cells
 cannot be interpreted as policy inference without further controls. No society,
 routing, or Gate 2 experiment has run.
 
+## 2026-08-10 local plasticity curve V1
+
+The project returned to the original minimal developmental requirement: local
+experience must improve target-niche competence more than equally sized
+independent foreign context. A frozen DIAGONAL-only DeepSeek Direct campaign
+used exact V2 natural histories and probes at h={1,2,4,8}, with EMPTY, SAME, and
+FOREIGN conditions. It completed 2,176/2,176 calls cleanly at US$0.0555897104.
+
+Aggregate curves were SAME=.1563/.1875/.2422/.3984 and
+FOREIGN=.1328/.1302/.1458/.1068 for h=1/2/4/8, with A0=.1250. Therefore
+`G_abs(8)=+.2734`, `G_rel(8)=+.2917`, and `G_foreign(8)=-.0182`. All six
+preregistered local-plasticity gates passed, so the microscopic substrate is
+**QUALIFIED**. This does not establish specialization or routing effects; the
+next society is design-only and closed to execution pending review.
+
+Chronology distinction:
+
+```text
+GF(7)             behavioral differentiation without demonstrated competence
+V3/V3.1            controlled latent/observable ecology
+Learner V1         harness-confounded
+Learner V2         corrected; local learning supported
+Regime audit       cross-domain oracle mismatch identified
+Relation signal    relation control not established
+Cross-domain V1    representation helps; explicit rules executable
+CURRENT            local plasticity qualified; society only design-only
+```
+
 ## 2026-08-10 cross-domain transfer bottleneck V1
 
 A preregistered DeepSeek Direct ladder tested the proposed missing

@@ -189,3 +189,25 @@ cross-domain cells. Their qualification gates are therefore not identifiable,
 not failed by imputation. The next paper-level question is whether a cheap
 mechanistic diagnostic can isolate the natural-history bottleneck before any
 social feedback experiment.
+## 16. Minimal developmental hypothesis
+
+**ALREADY EMPIRICAL:** The preregistered Local Plasticity Curve V1 used the
+corrected semantic harness in the DIAGONAL ecology. Same-niche natural exposure
+raised joint exact accuracy from `A0=.1250` to `.3984` at h=8, while independent
+foreign exposure reached `.1068`. `G_abs(8)=+.2734` and `G_rel(8)=+.2917`; all
+six microscopic gates passed across four environment seeds.
+
+**SCIENTIFIC CONSEQUENCE:** the minimal project question no longer requires
+broad cross-domain transfer geometry. It now has a defensible substrate for a
+small causal society design:
+
+```text
+local plasticity + endogenous differential exposure
+    -> possible amplification of accidental competence differences
+    -> possible functional organization
+```
+
+This remains a **FUTURE EMPIRICAL** social hypothesis. No specialization,
+routing amplification, HSE outcome, or private/shared causal effect has yet
+been measured in this phase. The stronger transfer-geometry story remains a
+separate extension rather than a prerequisite.
