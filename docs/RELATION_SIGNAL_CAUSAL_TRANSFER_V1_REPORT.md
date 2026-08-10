@@ -45,8 +45,10 @@ feedback locality, or a society.
 - Seeds 9201–9204; geometries GLOBAL, BLOCK, DIAGONAL.
 - Natural resolved h=8 V2 histories; eight held-out V2 probes.
 - 1,152 cross-domain underlying tasks × R0/RS/RI = 3,456 new calls.
-- R0 was no relation statement; RS stated same policy; RI stated independent
-  policy. The cue was inserted before the unchanged V2 history renderer.
+- R0 explicitly stated that the relation was unspecified; RS stated same policy;
+  RI stated independent policy. The cue was inserted before the unchanged V2
+  history renderer. Historical V2 `R_NONE`, by contrast, had no relation
+  framing at all.
 - Existing V2 cross-domain responses were reused as historical `R_NONE`.
 - Same-family diagonals in the truthful-R matrix were reused from V2; no new
   same-family calls were made.
