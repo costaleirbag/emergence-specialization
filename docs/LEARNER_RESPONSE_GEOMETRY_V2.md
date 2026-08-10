@@ -66,3 +66,21 @@ functional specialization.
 The next allowed work is a principal-researcher decision about a cheap,
 mechanistic single-agent diagnostic. A society experiment remains locked until a
 learner geometry is explicitly qualified in a new reviewed protocol.
+
+## Regime-observability correction
+
+The V2 cross-domain comparison used a FULL-regime Bayes reference: its exact
+oracle knew the simulator's `GLOBAL/BLOCK/DIAGONAL` value. The DeepSeek prompt
+did not. Offline replay finds 96 identical cross-domain prompt triples and 91
+with different truths, so a visible-prompt decision rule cannot be Bayes-optimal
+for all conditioned regimes simultaneously.
+
+The corrected hierarchy is therefore:
+
+`p(G) -> G -> Theta -> H -> R -> q_m(G,Theta | H,R) -> L^m`.
+
+The V2 diagonal gains remain evidence of same-family plasticity because same-family
+sharing is true under every regime. Cross-domain values should instead be read as
+descriptive evidence about DeepSeek's spontaneous structural prior, not as a clean
+test of whether it recovered the conditioned ecology geometry. A relation-signaled
+positive-control design is proposed, but not run.

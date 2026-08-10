@@ -181,6 +181,25 @@ The current hierarchy is explicit: `G` designed; `J_obs` and `L*_obs` measured
 offline; `L^DeepSeek` measured in V2; `T(L^DeepSeek)` is derived only under an
 explicit effective model; social organization remains unmeasured.
 
+## 2026-08-10 ecology-regime observability audit
+
+The V2 Bayes comparison had a missing information variable. Its exact oracle was
+conditioned on simulator geometry `G`, but the DeepSeek prompt was not. Offline
+replay found 96 identical cross-domain prompt triples and 91/96 with different
+truths, establishing observational aliasing. For the single-source protocol,
+`P(G|H_source,X_target)=P(G)=1/3` exactly, so source history does not identify
+the regime.
+
+V2 is therefore reclassified component-wise: harness **VALID**; same-family
+plasticity **SUPPORTED**; conditioned cross-domain geometry recovery
+**CONFOUNDED BY REGIME OBSERVABILITY**; spontaneous cross-domain prior remains a
+descriptive weak/local signal. The full-regime oracle remains a valid privileged
+reference, while hidden and relation-aware normative oracles are now materialized
+offline. No V2 raw data were changed and no new model calls occurred.
+
+The recommended next learner gate is relation-signaled cross-domain transfer,
+design-only. Society remains closed.
+
 ## 2026-08-09 observable learner calibration V1
 
 The V3.1 observable ecology was followed by one preregistered single-agent

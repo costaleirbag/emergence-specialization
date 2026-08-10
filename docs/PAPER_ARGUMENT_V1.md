@@ -131,3 +131,21 @@ allocation amplify its contrast modes. If qualification fails, the next study
 should remain a cheap single-agent diagnosis of semantic parsing, context
 interference, answer priors, or joint-output composition. The society remains
 untested.
+
+## 13. Ecology-regime observability
+
+**ALREADY EMPIRICAL (OFFLINE AUDIT):** the V2 full-regime Bayes oracle was
+conditioned on `G`, while DeepSeek was not. Among 96 identical cross-domain
+prompt triples, 91 had different hidden truths. Therefore the old cross-domain
+comparison is **CONFOUNDED BY REGIME OBSERVABILITY**. A structure existing in the
+simulator is not automatically structure available to the learner.
+
+**METHODOLOGICAL CONSEQUENCE:** distinguish `L*_full`, `L*_relation`, and
+`L*_hidden`. The full oracle is a valid privileged reference; the relation oracle
+is a minimal pairwise positive control; the hidden oracle uses the experimenter
+meta-prior and reflects an unobserved-regime problem. V2 same-family plasticity
+remains supported because same-family sharing is true under every `G`.
+
+**FUTURE HYPOTHESIS:** a developmental society may need to learn both policies
+and ecology structure. Its state could include `q_i(G,t)` in addition to memory
+and competence. This is not an established society mechanism.

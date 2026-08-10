@@ -114,3 +114,22 @@ rotates ecological geometry, how context length and semantic parsing alter the
 map, and whether zero-information transfer reflects a pretrained prior. No
 society experiment should be designed around a partial learner geometry without
 principal-researcher review.
+
+## Regime observability extension (2026-08-10)
+
+The ecology hierarchy now distinguishes a designed meta-ecology from its realized
+regime:
+
+`p(G) -> G -> Theta -> H -> R -> q_m(G,Theta | H,R) -> L^m -> T(L^m)`.
+
+`J_cond` and `L*_cond` remain correct for a learner that knows `G`. They are not
+automatically learner-available when `R=null`. The hidden-regime oracle
+marginalizes `G` under an explicit experimenter prior; the relation oracle
+conditions only on `SAME_POLICY`/`INDEPENDENT_POLICY`; the full oracle is the old
+privileged reference.
+
+If regime is unknown in a future society, agent state may need a belief
+`q_i(G,t)`. A conceptual effective transfer is
+`L_i(t)=Σ_g q_i(g,t)L_i(g,t)`, coupling ecology identification to competence
+development. This is a future model, not an empirical law or implemented
+mechanism.
