@@ -1,29 +1,32 @@
-# Next society experiment after the learner gate
+# Next Society Experiment After the Learner Gate
 
-**Design only — not executed and not authorized by the V2 run.**
+**Design only — not authorized or executed.**
 
-The learner gate is currently **PARTIAL**. Therefore this document records a
-decision boundary rather than a protocol to run.
+The relation-signal learner calibration was classified **PARTIAL RELATION
+CONTROL**. Therefore no society run follows automatically.
 
-If a future reviewed calibration qualifies a realized `L^DeepSeek`, the next
-society test should keep the same observable ecology and model, begin with
-exchangeable agents and empty host-side memory, and use a pre-registered natural
-task stream. The main question would be whether the measured learner transfer
-matrix predicts competence differentiation and allocation modes under feedback.
+## Entry condition
 
-Required controls would still include private versus shared feedback and an
-allocation control, with held-out competence probes independent of routing. The
-primary distinction must remain:
+A future society protocol requires principal-researcher review and a separately
+defined learner gate. The current evidence is not enough to assume that a cue-
+controlled relation geometry is available to agents through ordinary memory.
 
-`behavioral diversity != competence differentiation != useful division of labor`.
+## If a future learner gate is approved
 
-No population size, memory budget, routing schedule, intervention, or society
-condition is frozen here. In particular, V2's partial result does not license a
-society run, an extra seed campaign, prompt tuning, thinking-on, teaching
-histories, or a new benchmark.
+The candidate design would retain the V3.1 semantic ecology, DeepSeek model and
+initial exchangeability, then test whether a natural task stream plus local
+teacher-correct memory and competence-sensitive allocation amplifies the measured
+learner transfer. Any relation belief or explicit relation cue must be justified
+separately; it must not be smuggled into the society prompt.
 
-If the learner gate remains unqualified, the cheaper next question is why the
-model fails to realize the known observable opportunity: semantic parsing,
-context interference, answer priors, joint-output composition, or insufficient
-natural exposure. Any such diagnostic must be separately preregistered and must
-not be selected by the V2 results beyond this decision boundary.
+The primary question would be whether pre-social `L^DeepSeek` predicts the modes
+of competence differentiation under feedback. Behavioral diversity, competence
+differentiation, allocation, and useful complementarity must remain separate
+outcomes.
+
+## If the gate remains partial
+
+The next study should be a small single-agent diagnostic of semantic relation
+parsing, context interference, joint-output composition, and action-copying
+controls. It should not expand seeds, change h, enable thinking, or introduce a
+society merely to obtain a positive result.

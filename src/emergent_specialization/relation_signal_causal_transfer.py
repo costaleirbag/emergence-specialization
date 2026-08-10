@@ -363,6 +363,28 @@ def analyze() -> dict[str, Any]:
     oracle_rows = regime.build_oracle_rows(v2_manifest)["relation"]; oracle_cells: dict[tuple[Any, ...], list[float]] = collections.defaultdict(list)
     for row in oracle_rows:
         if row["condition"] == "transfer": oracle_cells[(row["geometry"], row["source"], row["target"])].append(float(row["A_star"]) - .125)
+    cell_rows = []
+    for geometry in GEOMETRIES:
+        for source in FAMILIES:
+            for target in FAMILIES:
+                observed = [row for row in truthful_rows if row["geometry"] == geometry and row["source"] == source and row["target"] == target]
+                l_ds = statistics.mean(float(row["L_DS_R_true"]) for row in observed)
+                l_star = statistics.mean(oracle_cells[(geometry, source, target)])
+                cell_rows.append({"geometry": geometry, "source": source, "target": target, "actual_relation": relation_for(geometry, source, target), "L_DS": l_ds, "L_star_relation": l_star, "zero_information": int(abs(l_star) <= 1e-12), "missed_transfer": l_star - l_ds})
+    write_csv(REPORT_ROOT / "missed_transfer.csv", cell_rows)
+    write_csv(REPORT_ROOT / "zero_information_transfer.csv", [row for row in cell_rows if row["zero_information"]])
+    oracle_lookup = {(row["geometry"], row["source"], row["target"]): float(row["L_star_relation"]) for row in cell_rows}
+    for row in truthful_rows:
+        row["L_star_relation"] = oracle_lookup[(row["geometry"], row["source"], row["target"])]
+    write_csv(REPORT_ROOT / "truthful_relation_transfer_matrices.csv", truthful_rows)
+    lds_vector = np.array([float(row["L_DS"]) for row in cell_rows]); lstar_vector = np.array([float(row["L_star_relation"]) for row in cell_rows])
+    alpha = float(np.dot(lds_vector, lstar_vector) / np.dot(lstar_vector, lstar_vector)) if np.dot(lstar_vector, lstar_vector) else float("nan")
+    projection_rows = [{"geometry": "ALL", "alpha": alpha, "lds_frobenius": float(np.linalg.norm(lds_vector)), "lstar_frobenius": float(np.linalg.norm(lstar_vector)), "residual_frobenius": float(np.linalg.norm(lds_vector - alpha * lstar_vector))}]
+    residual_rows = []
+    for row in cell_rows:
+        residual_rows.append({**row, "alpha": alpha, "residual": float(row["L_DS"]) - alpha * float(row["L_star_relation"])})
+    write_csv(REPORT_ROOT / "learner_projection.csv", projection_rows)
+    write_csv(REPORT_ROOT / "residual_transfer.csv", residual_rows)
     relation_alignment = []
     relation_seed_alignment = []
     def _cosine(left: np.ndarray, right: np.ndarray, centered: bool = False) -> float | None:
@@ -373,8 +395,8 @@ def analyze() -> dict[str, Any]:
         return float(np.sum(left * right) / denominator) if denominator else None
     for geometry in GEOMETRIES:
         ds = np.zeros((4, 4)); oracle = np.zeros((4, 4)); indexes = {family: i for i, family in enumerate(FAMILIES)}
-        for row in truthful_rows:
-            if row["geometry"] == geometry: ds[indexes[row["source"]], indexes[row["target"]]] = statistics.mean(float(x["L_DS_R_true"]) for x in truthful_rows if x["geometry"] == geometry and x["source"] == row["source"] and x["target"] == row["target"])
+        for row in cell_rows:
+            if row["geometry"] == geometry: ds[indexes[row["source"]], indexes[row["target"]]] = float(row["L_DS"])
         for source in FAMILIES:
             for target in FAMILIES: oracle[indexes[source], indexes[target]] = statistics.mean(oracle_cells[(geometry, source, target)])
         relation_alignment.append({"geometry": geometry, "raw_cosine": _cosine(ds, oracle), "centered_cosine": _cosine(ds, oracle, centered=True)})
@@ -394,7 +416,8 @@ def analyze() -> dict[str, Any]:
         for arm in ("RS", "RI"):
             for relation in regime.RELATION_LABELS:
                 subset = [row for row in response_rows if row["arm"] == arm and row["actual_relation"] == relation]
-                component_rows.append({"component": bit + 1, "arm": arm, "actual_relation": relation, "n": len(subset), "target_accuracy": statistics.mean(int(json.loads(row["decisions"])[bit] == json.loads(row["target_truth"])[bit]) for row in subset), "source_policy_adherence": statistics.mean(int(json.loads(row["decisions"])[bit] == json.loads(row["source_policy_action"])[bit]) for row in subset)})
+                valid = [row for row in subset if row["decisions"]]
+                component_rows.append({"component": bit + 1, "arm": arm, "actual_relation": relation, "n": len(subset), "valid_n": len(valid), "target_accuracy": statistics.mean(int(json.loads(row["decisions"])[bit] == json.loads(row["target_truth"])[bit]) for row in valid) if valid else float("nan"), "source_policy_adherence": statistics.mean(int(json.loads(row["decisions"])[bit] == json.loads(row["source_policy_action"])[bit]) for row in valid) if valid else float("nan")})
     write_csv(REPORT_ROOT / "component_signal_effects.csv", component_rows)
     pair_rows = []
     for arm in ("R_NONE",) + ARMS:
@@ -413,8 +436,8 @@ def analyze() -> dict[str, Any]:
 
     distribution_rows = []
     for arm in ("R_NONE",) + ARMS:
-        subset = [row for row in all_rows if row["arm"] == arm]; values = [tuple(json.loads(row["decisions"])) for row in subset]; counts = collections.Counter(values); entropy = -sum((n / len(values)) * math.log2(n / len(values)) for n in counts.values())
-        distribution_rows.append({"arm": arm, "n": len(values), "modal_output": json.dumps(list(counts.most_common(1)[0][0])), "modal_fraction": counts.most_common(1)[0][1] / len(values), "output_entropy_bits": entropy, "bit1_one_rate": statistics.mean(v[0] for v in values), "bit2_one_rate": statistics.mean(v[1] for v in values), "bit3_one_rate": statistics.mean(v[2] for v in values)})
+        subset = [row for row in all_rows if row["arm"] == arm]; values = [tuple(json.loads(row["decisions"])) for row in subset if row["decisions"]]; counts = collections.Counter(values); entropy = -sum((n / len(values)) * math.log2(n / len(values)) for n in counts.values()) if values else float("nan")
+        distribution_rows.append({"arm": arm, "n": len(values), "invalid_n": len(subset) - len(values), "modal_output": json.dumps(list(counts.most_common(1)[0][0])) if values else "", "modal_fraction": counts.most_common(1)[0][1] / len(values) if values else float("nan"), "output_entropy_bits": entropy, "bit1_one_rate": statistics.mean(v[0] for v in values) if values else float("nan"), "bit2_one_rate": statistics.mean(v[1] for v in values) if values else float("nan"), "bit3_one_rate": statistics.mean(v[2] for v in values) if values else float("nan")})
     write_csv(REPORT_ROOT / "response_distribution.csv", distribution_rows)
 
     health = {"protocol": PROTOCOL, "logical_expected": 3456, "logical_terminal": len(terminal), "physical_attempts": len(events), "technical_retries": sum(int(e.get("attempt", 0)) for e in events), "semantic_ood": sum(e.get("error_category") == "out_of_domain" for e in events), "coverage": len(terminal) / 3456, "models": sorted({(e.get("provider_metadata") or {}).get("model") for e in events}), "fingerprints": sorted({(e.get("provider_metadata") or {}).get("system_fingerprint") for e in events}), "observed_cost_usd": sum(float(e.get("attempt_cost_usd") or 0) for e in events), "usage_coverage": sum(bool(e.get("token_usage")) for e in events) / len(events), "classification": "CLEAN" if len(terminal) == 3456 and not any(e.get("error_category") in RETRYABLE for e in events) else "COMPLETE_WITH_RETRIES"}
@@ -428,7 +451,8 @@ def analyze() -> dict[str, Any]:
     r_none_cross_accuracy = mean([row for row in none_rows], "correct")
     rs_same_accuracy = mean([row for row in response_rows if row["arm"] == "RS" and row["actual_relation"] == "SAME_POLICY"], "correct")
     seed_alignment_values = [float(row["raw_cosine"]) for row in relation_seed_alignment if row["raw_cosine"] is not None]
-    summary = {"protocol": PROTOCOL, "logical_calls": 3456, "physical_attempts": len(events), "health": health, "Gamma_R_high": gamma_high, "seed_Gamma_R": seed_contrasts, "Delta_same": delta_same, "Delta_independent": delta_ind, "Upsilon_R": upsilon, "r_none_cross_accuracy": r_none_cross_accuracy, "rs_same_accuracy": rs_same_accuracy, "rs_same_minus_r_none_cross": rs_same_accuracy - r_none_cross_accuracy, "seed_truth_interaction": truth_rows, "truthful_geometry": geometry_metrics, "relation_alignment": relation_alignment, "relation_seed_alignment": relation_seed_alignment, "source_identifiability": {"count": manifest["source_identifiability_count"], "fraction": manifest["source_identifiability_fraction"]}, "gates": {"R1_Gamma": gamma_high >= .10 and sum(float(row["Gamma_R_high"]) > 0 for row in seed_contrasts) >= 3, "R2_true_same_accuracy": delta_same >= .10 and rs_same_accuracy > r_none_cross_accuracy, "R3_source_adherence": mean([row for row in source_rows if row["arm"] == "RS" and row["actual_relation"] == "SAME_POLICY"], "high_source_policy_adherence") >= .30, "R4_Upsilon": upsilon >= .10 and sum(float(row["Upsilon_R"]) > 0 for row in truth_rows) >= 3, "R5_block": geometry_metrics[1]["W"] > 0 and geometry_metrics[1]["B"] >= .05, "R6_ordering": geometry_metrics[0]["Q"] < geometry_metrics[1]["Q"] < geometry_metrics[2]["Q"], "R7_alignment": sum(value > 0 for value in seed_alignment_values) >= 3 and any(row["raw_cosine"] is not None and row["raw_cosine"] > 0 for row in relation_alignment)}}
+    zero_values = [float(row["L_DS"]) for row in cell_rows if row["zero_information"]]
+    summary = {"protocol": PROTOCOL, "logical_calls": 3456, "physical_attempts": len(events), "health": health, "Gamma_R_high": gamma_high, "seed_Gamma_R": seed_contrasts, "Delta_same": delta_same, "Delta_independent": delta_ind, "Upsilon_R": upsilon, "r_none_cross_accuracy": r_none_cross_accuracy, "rs_same_accuracy": rs_same_accuracy, "rs_same_minus_r_none_cross": rs_same_accuracy - r_none_cross_accuracy, "seed_truth_interaction": truth_rows, "truthful_geometry": geometry_metrics, "relation_alignment": relation_alignment, "relation_seed_alignment": relation_seed_alignment, "learner_projection_alpha": alpha, "mean_missed_transfer": statistics.mean(float(row["missed_transfer"]) for row in cell_rows), "mean_zero_information_transfer": statistics.mean(zero_values) if zero_values else None, "zero_information_cell_count": len(zero_values), "source_identifiability": {"count": manifest["source_identifiability_count"], "fraction": manifest["source_identifiability_fraction"]}, "gates": {"R1_Gamma": gamma_high >= .10 and sum(float(row["Gamma_R_high"]) > 0 for row in seed_contrasts) >= 3, "R2_true_same_accuracy": delta_same >= .10 and rs_same_accuracy > r_none_cross_accuracy, "R3_source_adherence": mean([row for row in source_rows if row["arm"] == "RS" and row["actual_relation"] == "SAME_POLICY"], "high_source_policy_adherence") >= .30, "R4_Upsilon": upsilon >= .10 and sum(float(row["Upsilon_R"]) > 0 for row in truth_rows) >= 3, "R5_block": geometry_metrics[1]["W"] > 0 and geometry_metrics[1]["B"] >= .05, "R6_ordering": geometry_metrics[0]["Q"] < geometry_metrics[1]["Q"] < geometry_metrics[2]["Q"], "R7_alignment": sum(value > 0 for value in seed_alignment_values) >= 3 and any(row["raw_cosine"] is not None and row["raw_cosine"] > 0 for row in relation_alignment)}}
     summary["classification"] = "RELATION-CONTROLLED TRANSFER ESTABLISHED" if all(summary["gates"].values()) else ("PARTIAL RELATION CONTROL" if any(summary["gates"].values()) else "NO RELATION CONTROL")
     v2.atomic_json(REPORT_ROOT / "analysis_summary.json", summary); return summary
 

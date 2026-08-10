@@ -133,3 +133,15 @@ If regime is unknown in a future society, agent state may need a belief
 `L_i(t)=Σ_g q_i(g,t)L_i(g,t)`, coupling ecology identification to competence
 development. This is a future model, not an empirical law or implemented
 mechanism.
+
+## Relation-signal causal transfer V1 (2026-08-10)
+
+The relation-cue intervention is now an empirical learner response layer. It was
+technically CLEAN but **PARTIAL RELATION CONTROL**: `Gamma_R` and `Upsilon_R`
+were near zero, BLOCK structure was below threshold, and the preregistered
+GLOBAL/BLOCK/DIAGONAL Q ordering failed. Relation-oracle alignment alone was
+positive for BLOCK/DIAGONAL but did not qualify the learner geometry. The next
+decision is therefore diagnostic, not social: distinguish relation parsing,
+context interference, joint-output composition, and answer/action copying before
+any society experiment. `T(L^DeepSeek)` remains a conditional effective-model
+object, never an automatically observed LLM-society Jacobian.

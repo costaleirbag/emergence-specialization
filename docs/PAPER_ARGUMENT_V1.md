@@ -149,3 +149,22 @@ remains supported because same-family sharing is true under every `G`.
 **FUTURE HYPOTHESIS:** a developmental society may need to learn both policies
 and ecology structure. Its state could include `q_i(G,t)` in addition to memory
 and competence. This is not an established society mechanism.
+
+## 14. Relation-signal causal transfer
+
+**ALREADY EMPIRICAL:** A frozen 3,456-call DeepSeek Direct intervention varied
+only a sentence stating that source and target policies were the same,
+independent, or unspecified. Execution was CLEAN, but source-policy and
+truthful-transfer contrasts were near zero; the full R1–R7 learner-geometry
+gate was not met. Relation-oracle alignment in BLOCK and DIAGONAL was
+descriptive and insufficient for qualification.
+
+**INTERPRETATION:** The result supports a narrower claim than relation inference:
+the current interface did not reliably make ecological relation structure control
+realized transfer. High any-memory action copying is a live alternative
+explanation for isolated positive cells. This is evidence about the learner map
+`M_m(E)`, not about a society, specialization, or causal role formation.
+
+**NEXT HYPOTHESIS:** before social feedback, a cheap mechanistic diagnostic must
+separate semantic relation parsing from context-length effects, joint three-bit
+composition, and action anchoring. No follow-up is frozen or executed here.

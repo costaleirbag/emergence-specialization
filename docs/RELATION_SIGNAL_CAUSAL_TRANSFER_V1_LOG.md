@@ -43,3 +43,21 @@ Starting HEAD and final execution commit are recorded in the immutable campaign
 manifest and in the post-run report. This log is intentionally updated only at
 freeze, execution, and analysis milestones; no scientific adaptation is allowed
 between geometries or cue arms.
+
+## Execution and offline analysis
+
+- Frozen execution HEAD: `87d5d35` (recorded in the immutable manifest).
+- Logical completions: `3,456/3,456`.
+- Physical attempts: `3,456`; technical retries: `0`.
+- Semantic OOD observations: `2`, retained as terminal data.
+- Model/fingerprint: `deepseek-v4-flash` /
+  `fp_a18b46594c_prod0820_fp8_kvcache_20260402`.
+- Observed configured cost: `US$0.089407`.
+- Health: `CLEAN`.
+- Learner gate: `PARTIAL RELATION CONTROL` (R1–R6 failed; R7 positive but
+  insufficient).
+
+The analyzer exposed an expected OOD-handling edge case in component and output
+distribution tables. It was corrected offline to exclude invalid vectors from
+component rates while retaining them in health and coverage accounting. No model
+call was repeated.

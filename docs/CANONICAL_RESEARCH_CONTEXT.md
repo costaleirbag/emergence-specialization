@@ -211,3 +211,19 @@ BLOCK diagonal gain narrowly exceeded 0.10, but GLOBAL and DIAGONAL did not;
 BLOCK structure was below threshold and Q ordering was reversed. This is
 evidence about the learner-response arrow only, not society specialization. No
 society or Gate 2 run was executed.
+
+## 2026-08-10 relation-signal causal transfer V1
+
+The preregistered relation intervention completed 3,456/3,456 DeepSeek Direct
+cross-domain calls cleanly (zero technical retries, two terminal semantic OOD,
+US$0.089407). It varied only a model-visible relation sentence (R0/RS/RI) and
+reused completed V2 cross-domain responses as R_NONE. Source-policy
+identifiability passed at 96.875% of underlying tasks.
+
+The learner-level result is **PARTIAL RELATION CONTROL**, not qualified:
+`Gamma_R=-0.0072`, `Upsilon_R=-0.0016`, BLOCK `B=0.0352` below threshold, and
+the required `Q_GLOBAL < Q_BLOCK < Q_DIAGONAL` ordering failed. Relation-oracle
+alignment was positive for BLOCK and DIAGONAL but insufficient for the full
+gate. Any-memory action copying was high (about 0.87–0.88), so positive cells
+cannot be interpreted as policy inference without further controls. No society,
+routing, or Gate 2 experiment has run.
