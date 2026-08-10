@@ -325,12 +325,23 @@ def analyze() -> dict[str, Any]:
         values = [r["correct"] for r in valid(arm) if seed is None or int(r["seed"]) == seed]; return statistics.mean(values) if values else float("nan")
     ladder = [{"condition": arm, "n": len([r for r in rows if r["arm"] == arm]), "valid_n": len(valid(arm)), "joint_accuracy": acc(arm), "bit1_accuracy": statistics.mean(json.loads(r["decisions"])[0] == json.loads(r["target_truth"])[0] for r in valid(arm)) if valid(arm) else float("nan"), "bit2_accuracy": statistics.mean(json.loads(r["decisions"])[1] == json.loads(r["target_truth"])[1] for r in valid(arm)) if valid(arm) else float("nan"), "bit3_accuracy": statistics.mean(json.loads(r["decisions"])[2] == json.loads(r["target_truth"])[2] for r in valid(arm)) if valid(arm) else float("nan")} for arm in ARMS]
     write_csv(REPORT_ROOT / "ladder_summary.csv", ladder)
-    local_map = {(r["geometry"], int(r["seed"]), r["source"], r["probe_id"]): r for r in valid("LOCAL_REP")}
+    # LOCAL_REP evaluates a source-family probe, whereas a cross-domain row
+    # evaluates the target-family probe with the same frozen latent probe
+    # suffix.  The family prefix in ``probe_id`` therefore differs by design;
+    # indexing by the full ID would incorrectly report missing local rows.
+    def probe_suffix(probe_id: str) -> str:
+        parts = probe_id.split(":", 1)
+        return parts[1] if len(parts) == 2 else probe_id
+
+    local_map = {(r["geometry"], int(r["seed"]), r["source"], probe_suffix(r["probe_id"])): r for r in valid("LOCAL_REP")}
     transport = []; strata = []
     for arm in ("A0_RELATION_ONLY", "A1_SEMANTIC_PI", "A2_CANONICAL"):
         cross = valid(arm)
         for r in cross:
-            key = (r["geometry"], int(r["seed"]), r["source"], r["probe_id"]); local = local_map[key]
+            key = (r["geometry"], int(r["seed"]), r["source"], probe_suffix(r["probe_id"]))
+            if key not in local_map:
+                raise RuntimeError(f"missing LOCAL_REP reference for {r['probe_id']} ({key})")
+            local = local_map[key]
             local_decisions = json.loads(local["decisions"]); cross_decisions = json.loads(r["decisions"])
             transport.append({"arm": arm, "seed": r["seed"], "source": r["source"], "target": r["target"], "probe_id": r["probe_id"], "local_correct": local["correct"], "cross_correct": r["correct"], "matches_local_response": int(cross_decisions == local_decisions)})
     write_csv(REPORT_ROOT / "model_source_transport.csv", transport)
@@ -353,6 +364,36 @@ def analyze() -> dict[str, Any]:
             for target in FAMILIES:
                 subset = [r for r in valid(arm) if r["source"] == source and r["target"] == target]; pair_rows.append({"condition": arm, "source": source, "target": target, "n": len(subset), "accuracy": statistics.mean(r["correct"] for r in subset) if subset else float("nan")})
     write_csv(REPORT_ROOT / "semantic_pair_metrics.csv", pair_rows)
+    # Preserve the complete observed matrix, including structurally missing
+    # cells.  LOCAL_REP supplies only the same-family diagonal; the frozen
+    # cross-domain arms supply true-SAME cross cells in GLOBAL and BLOCK.
+    matrix_rows = []
+    for arm in ARMS:
+        for geometry in GEOMETRIES:
+            for seed in SEEDS:
+                for source in FAMILIES:
+                    for target in FAMILIES:
+                        subset = [r for r in valid(arm) if r["geometry"] == geometry and int(r["seed"]) == seed and r["source"] == source and r["target"] == target]
+                        matrix_rows.append({"arm": arm, "geometry": geometry, "seed": seed, "source": source, "target": target, "n": len(subset), "accuracy": statistics.mean(r["correct"] for r in subset) if subset else float("nan")})
+    write_csv(REPORT_ROOT / "seed_level_transfer_matrices.csv", matrix_rows)
+    aggregate_rows = []
+    for arm in ARMS:
+        for geometry in GEOMETRIES:
+            for source in FAMILIES:
+                for target in FAMILIES:
+                    subset = [r for r in valid(arm) if r["geometry"] == geometry and r["source"] == source and r["target"] == target]
+                    aggregate_rows.append({"arm": arm, "geometry": geometry, "source": source, "target": target, "n": len(subset), "accuracy": statistics.mean(r["correct"] for r in subset) if subset else float("nan")})
+    write_csv(REPORT_ROOT / "aggregate_transfer_matrices.csv", aggregate_rows)
+    geometry_rows = []
+    for geometry in GEOMETRIES:
+        for seed in SEEDS:
+            d_subset = [r for r in valid("LOCAL_REP") if r["geometry"] == geometry and int(r["seed"]) == seed]
+            d = statistics.mean(r["correct"] for r in d_subset) if d_subset else float("nan")
+            for arm in CROSS_ARMS:
+                o_subset = [r for r in valid(arm) if r["geometry"] == geometry and int(r["seed"]) == seed]
+                o = statistics.mean(r["correct"] for r in o_subset) if o_subset else float("nan")
+                geometry_rows.append({"arm": arm, "geometry": geometry, "seed": seed, "D_local_rep": d, "O_cross": o, "Q_D_minus_O": d - o if math.isfinite(d) and math.isfinite(o) else float("nan"), "n_local": len(d_subset), "n_cross": len(o_subset)})
+    write_csv(REPORT_ROOT / "geometry_metrics.csv", geometry_rows)
     anchoring = []
     manifest_tasks = {(task["arm"], task["underlying_task_id"]): task for task in manifest["tasks"]}
     for r in valid("A0_RELATION_ONLY") + valid("A1_SEMANTIC_PI") + valid("A2_CANONICAL"):

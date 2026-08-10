@@ -145,3 +145,17 @@ decision is therefore diagnostic, not social: distinguish relation parsing,
 context interference, joint-output composition, and answer/action copying before
 any society experiment. `T(L^DeepSeek)` remains a conditional effective-model
 object, never an automatically observed LLM-society Jacobian.
+## Cross-domain bottleneck V1 (2026-08-10)
+
+The learner map now has a representation ladder diagnosis. An explicit semantic
+correspondence improved natural cross-domain transfer, canonical histories helped
+more, and explicit policy tables nearly solved the task. The remaining map from
+resolved examples to an executable reusable policy is therefore a central open
+object. The evidence is compatible with a rule-induction or history
+representation bottleneck, but does not identify a unique internal mechanism.
+
+The next theory-relevant diagnostic should separate multi-example induction,
+joint-output composition, target semantic parsing, and context/order effects
+before any social amplification is modeled. The frozen V1 population cannot
+identify BLOCK cross-block or DIAGONAL cross-domain contrasts, so those missing
+cells must not be filled by theoretical assumptions.

@@ -168,3 +168,24 @@ explanation for isolated positive cells. This is evidence about the learner map
 **NEXT HYPOTHESIS:** before social feedback, a cheap mechanistic diagnostic must
 separate semantic relation parsing from context-length effects, joint three-bit
 composition, and action anchoring. No follow-up is frozen or executed here.
+## 15. Cross-domain bottleneck ladder
+
+**ALREADY EMPIRICAL:** The frozen cross-domain diagnostic completed 2,944
+DeepSeek Direct calls with no technical retries. Relation-only cross-domain
+accuracy was .1526; adding a semantic correspondence raised it to .2598;
+canonicalizing the history/target raised it to .4180; explicit true policy
+tables yielded .9941–1.0000. The learner geometry is **PARTIAL / NOT
+QUALIFIED**.
+
+**INTERPRETATION:** This supports a narrower and more testable statement than
+“the model cannot transfer”: natural resolved examples do not reliably become an
+executable reusable policy under this interface, while explicit policy tables
+are executed accurately. The result is compatible with rule-induction,
+representation, context, and composition bottlenecks. It does not establish a
+unique mechanism or any society effect.
+
+The frozen population also lacks BLOCK cross-block and DIAGONAL true-SAME
+cross-domain cells. Their qualification gates are therefore not identifiable,
+not failed by imputation. The next paper-level question is whether a cheap
+mechanistic diagnostic can isolate the natural-history bottleneck before any
+social feedback experiment.

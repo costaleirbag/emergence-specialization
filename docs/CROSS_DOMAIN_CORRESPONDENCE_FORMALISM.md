@@ -31,3 +31,19 @@ positive controls.
 Eventually a developmental agent may need a belief `q_i(R, Pi, t)` over both
 policy coupling and representational alignment. That is a future hypothesis,
 not an implemented society state and not an inference from this diagnostic.
+
+## V1 empirical constraint
+
+The bottleneck ladder supplies a model-level constraint on this decomposition:
+
+```text
+relation cue only                    -> weak transfer
+relation cue + Pi in semantic prose  -> moderate improvement
+canonical history/target              -> larger improvement
+explicit true policy table            -> near-perfect execution
+```
+
+Thus `Pi` is a useful missing-variable hypothesis, but it is not sufficient by
+itself: A1 remains far below A3/A4. The remaining gap belongs to the mapping from
+resolved examples to a reusable policy estimate. No society-level operator is
+inferred from this ladder.

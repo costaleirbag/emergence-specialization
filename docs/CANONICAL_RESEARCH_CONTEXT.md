@@ -227,3 +227,21 @@ alignment was positive for BLOCK and DIAGONAL but insufficient for the full
 gate. Any-memory action copying was high (about 0.87–0.88), so positive cells
 cannot be interpreted as policy inference without further controls. No society,
 routing, or Gate 2 experiment has run.
+
+## 2026-08-10 cross-domain transfer bottleneck V1
+
+A preregistered DeepSeek Direct ladder tested the proposed missing
+source-to-target correspondence after the relation cue was weak. The campaign
+completed 2,944/2,944 calls cleanly (one terminal semantic OOD, zero technical
+retries, US$0.0653269344). Natural cross-domain accuracy rose from A0=.1526 to
+A1=.2598 with an explicit semantic correspondence and to A2=.4180 with
+canonicalized history/target. Explicit true policy tables nearly solved the
+same target (A3=.9941; A4=1.0000), while A3→A4 was only +.0059.
+
+The strongest supported learner-level interpretation is a bottleneck in
+extracting an executable reusable policy from natural resolved histories, not a
+primary target-rendering failure. This is a ladder diagnosis, not a unique
+mechanistic explanation. `LOCAL_REP` is a same-family reference; the frozen
+campaign has no BLOCK cross-block or DIAGONAL true-SAME cross cells, so several
+planned geometry gates are not identifiable. Classification: **PARTIAL / NOT
+QUALIFIED**. No society, routing, Gate 2, new seeds, or follow-up calls were run.

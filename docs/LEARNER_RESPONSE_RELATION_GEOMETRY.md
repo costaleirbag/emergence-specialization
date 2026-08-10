@@ -30,3 +30,21 @@ The final report must distinguish three levels:
 
 No relation cue result should be interpreted as spontaneous specialization or as
 evidence that DeepSeek recovered hidden geometry without the intervention.
+
+## Cross-domain transfer bottleneck V1 (2026-08-10)
+
+**ALREADY EMPIRICAL:** A frozen 2,944-call ladder localized the weak relation
+signal. Joint exact accuracy was .1526 with relation-only input, .2598 after an
+explicit semantic correspondence, .4180 after canonicalizing the history and
+target, .9941 with an explicit semantic policy table, and 1.0000 with the same
+table in canonical form. The result is technically CLEAN (one terminal OOD,
+zero retries) but learner geometry remains **PARTIAL / NOT QUALIFIED**.
+
+**INTERPRETATION:** The A2→A3 jump and the small A3→A4 gap are consistent with
+policy induction from natural resolved examples being the main bottleneck, not
+target-side semantic execution. This is a constrained ladder diagnosis, not a
+unique mechanism. Any-memory action copying remains high, and the frozen task
+population does not identify BLOCK cross-block or DIAGONAL cross-domain gates.
+
+The appropriate next action is a cheap, separately preregistered mechanistic
+diagnostic. A society remains closed.
