@@ -211,3 +211,16 @@ This remains a **FUTURE EMPIRICAL** social hypothesis. No specialization,
 routing amplification, HSE outcome, or private/shared causal effect has yet
 been measured in this phase. The stronger transfer-geometry story remains a
 separate extension rather than a prerequisite.
+
+## 17. Minimal developmental society V1
+
+**FROZEN / FUTURE EMPIRICAL:** The first social test after local plasticity
+uses only the DIAGONAL ecology and asks whether verified competence-dependent
+allocation amplifies agent×niche competence interaction relative to random
+private exposure and adaptive shared memory. The primary held-out statistic is
+`Psi_spec`, the double-centred interaction energy. It is intentionally
+separate from Phi (global differentiation), HSE (behavioral diversity),
+routing MI, complementarity, and team utility. The protocol distinguishes
+three possible outcomes—social amplification, functional organization, and
+the strongest specialization claim—and does not permit the latter from Psi
+alone. No society result has been observed yet.

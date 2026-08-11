@@ -256,6 +256,23 @@ Cross-domain V1    representation helps; explicit rules executable
 CURRENT            local plasticity qualified; society only design-only
 ```
 
+## 2026-08-10 minimal developmental society V1
+
+The local-plasticity gate is now followed by a frozen first social test. It
+uses only the V3.1 DIAGONAL ecology, eight fresh society seeds (27101–27108),
+four initially exchangeable host agents, recent-k=8 controlled memory, 128
+balanced online tasks, held-out checkpoints at t=0,16,32,64,96,128, and four
+regimes: random-private (RP), adaptive-private beta=4 (AP4),
+adaptive-private beta=12 (AP12), and adaptive-shared beta=12 (AS12).
+
+The online router observes only externally verified exact-joint correctness;
+model confidence and explanations are not requested. The primary outcome is
+the double-centred held-out competence interaction
+`Psi_spec(A)=||P_N A P_K||_F^2/(N K)`, not HSE, routing concentration, or Phi
+alone. The frozen manifest plans 47,104 logical model completions, with a
+US$2.25 hard cap and technical retries only. This is a newly authorized
+experiment; its scientific result is not yet available in this context.
+
 ## 2026-08-10 cross-domain transfer bottleneck V1
 
 A preregistered DeepSeek Direct ladder tested the proposed missing

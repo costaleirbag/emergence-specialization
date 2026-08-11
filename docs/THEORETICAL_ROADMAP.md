@@ -181,3 +181,20 @@ closed unless a separately approved learner question reopens it.
 Measured transfer operators and `T(L)` remain conditional theoretical objects.
 They are not automatically an LLM-society Jacobian and should not be used to
 complicate the minimal society protocol.
+
+## Minimal developmental society V1 (frozen, awaiting result)
+
+Track A now has a preregistered causal test of the next arrow:
+
+```text
+local plasticity + competence-sensitive allocation
+    -> held-out agent×niche competence interaction
+```
+
+The primary finite-system statistic is the double-centred competence energy
+`Psi_spec`, with random-private, adaptive-private at beta 4 and 12, and
+adaptive-shared beta 12 controls. A positive statistic is not sufficient for a
+claim of functional specialization: routing alignment, matching gain, team
+utility, role persistence, and across-seed label symmetry remain separate
+checks. The experiment is frozen at eight seeds and 128 rounds; no intervention
+or post-result tuning is authorized.
