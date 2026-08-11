@@ -290,3 +290,35 @@ mechanistic explanation. `LOCAL_REP` is a same-family reference; the frozen
 campaign has no BLOCK cross-block or DIAGONAL true-SAME cross cells, so several
 planned geometry gates are not identifiable. Classification: **PARTIAL / NOT
 QUALIFIED**. No society, routing, Gate 2, new seeds, or follow-up calls were run.
+
+## 2026-08-11 minimal developmental society V1 — analysis repair
+
+The paid society campaign completed with 47,104/47,104 logical completions,
+DeepSeek Direct `deepseek-v4-flash`, eight seeds, and four frozen regimes. An
+independent audit found an accumulator-scope bug in the initial offline
+competence aggregation: per-agent probe accumulators were not reset between
+niches, producing impossible accuracy values above one. The raw event log,
+manifest, preregistration, cost, model fingerprint, and all paid observations
+remain unchanged.
+
+The analysis was rebuilt from raw checkpoint events with two independent
+aggregators and corrected cell denominators. The corrected result is:
+
+```text
+H1 social amplification: PASS
+H2 private-state contrast: PASS
+H3 dynamic amplification: PASS
+H4 complementarity: PASS
+H5 competence-aligned routing: PASS
+H6 realized last-32 team utility: FAIL
+```
+
+Therefore social amplification is supported under the frozen engineering gates,
+while functional organization is only partial and emergent functional
+specialization is **not yet supported**. The independent scientific units remain
+the eight environment seeds, not the 47,104 API calls. Corrected outputs and the
+superseded analysis archive are recorded in
+`reports/society/minimal-developmental-society-v1-analysis-repair/` and
+`reports/society/minimal-developmental-society-v1/original-analysis-invalid/`.
+No new model calls were made during the repair. The next action is principal
+researcher review, not an automatic follow-up experiment.

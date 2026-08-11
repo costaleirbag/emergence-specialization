@@ -212,6 +212,28 @@ routing amplification, HSE outcome, or private/shared causal effect has yet
 been measured in this phase. The stronger transfer-geometry story remains a
 separate extension rather than a prerequisite.
 
+## 18. Minimal developmental society V1 — corrected offline analysis
+
+**ALREADY EMPIRICAL:** The first paid society campaign is technically complete,
+but its initial competence aggregation was invalid: a per-agent accumulator was
+carried across niche cells, yielding impossible accuracies above one. The raw
+experiment itself was not affected. A deterministic repair reconstructed every
+held-out cell from immutable events, verified 3,072 cells with two independent
+aggregation paths, and confirmed matching optima against exhaustive 4! search.
+
+**CORRECTED RESULT:** H1–H5 of the frozen engineering protocol pass after repair;
+H6, realized last-32 team utility, fails. The strongest defensible claim is that
+private developmental histories plus adaptive competence-sensitive routing
+amplified held-out agent×niche competence interaction and produced competence-
+aligned allocation in this eight-seed pilot. Functional complementarity and
+organized routing do not by themselves establish stable useful specialization,
+and robust team-utility improvement was not established.
+
+**PROVENANCE:** The original report is explicitly superseded and preserved under
+`original-analysis-invalid/`. Corrected outputs are in the analysis-repair
+directory. No new inference, threshold change, or scientific condition was
+introduced. The next decision remains with the principal researcher.
+
 ## 17. Minimal developmental society V1
 
 **FROZEN / FUTURE EMPIRICAL:** The first social test after local plasticity

@@ -198,3 +198,25 @@ claim of functional specialization: routing alignment, matching gain, team
 utility, role persistence, and across-seed label symmetry remain separate
 checks. The experiment is frozen at eight seeds and 128 rounds; no intervention
 or post-result tuning is authorized.
+
+## Minimal developmental society V1 — corrected analysis status (2026-08-11)
+
+The first social campaign is now **ALREADY EMPIRICAL**, with one important
+provenance correction. The initial offline competence aggregation mixed niche
+accumulators and generated impossible accuracies. Recomputing from raw
+checkpoint events fixed the analysis without changing the paid experiment.
+
+```text
+private developmental state
+    -> agent×niche competence interaction (H1–H3: pass)
+    -> competence-aligned routing and matching (H4–H5: pass)
+    -> realized team utility (H6: fail)
+```
+
+This supports social amplification and partial functional organization in the
+frozen eight-seed pilot, but not the stronger claim of emergent useful
+specialization. `Psi_spec` remains an interaction statistic, not a role ontology
+or a phase-transition order parameter. Future theory should treat the corrected
+competence matrices as empirical inputs and keep team utility, role persistence,
+and across-seed symmetry as separate requirements. No society follow-up is
+authorized by the analysis repair.

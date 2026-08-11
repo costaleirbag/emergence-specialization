@@ -1,3 +1,11 @@
+# SUPERSEDED ANALYSIS — Minimal Developmental Society V1
+
+> The initial offline competence aggregation contained a niche-accumulator bug.
+> The paid raw experiment remains valid, but this report must not be used as the
+> canonical scientific analysis. See [the corrected repair report](MINIMAL_DEVELOPMENTAL_SOCIETY_V1_ANALYSIS_REPAIR_REPORT.md)
+> and the machine-readable outputs under
+> `reports/society/minimal-developmental-society-v1-analysis-repair/`.
+
 # Minimal Developmental Society V1 report
 
 ## Executive result
@@ -42,20 +50,20 @@ division of labor.
 
 | regime | final Psi_spec bit | final Phi bit | final matching gain (joint) |
 |---|---:|---:|---:|
-| RP | 0.002786 | 0.010598 | -0.064453 |
-| AP4 | 0.004011 | 0.016948 | -0.078125 |
-| AP12 | 0.004886 | 0.014097 | -0.054688 |
-| AS12 | 0.001087 | 0.004551 | -0.070312 |
+| RP | 0.004619 | 0.005372 | 0.048828 |
+| AP4 | 0.005662 | 0.007111 | 0.041016 |
+| AP12 | 0.008787 | 0.009654 | 0.107422 |
+| AS12 | 0.001037 | 0.001486 | 0.021484 |
 
-The main contrasts were AP12−RP Psi mean **0.002100**
-(6/8 positive), AP12−AS12 **0.003799**
-(8/8 positive), and AP12−RP AUC **0.001199**
+The main contrasts were AP12−RP Psi mean **0.004168**
+(6/8 positive), AP12−AS12 **0.007750**
+(8/8 positive), and AP12−RP AUC **0.002568**
 (6/8 positive). H1 and H3 remained below their preregistered thresholds.
 
 ## Organization, complementarity, and utility
 
-- H4 complementarity: AP12 matching gain mean **-0.054688**; AP12−RP **0.009766** — **not supported**.
-- H5 routing organization: AP12 excess task–agent information **0.269009** bits and late routing alignment η **0.229408** — supported by the engineering rule, but not sufficient for specialization.
+- H4 complementarity: AP12 matching gain mean **0.107422**; AP12−RP **0.058594** — **not supported**.
+- H5 routing organization: AP12 excess task–agent information **0.269009** bits and late routing alignment η **0.395519** — supported by the engineering rule, but not sufficient for specialization.
 - H6 team utility: AP12−RP last-32 accuracy **0.007812**, positive in 6/8 seeds — **not supported**.
 
 ## Interpretation and limitations

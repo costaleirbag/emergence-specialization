@@ -841,25 +841,46 @@ def analyze() -> dict[str, Any]:
         for regime in REGIMES:
             matrices: dict[int, np.ndarray] = {}
             for checkpoint in CHECKPOINTS:
-                rows = []
+                # Each competence cell is an independent held-out estimate.
+                # Keep the accumulators inside the niche loop: placing them
+                # outside would make later niches inherit earlier probes and
+                # can produce accuracies greater than one.
                 for agent in range(NUM_AGENTS):
-                    vals_joint: list[list[int]] = []; vals_bits: list[list[int]] = []
                     for niche in FAMILIES:
+                        vals_joint: list[int] = []; vals_bits: list[list[int]] = []
+                        logical_ids: list[str] = []
                         for probe_index in range(EVAL_COUNT):
                             if checkpoint == 0:
                                 lid = _call_id("t0", seed, "COMMON_T0", 0, agent, niche, probe_index)
                             else:
                                 lid = _call_id("checkpoint", seed, regime, checkpoint, agent, niche, probe_index)
+                            if lid not in terminals:
+                                raise RuntimeError(f"missing competence observation {lid}")
                             e = terminals[lid]; expected_y = e.get("expected")
                             d = e.get("decisions")
-                            vals_joint.append([int(d is not None and d == expected_y)])
+                            logical_ids.append(lid)
+                            vals_joint.append(int(d is not None and d == expected_y))
                             vals_bits.append([int(d is not None and int(d[b]) == int(expected_y[b])) for b in range(3)] if d is not None and expected_y is not None else [0, 0, 0])
-                        j = float(sum(x[0] for x in vals_joint) / EVAL_COUNT); b = [float(sum(x[q] for x in vals_bits) / EVAL_COUNT) for q in range(3)]
-                        competence_joint.append({"seed": seed, "regime": regime, "checkpoint": checkpoint, "agent": agent, "niche": niche, "accuracy": j})
-                        competence_bit.append({"seed": seed, "regime": regime, "checkpoint": checkpoint, "agent": agent, "niche": niche, "accuracy": statistics.mean(b), "bit1": b[0], "bit2": b[1], "bit3": b[2]})
-                        rows.append((j, b))
-                matrix = np.array([[next(r[0] for (r, n), rr in zip(rows, FAMILIES) if False) for _ in []]]) if False else np.array([[float(next(row[0] for row in rows[i * len(FAMILIES):(i + 1) * len(FAMILIES)] if True)) for i in range(NUM_AGENTS)]])
-                # Rebuild directly from competence rows to avoid any dependence on response ordering.
+                        if len(vals_joint) != EVAL_COUNT or len(vals_bits) != EVAL_COUNT:
+                            raise RuntimeError(f"unexpected probe count for {seed}/{regime}/{checkpoint}/{agent}/{niche}")
+                        n_bits = EVAL_COUNT * 3
+                        bits_correct = sum(sum(bits) for bits in vals_bits)
+                        j = float(sum(vals_joint) / EVAL_COUNT)
+                        b = [float(sum(bits[q] for bits in vals_bits) / EVAL_COUNT) for q in range(3)]
+                        bit_accuracy = float(bits_correct / n_bits)
+                        if not (0.0 <= j <= 1.0 and 0.0 <= bit_accuracy <= 1.0 and all(0.0 <= value <= 1.0 for value in b)):
+                            raise AssertionError(f"competence accuracy outside [0,1] for {seed}/{regime}/{checkpoint}/{agent}/{niche}")
+                        common = {"seed": seed, "regime": regime, "checkpoint": checkpoint, "agent": agent, "niche": niche,
+                                  "n_probes": EVAL_COUNT, "logical_ids": json.dumps(logical_ids, separators=(",", ":"))}
+                        competence_joint.append({**common, "accuracy": j, "n_joint_correct": sum(vals_joint)})
+                        competence_bit.append({**common, "accuracy": bit_accuracy, "n_bit_decisions": n_bits, "n_bits_correct": bits_correct,
+                                               "bit1": b[0], "bit2": b[1], "bit3": b[2]})
+                # Rebuild directly from competence rows to avoid dependence on
+                # response ordering, and fail loudly on duplicate cells.
+                cell_keys = [(seed, regime, checkpoint, agent, niche) for agent in range(NUM_AGENTS) for niche in FAMILIES]
+                joint_cells = {(int(r["seed"]), str(r["regime"]), int(r["checkpoint"]), int(r["agent"]), str(r["niche"])): r for r in competence_joint if int(r["seed"]) == seed and r["regime"] == regime and int(r["checkpoint"]) == checkpoint}
+                if set(joint_cells) != set(cell_keys) or len(joint_cells) != len(cell_keys):
+                    raise RuntimeError(f"competence cell coverage mismatch for {seed}/{regime}/{checkpoint}")
                 matrix = np.array([[next(float(r["accuracy"]) for r in competence_joint if r["seed"] == seed and r["regime"] == regime and r["checkpoint"] == checkpoint and r["agent"] == agent and r["niche"] == niche) for niche in FAMILIES] for agent in range(NUM_AGENTS)])
                 matrices[checkpoint] = matrix
                 bit_matrix = np.array([[next(float(r["accuracy"]) for r in competence_bit if r["seed"] == seed and r["regime"] == regime and r["checkpoint"] == checkpoint and r["agent"] == agent and r["niche"] == niche) for niche in FAMILIES] for agent in range(NUM_AGENTS)])
