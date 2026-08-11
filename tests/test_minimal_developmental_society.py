@@ -1,4 +1,9 @@
+import asyncio
+import json
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 from emergent_specialization.minimal_developmental_society import (
     CHECKPOINTS,
@@ -8,6 +13,8 @@ from emergent_specialization.minimal_developmental_society import (
     NUM_AGENTS,
     REGIMES,
     SEEDS,
+    UNKNOWN_USAGE_COST_USD,
+    _one_completion,
     build_seed_spec,
     evaluation_support,
     expected_calls,
@@ -19,6 +26,7 @@ from emergent_specialization.minimal_developmental_society import (
     run_mock,
     sample_from_u,
 )
+from emergent_specialization.models import BackendResponse
 
 
 class MinimalDevelopmentalSocietyTests(unittest.TestCase):
@@ -74,6 +82,73 @@ class MinimalDevelopmentalSocietyTests(unittest.TestCase):
     def test_offline_mock_harness(self):
         result = run_mock()
         self.assertEqual(result["status"], "MOCK ONLY — NOT SCIENTIFIC RESULT")
+
+    def test_missing_usage_is_journaled_and_retried_once(self):
+        class FakeBackend:
+            def __init__(self):
+                self.calls = 0
+
+            async def complete(self, **_kwargs):
+                self.calls += 1
+                if self.calls == 1:
+                    return BackendResponse(
+                        raw_response='{"decisions":[1,0,1]}',
+                        latency_s=0.01,
+                        token_usage=None,
+                        provider_metadata={"model": "deepseek-v4-flash"},
+                    )
+                return BackendResponse(
+                    raw_response='{"decisions":[1,0,1]}',
+                    latency_s=0.01,
+                    token_usage={"prompt_tokens": 10, "completion_tokens": 5},
+                    provider_metadata={"model": "deepseek-v4-flash"},
+                )
+
+        task = {"niche": FAMILIES[0], "x": [0, 1, 2], "y": [1, 0, 1], "template_id": 3}
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "events.jsonl"
+            backend = FakeBackend(); attempts = {}
+            with patch("emergent_specialization.minimal_developmental_society._budget_update", return_value={}):
+                result = asyncio.run(_one_completion(
+                    backend, logical_id="logical", seed=SEEDS[0], regime="RP", phase="online",
+                    checkpoint=1, agent=0, niche=FAMILIES[0], task=task, memory=[], existing={},
+                    attempt_counts=attempts, events_path=path, semaphore=asyncio.Semaphore(1),
+                ))
+            events = [json.loads(line) for line in path.read_text().splitlines()]
+        self.assertEqual(backend.calls, 2)
+        self.assertEqual([event["attempt"] for event in events], [0, 1])
+        self.assertFalse(events[0]["terminal"])
+        self.assertEqual(events[0]["error_category"], "usage_unavailable")
+        self.assertEqual(events[0]["attempt_cost_usd"], UNKNOWN_USAGE_COST_USD)
+        self.assertEqual(events[0]["cost_source"], "conservative_upper_bound_missing_usage")
+        self.assertTrue(result["terminal"])
+        self.assertEqual(attempts["logical"], 2)
+
+    def test_resume_respects_previously_recorded_attempt(self):
+        class FakeBackend:
+            calls = 0
+
+            async def complete(self, **_kwargs):
+                self.calls += 1
+                return BackendResponse(
+                    raw_response='{"decisions":[1,0,1]}', latency_s=0.01,
+                    token_usage={"prompt_tokens": 10, "completion_tokens": 5},
+                    provider_metadata={"model": "deepseek-v4-flash"},
+                )
+
+        task = {"niche": FAMILIES[0], "x": [0, 1, 2], "y": [1, 0, 1], "template_id": 3}
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "events.jsonl"; backend = FakeBackend(); attempts = {"logical": 1}
+            with patch("emergent_specialization.minimal_developmental_society._budget_update", return_value={}):
+                result = asyncio.run(_one_completion(
+                    backend, logical_id="logical", seed=SEEDS[0], regime="RP", phase="online",
+                    checkpoint=1, agent=0, niche=FAMILIES[0], task=task, memory=[], existing={},
+                    attempt_counts=attempts, events_path=path, semaphore=asyncio.Semaphore(1),
+                ))
+            event = json.loads(path.read_text().strip())
+        self.assertEqual(backend.calls, 1)
+        self.assertEqual(event["attempt"], 1)
+        self.assertTrue(result["terminal"])
 
 
 if __name__ == "__main__":

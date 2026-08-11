@@ -62,7 +62,11 @@ EVAL_COUNT = 16
 ONLINE_PER_FAMILY = 32
 MAX_ATTEMPTS = 2
 HARD_CAP_USD = 2.25
-RESERVATION_USD = 0.00010
+# A missing provider usage block is rare but still potentially billable.  The
+# reservation is deliberately larger than every observed call in this campaign
+# and is charged conservatively when exact usage is unavailable.
+RESERVATION_USD = 0.00050
+UNKNOWN_USAGE_COST_USD = RESERVATION_USD
 INPUT_PRICE = 0.14
 CACHED_INPUT_PRICE = 0.0028
 OUTPUT_PRICE = 0.28
@@ -80,7 +84,7 @@ OUTPUT_INSTRUCTION = (
 )
 RETRYABLE = {
     "parse_error", "empty_content", "transient_transport", "transport",
-    "rate_limit", "server_error", "overloaded",
+    "rate_limit", "server_error", "overloaded", "usage_unavailable",
 }
 
 
@@ -461,13 +465,17 @@ def _restore_state(state: SocietyState, snapshot: dict[str, Any]) -> None:
 async def _one_completion(backend: DeepSeekDirectBackend, *, logical_id: str, seed: int, regime: str,
                           phase: str, checkpoint: int, agent: int, niche: str, task: dict[str, Any],
                           memory: Sequence[dict[str, Any]], existing: dict[str, dict[str, Any]],
-                          events_path: Path, semaphore: asyncio.Semaphore) -> dict[str, Any]:
+                          attempt_counts: dict[str, int], events_path: Path,
+                          semaphore: asyncio.Semaphore) -> dict[str, Any]:
     if logical_id in existing:
         return existing[logical_id]
     memory_hash = _memory_hash(memory)
     prompt = render_user(task=task, memory=memory)
     prompt_hash = stable_hash({"system": STATIC_SYSTEM_PROMPT, "user": prompt})
-    for attempt in range(MAX_ATTEMPTS):
+    start_attempt = int(attempt_counts.get(logical_id, 0))
+    if start_attempt >= MAX_ATTEMPTS:
+        raise RuntimeError(f"retry exhaustion for {logical_id}")
+    for attempt in range(start_attempt, MAX_ATTEMPTS):
         async with semaphore:
             _budget_update(reserve=RESERVATION_USD)
             started = asyncio.get_running_loop().time()
@@ -477,33 +485,47 @@ async def _one_completion(backend: DeepSeekDirectBackend, *, logical_id: str, se
             except Exception:
                 _budget_update(release=RESERVATION_USD)
                 raise
-            cost = _usage_cost(response)
-            if cost is None:
-                _budget_update(release=RESERVATION_USD)
-                raise RuntimeError("provider usage/cost unavailable; stopping before unverifiable spend")
+            exact_cost = _usage_cost(response)
+            usage_available = exact_cost is not None
+            cost = float(exact_cost) if usage_available else UNKNOWN_USAGE_COST_USD
+            cost_source = "configured_usage" if usage_available else "conservative_upper_bound_missing_usage"
             _budget_update(release=RESERVATION_USD, actual=cost)
         decisions, parse_category = parse_decisions(response.raw_response)
         provider = response.provider_metadata or {}
         model = provider.get("model")
-        if model != MODEL:
+        if model is not None and model != MODEL:
             raise RuntimeError(f"model identity changed: {model!r}")
-        category = response.error_category or parse_category
-        error = response.error or parse_category
+        if not usage_available:
+            # Even a syntactically valid answer is not admitted as the
+            # scientific observation when its physical attempt cannot be
+            # reconciled exactly.  It remains an auditable technical attempt.
+            category = response.error_category or "usage_unavailable"
+            error = response.error or "provider usage/cost unavailable"
+            terminal = False
+            retryable = True
+        else:
+            category = response.error_category or parse_category
+            error = response.error or parse_category
+            terminal = decisions is not None or category == "out_of_domain"
+            retryable = bool(response.retryable)
         semantic_ood = category == "out_of_domain"
-        terminal = decisions is not None or semantic_ood
         event = {"protocol": PROTOCOL, "event": "completion", "logical_id": logical_id, "attempt": attempt,
                  "seed": seed, "regime": regime, "phase": phase, "checkpoint": checkpoint, "agent": agent,
                  "niche": niche, "task": task, "memory": list(memory), "memory_hash": memory_hash,
                  "prompt_hash": prompt_hash, "raw_model_response": response.raw_response, "decisions": decisions,
-                 "expected": task.get("y"), "correct": bool(decisions is not None and decisions == task.get("y")),
+                 "expected": task.get("y"),
+                 "correct": bool(terminal and decisions is not None and decisions == task.get("y")),
                  "error": error, "error_category": category, "semantic_ood": semantic_ood,
-                 "terminal": terminal, "retryable": response.retryable, "latency_s": response.latency_s,
+                 "terminal": terminal, "retryable": retryable, "scientific_observation": terminal,
+                 "usage_available": usage_available, "cost_source": cost_source,
+                 "latency_s": response.latency_s,
                  "elapsed_s": asyncio.get_running_loop().time() - started, "token_usage": response.token_usage,
                  "provider_metadata": provider, "attempt_cost_usd": cost, "finished_at_utc": now()}
         append_jsonl(events_path, event)
+        attempt_counts[logical_id] = attempt + 1
         if terminal:
             return event
-        if not response.retryable or category not in RETRYABLE:
+        if not retryable or category not in RETRYABLE:
             raise RuntimeError(f"non-retryable completion failure: {category}")
     raise RuntimeError(f"retry exhaustion for {logical_id}")
 
@@ -514,6 +536,94 @@ def _existing_terminal(events: Sequence[dict[str, Any]]) -> dict[str, dict[str, 
         if event.get("event") == "completion" and event.get("terminal"):
             result[str(event["logical_id"])] = event
     return result
+
+
+def _attempt_counts(events: Sequence[dict[str, Any]]) -> dict[str, int]:
+    counts: Counter[str] = Counter()
+    for event in events:
+        if event.get("event") == "completion" and event.get("logical_id"):
+            counts[str(event["logical_id"])] += 1
+    return dict(counts)
+
+
+def _first_missing_call(manifest: dict[str, Any], done: dict[str, dict[str, Any]]) -> dict[str, Any] | None:
+    """Return the first missing call in the frozen runner's exact schedule."""
+    for seed in SEEDS:
+        spec = manifest["seed_specs"][str(seed)]
+        for agent in range(NUM_AGENTS):
+            for probe in _make_probe_specs(spec, seed, 0):
+                lid = _call_id("t0", seed, "COMMON_T0", 0, agent, probe["family"], probe["probe_index"])
+                if lid not in done:
+                    return {"logical_id": lid, "seed": seed, "regime": "COMMON_T0", "phase": "checkpoint",
+                            "checkpoint": 0, "agent": agent, "niche": probe["family"], "task": probe}
+    for t in range(1, ROUNDS + 1):
+        for seed in SEEDS:
+            spec = manifest["seed_specs"][str(seed)]
+            task = spec["online_tasks"][t - 1]
+            for regime in REGIMES:
+                lid = _call_id("online", seed, regime, t, -1, task["niche"], t=t)
+                if lid not in done:
+                    return {"logical_id": lid, "seed": seed, "regime": regime, "phase": "online",
+                            "checkpoint": t, "agent": None, "niche": task["niche"], "task": task}
+        if t in CHECKPOINTS[1:]:
+            for seed in SEEDS:
+                spec = manifest["seed_specs"][str(seed)]
+                for regime in REGIMES:
+                    for agent in range(NUM_AGENTS):
+                        for probe in _make_probe_specs(spec, seed, t):
+                            lid = _call_id("checkpoint", seed, regime, t, agent, probe["family"], probe["probe_index"])
+                            if lid not in done:
+                                return {"logical_id": lid, "seed": seed, "regime": regime, "phase": "checkpoint",
+                                        "checkpoint": t, "agent": agent, "niche": probe["family"], "task": probe}
+    return None
+
+
+def repair_missing_usage_incident() -> dict[str, Any]:
+    """Account for the one pre-patch physical attempt that lacked usage.
+
+    The response was never admitted as a scientific observation.  This repair
+    appends an explicit nonterminal technical-attempt record and charges a
+    conservative upper bound, so resume uses attempt 1 for the same logical ID.
+    """
+    events_path = DATA_ROOT / "events.jsonl"; status_path = DATA_ROOT / "run_status.json"
+    if not status_path.exists() or not (REPORT_ROOT / "manifest.json").exists():
+        raise RuntimeError("missing society status or manifest")
+    status = json.loads(status_path.read_text(encoding="utf-8"))
+    if status.get("status") != "incomplete" or "usage/cost unavailable" not in str(status.get("failure")):
+        raise RuntimeError("status is not the known missing-usage interruption")
+    events = load_jsonl(events_path)
+    existing_repair = next((e for e in events if e.get("retroactive_accounting") and
+                            e.get("error_category") == "usage_unavailable"), None)
+    if existing_repair is not None:
+        return {"status": "ALREADY_REPAIRED", "logical_id": existing_repair["logical_id"],
+                "attempt_cost_usd": existing_repair["attempt_cost_usd"]}
+    manifest = json.loads((REPORT_ROOT / "manifest.json").read_text(encoding="utf-8"))
+    missing = _first_missing_call(manifest, _existing_terminal(events))
+    if missing is None:
+        raise RuntimeError("no missing logical completion to repair")
+    prior = _attempt_counts(events).get(str(missing["logical_id"]), 0)
+    if prior != 0:
+        raise RuntimeError(f"missing call already has {prior} recorded attempts")
+    budget = _budget_update(actual=UNKNOWN_USAGE_COST_USD)
+    event = {"protocol": PROTOCOL, "event": "completion", **missing, "attempt": 0,
+             "memory": None, "memory_hash": None, "prompt_hash": None,
+             "raw_model_response": None, "decisions": None, "expected": missing["task"].get("y"),
+             "correct": False, "error": "provider usage/cost unavailable (retroactively journaled)",
+             "error_category": "usage_unavailable", "semantic_ood": False, "terminal": False,
+             "retryable": True, "scientific_observation": False, "usage_available": False,
+             "cost_source": "conservative_upper_bound_retroactive", "latency_s": None,
+             "elapsed_s": None, "token_usage": None, "provider_metadata": {},
+             "attempt_cost_usd": UNKNOWN_USAGE_COST_USD, "retroactive_accounting": True,
+             "finished_at_utc": now()}
+    append_jsonl(events_path, event)
+    status.update(accounting_repair={"logical_id": missing["logical_id"], "attempt": 0,
+                                     "charged_upper_bound_usd": UNKNOWN_USAGE_COST_USD,
+                                     "recorded_at_utc": event["finished_at_utc"]},
+                  observed_cost_usd=budget["spent_usd"])
+    atomic_json(status_path, status)
+    return {"status": "REPAIRED", "logical_id": missing["logical_id"],
+            "attempt_cost_usd": UNKNOWN_USAGE_COST_USD, "next_attempt": 1,
+            "budget": budget}
 
 
 def _make_probe_specs(seed_spec: dict[str, Any], seed: int, checkpoint: int) -> list[dict[str, Any]]:
@@ -539,12 +649,14 @@ async def run_real(*, confirm_real: bool = False) -> dict[str, Any]:
     expected = int(manifest["logical_calls"])
     events_path = DATA_ROOT / "events.jsonl"; status_path = DATA_ROOT / "run_status.json"
     events = load_jsonl(events_path); done = _existing_terminal(events)
+    attempt_counts = _attempt_counts(events)
     existing_steps = {(int(e["seed"]), str(e["regime"]), int(e["t"])) for e in events if e.get("event") == "online_step"}
     status = json.loads(status_path.read_text(encoding="utf-8")) if status_path.exists() else {
         "protocol": PROTOCOL, "status": "initialized", "manifest_hash": manifest["manifest_hash"],
         "logical_calls": expected, "created_at_utc": now()}
     if status.get("manifest_hash") != manifest["manifest_hash"]: raise RuntimeError("status/manifest mismatch")
-    status.update(status="running", started_or_resumed_at_utc=now(), completed_logical_calls=len(done))
+    status.update(status="running", started_or_resumed_at_utc=now(), completed_logical_calls=len(done),
+                  resume_git_head=subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip())
     atomic_json(status_path, status)
     states = {(seed, regime): SocietyState(regime, seed) for seed in SEEDS for regime in REGIMES}
     # Replaying finished online step events makes resume deterministic.  The
@@ -570,7 +682,8 @@ async def run_real(*, confirm_real: bool = False) -> dict[str, Any]:
                     lid = _call_id("t0", seed, "COMMON_T0", 0, agent, probe["family"], probe["probe_index"])
                     await _one_completion(backend, logical_id=lid, seed=seed, regime="COMMON_T0", phase="checkpoint",
                                           checkpoint=0, agent=agent, niche=probe["family"], task=probe, memory=[],
-                                          existing=done, events_path=events_path, semaphore=semaphore)
+                                          existing=done, attempt_counts=attempt_counts,
+                                          events_path=events_path, semaphore=semaphore)
         # Re-read after t0 so resumed processes see all terminal completions.
         done = _existing_terminal(load_jsonl(events_path))
         for t in range(1, ROUNDS + 1):
@@ -591,7 +704,8 @@ async def run_real(*, confirm_real: bool = False) -> dict[str, Any]:
                     chosen = await _one_completion(backend, logical_id=lid, seed=seed, regime=regime, phase="online",
                                                    checkpoint=t, agent=selected, niche=task["niche"], task=task,
                                                    memory=list(state.memories[selected]), existing=done,
-                                                   events_path=events_path, semaphore=semaphore)
+                                                   attempt_counts=attempt_counts, events_path=events_path,
+                                                   semaphore=semaphore)
                     done = _existing_terminal(load_jsonl(events_path))
                     candidate = {str(selected): {"decisions": chosen.get("decisions"), "correct": chosen.get("correct"),
                                                  "error_category": chosen.get("error_category"), "memory_hash": chosen.get("memory_hash")}}
@@ -620,7 +734,8 @@ async def run_real(*, confirm_real: bool = False) -> dict[str, Any]:
                                 event = await _one_completion(backend, logical_id=lid, seed=seed, regime=regime, phase="checkpoint",
                                                               checkpoint=t, agent=agent, niche=probe["family"], task=probe,
                                                               memory=list(state.memories[agent]), existing=done,
-                                                              events_path=events_path, semaphore=semaphore)
+                                                              attempt_counts=attempt_counts, events_path=events_path,
+                                                              semaphore=semaphore)
                                 # A separate immutable observation record makes the no-mutation invariant auditable.
                                 obs = {"protocol": PROTOCOL, "event": "checkpoint_observation", "logical_id": lid,
                                        "seed": seed, "regime": regime, "checkpoint": t, "agent": agent,
@@ -941,12 +1056,15 @@ def main(argv: Iterable[str] | None = None) -> None:
     parser.add_argument("--mock", action="store_true")
     parser.add_argument("--run", action="store_true")
     parser.add_argument("--analyze", action="store_true")
+    parser.add_argument("--repair-missing-usage", action="store_true")
     parser.add_argument("--confirm-real", action="store_true")
     args = parser.parse_args(list(argv) if argv is not None else None)
     if args.freeze:
         write_protocol_docs(); result = freeze_manifest(); print(json.dumps({"status": "FROZEN", "manifest": str(REPORT_ROOT / 'manifest.json'), "logical_calls": result["logical_calls"], "forecast": result["cost_forecast"]}, indent=2))
     elif args.mock:
         print(json.dumps(run_mock(), indent=2))
+    elif args.repair_missing_usage:
+        print(json.dumps(repair_missing_usage_incident(), indent=2))
     elif args.run:
         print(json.dumps(asyncio.run(run_real(confirm_real=args.confirm_real)), indent=2))
     elif args.analyze:
