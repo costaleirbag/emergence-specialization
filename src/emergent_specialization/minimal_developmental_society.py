@@ -758,21 +758,52 @@ def analyze() -> dict[str, Any]:
     write_csv(REPORT_ROOT / "competence_joint.csv", competence_joint); write_csv(REPORT_ROOT / "competence_bit.csv", competence_bit)
     write_csv(REPORT_ROOT / "psi_spec_bit.csv", psi_rows); write_csv(REPORT_ROOT / "psi_spec_joint.csv", psi_rows)
     write_csv(REPORT_ROOT / "phi.csv", phi_rows); write_csv(REPORT_ROOT / "matching_gain.csv", matching_rows); write_csv(REPORT_ROOT / "role_assignments.csv", role_rows)
-    exposure_rows: list[dict[str, Any]] = []; memory_rows: list[dict[str, Any]] = []; routing_rows: list[dict[str, Any]] = []
+    exposure_rows: list[dict[str, Any]] = []; memory_rows: list[dict[str, Any]] = []; routing_rows: list[dict[str, Any]] = []; alignment_rows: list[dict[str, Any]] = []
+    competence_lookup = {(int(r["seed"]), str(r["regime"]), int(r["checkpoint"]), int(r["agent"]), str(r["niche"])): float(r["accuracy"]) for r in competence_joint}
     for seed in SEEDS:
         for regime in REGIMES:
             selected = [e for e in events if e.get("event") == "online_step" and int(e["seed"]) == seed and e["regime"] == regime]
+            selected_by_t = {int(e["t"]): e for e in selected}
+            reconstructed_memory: list[list[dict[str, Any]]] = [[] for _ in range(NUM_AGENTS)]
             for checkpoint in CHECKPOINTS[1:]:
                 current = [e for e in selected if int(e["t"]) <= checkpoint]
                 exp = np.zeros((NUM_AGENTS, len(FAMILIES)))
                 for e in current: exp[int(e["selected_agent"]), FAMILIES.index(e["task"]["niche"])] += 1
                 for agent in range(NUM_AGENTS):
-                    total = sum(exp[agent]); mem = [e for e in current if int(e["t"]) == checkpoint][-1].get("memory_after_hashes") if current else []
+                    total = sum(exp[agent])
                     for niche_index, niche in enumerate(FAMILIES): exposure_rows.append({"seed": seed, "regime": regime, "checkpoint": checkpoint, "agent": agent, "niche": niche, "count": exp[agent, niche_index], "fraction": exp[agent, niche_index] / total if total else 0.0})
-                assignment = [int(e["selected_agent"]) for e in current]; labels = [str(e["task"]["niche"]) for e in current]
+            # Reconstruct the bounded memory from the append-only online step
+            # events.  This is independent of model responses and therefore
+            # makes memory composition auditable even though raw prompts are
+            # not duplicated in every summary table.
+            reconstructed_memory = [[] for _ in range(NUM_AGENTS)]
+            for t in range(1, ROUNDS + 1):
+                event = selected_by_t[t]; task = event["task"]; selected_agent = int(event["selected_agent"])
+                item = {"family": task["niche"], "x": task["x"], "y": task["y"], "template_id": task["template_id"], "t": t}
+                recipients = range(NUM_AGENTS) if regime == "AS12" else (selected_agent,)
+                for agent in recipients:
+                    reconstructed_memory[agent].append(item); del reconstructed_memory[agent][:-MEMORY_K]
+                if t in CHECKPOINTS[1:]:
+                    for agent, memory in enumerate(reconstructed_memory):
+                        counts = Counter(item["family"] for item in memory); total = len(memory)
+                        entropy = -sum((n / total) * math.log2(n / total) for n in counts.values()) if total else 0.0
+                        for niche in FAMILIES:
+                            memory_rows.append({"seed": seed, "regime": regime, "checkpoint": t, "agent": agent, "niche": niche, "count": counts.get(niche, 0), "fraction": counts.get(niche, 0) / total if total else 0.0, "memory_length": total, "memory_entropy_bits": entropy})
+            for previous, checkpoint in zip(CHECKPOINTS[:-1], CHECKPOINTS[1:]):
+                interval = [e for e in selected if previous < int(e["t"]) <= checkpoint]
+                for niche in FAMILIES:
+                    niche_events = [e for e in interval if e["task"]["niche"] == niche]
+                    allocation = Counter(int(e["selected_agent"]) for e in niche_events)
+                    weights = [allocation.get(agent, 0) / len(niche_events) if niche_events else 0.0 for agent in range(NUM_AGENTS)]
+                    accuracies = [competence_lookup[(seed, regime, previous, agent, niche)] for agent in range(NUM_AGENTS)]
+                    u_route = sum(w * a for w, a in zip(weights, accuracies)); u_random = statistics.mean(accuracies); u_oracle = max(accuracies)
+                    denom = u_oracle - u_random
+                    alignment_rows.append({"seed": seed, "regime": regime, "from_checkpoint": previous, "to_checkpoint": checkpoint, "niche": niche, "U_route": u_route, "U_random": u_random, "U_domain_oracle": u_oracle, "eta_route": (u_route - u_random) / denom if denom > 1e-12 else None, "n": len(niche_events)})
+                cumulative = [e for e in selected if int(e["t"]) <= checkpoint]
+                assignment = [int(e["selected_agent"]) for e in cumulative]; labels = [str(e["task"]["niche"]) for e in cumulative]
                 mi, null, excess = _permutation_mi(assignment, labels, seed=seed + checkpoint)
                 routing_rows.append({"seed": seed, "regime": regime, "checkpoint": checkpoint, "H_R_bits": -sum((n / len(assignment)) * math.log2(n / len(assignment)) for n in Counter(assignment).values()) if assignment else 0.0, "I_C_R_bits": mi, "I_excess_bits": excess, "permutation_null_bits": null})
-    write_csv(REPORT_ROOT / "exposure_matrices.csv", exposure_rows); write_csv(REPORT_ROOT / "memory_composition.csv", memory_rows); write_csv(REPORT_ROOT / "routing_information.csv", routing_rows)
+    write_csv(REPORT_ROOT / "exposure_matrices.csv", exposure_rows); write_csv(REPORT_ROOT / "memory_composition.csv", memory_rows); write_csv(REPORT_ROOT / "routing_information.csv", routing_rows); write_csv(REPORT_ROOT / "routing_alignment.csv", alignment_rows)
     # Online utility, role persistence and required contrasts.
     utility_rows = []
     for seed in SEEDS:
@@ -798,7 +829,6 @@ def analyze() -> dict[str, Any]:
     write_csv(REPORT_ROOT / "label_symmetry.csv", label_rows)
     # Alignment and memory diagnostics are intentionally explicit, with empty
     # rows where the currently logged state cannot support a clean estimate.
-    write_csv(REPORT_ROOT / "routing_alignment.csv", [])
     write_csv(REPORT_ROOT / "early_late_amplification.csv", [])
     write_csv(REPORT_ROOT / "hse.csv", [])
     # Final contrasts and preregistered verdicts.
@@ -815,7 +845,19 @@ def analyze() -> dict[str, Any]:
     def summary(key: str) -> dict[str, Any]:
         values = [float(r[key]) for r in contrast_rows]; return {"mean": statistics.mean(values), "median": statistics.median(values), "sd": statistics.stdev(values), "range": [min(values), max(values)], "positive_seeds": sum(v > 0 for v in values), "values": values}
     h1 = summary("AP12_minus_RP_psi_bit"); h2 = summary("AP12_minus_AS12_psi_bit"); h3 = summary("AP12_minus_RP_auc")
-    verdict = {"protocol": PROTOCOL, "status": "ANALYSIS COMPLETE", "H1_social_amplification": bool(h1["mean"] >= .003 and h1["positive_seeds"] >= 6), "H2_private_state_necessity": bool(h2["mean"] >= .003 and h2["positive_seeds"] >= 6), "H3_dynamic_amplification": bool(h3["mean"] >= .002 and h3["positive_seeds"] >= 6), "contrasts": {"H1": h1, "H2": h2, "H3": h3}, "scientific_caution": "Psi_spec is a finite-system competence interaction statistic; do not infer specialization from it alone."}
+    final_match = {regime: [float(r["Delta_match_joint"]) for r in matching_rows if r["regime"] == regime and int(r["checkpoint"]) == 128] for regime in REGIMES}
+    last32 = {regime: [float(r["accuracy"]) for r in utility_rows if r["regime"] == regime and r["segment"] == "last32"] for regime in REGIMES}
+    late_routing = {regime: [float(r["I_excess_bits"]) for r in routing_rows if r["regime"] == regime and int(r["checkpoint"]) == 128] for regime in REGIMES}
+    late_eta = {regime: [float(r["eta_route"]) for r in alignment_rows if r["regime"] == regime and int(r["to_checkpoint"]) == 128 and r["eta_route"] is not None] for regime in REGIMES}
+    h4_ap12 = statistics.mean(final_match["AP12"]); h4_delta = h4_ap12 - statistics.mean(final_match["RP"])
+    h5_ap12 = statistics.mean(late_routing["AP12"]); h5_rp = statistics.mean(late_routing["RP"]); h5_eta = statistics.mean(late_eta["AP12"]) if late_eta["AP12"] else 0.0
+    h6_values = [a - b for a, b in zip(last32["AP12"], last32["RP"])]
+    h4 = {"mean_Delta_match_AP12": h4_ap12, "mean_AP12_minus_RP": h4_delta, "pass": bool(h4_ap12 >= .05 and h4_delta >= .02)}
+    h5 = {"mean_I_excess_AP12": h5_ap12, "mean_I_excess_RP": h5_rp, "mean_eta_route_AP12_late": h5_eta, "pass": bool(h5_ap12 >= .10 and h5_ap12 > h5_rp and h5_eta > 0)}
+    h6 = {"mean_AP12_minus_RP_last32": statistics.mean(h6_values), "values": h6_values, "positive_seeds": sum(v > 0 for v in h6_values), "pass": bool(statistics.mean(h6_values) >= .03 and sum(v > 0 for v in h6_values) >= 6)}
+    social_supported = bool(h1["mean"] >= .003 and h1["positive_seeds"] >= 6 and h2["mean"] >= .003 and h2["positive_seeds"] >= 6 and h3["mean"] >= .002 and h3["positive_seeds"] >= 6)
+    functional_supported = bool(social_supported and h4["pass"] and h5["pass"] and h6["pass"])
+    verdict = {"protocol": PROTOCOL, "status": "ANALYSIS COMPLETE", "H1_social_amplification": bool(h1["mean"] >= .003 and h1["positive_seeds"] >= 6), "H2_private_state_necessity": bool(h2["mean"] >= .003 and h2["positive_seeds"] >= 6), "H3_dynamic_amplification": bool(h3["mean"] >= .002 and h3["positive_seeds"] >= 6), "H4_complementarity": h4, "H5_organized_labor": h5, "H6_team_utility": h6, "social_amplification": "SUPPORTED" if social_supported else "NOT SUPPORTED", "functional_organization": "SUPPORTED" if functional_supported else "NOT SUPPORTED", "emergent_functional_specialization": "SUPPORTED" if functional_supported and h5["pass"] else "NOT YET SUPPORTED", "contrasts": {"H1": h1, "H2": h2, "H3": h3}, "scientific_caution": "Psi_spec is a finite-system competence interaction statistic; do not infer specialization from it alone."}
     atomic_json(REPORT_ROOT / "verdict.json", verdict)
     technical = {"logical_calls": manifest["logical_calls"], "terminal_completions": len(terminals), "physical_attempts": len(all_completion_events), "retries": sum(1 for e in all_completion_events if int(e.get("attempt", 0)) > 0), "semantic_ood": sum(int(bool(e.get("semantic_ood"))) for e in completion_events), "models": sorted({(e.get("provider_metadata") or {}).get("model") for e in all_completion_events}), "fingerprints": sorted({(e.get("provider_metadata") or {}).get("system_fingerprint") for e in all_completion_events}), "no_mutation_failures": sum(1 for e in events if e.get("event") == "checkpoint_observation" and not e.get("no_mutation")), "latency_s": {"mean": statistics.mean(float(e["latency_s"]) for e in all_completion_events), "median": statistics.median(float(e["latency_s"]) for e in all_completion_events), "min": min(float(e["latency_s"]) for e in all_completion_events), "max": max(float(e["latency_s"]) for e in all_completion_events)}, "observed_cost_usd": sum(float(e.get("attempt_cost_usd") or 0) for e in all_completion_events), "status": "CLEAN" if len(terminals) == manifest["logical_calls"] and not any(e.get("error_category") for e in completion_events if e.get("terminal")) else "COMPLETE_WITH_RETRIES"}
     atomic_json(REPORT_ROOT / "technical_health.json", technical); atomic_json(REPORT_ROOT / "cost.json", {"observed_cost_usd": technical["observed_cost_usd"], "hard_cap_usd": HARD_CAP_USD, "remaining_cap_usd": HARD_CAP_USD - technical["observed_cost_usd"], "pricing_source": "configured DeepSeek Direct rates"})
@@ -855,6 +897,44 @@ def _write_report(verdict: dict[str, Any]) -> None:
     (ROOT / "docs/MINIMAL_DEVELOPMENTAL_SOCIETY_V1_REPORT.md").write_text(text, encoding="utf-8")
 
 
+def _make_figures() -> dict[str, Any]:
+    """Generate compact, deterministic offline figures from materialized CSVs."""
+    try:
+        import matplotlib.pyplot as plt
+    except Exception as exc:  # pragma: no cover - optional plotting dependency
+        return {"status": "unavailable", "error": str(exc)}
+    figure_root = REPORT_ROOT / "figures"; figure_root.mkdir(parents=True, exist_ok=True)
+    with (REPORT_ROOT / "psi_spec_bit.csv").open(newline="", encoding="utf-8") as handle:
+        psi_rows = list(csv.DictReader(handle))
+    with (REPORT_ROOT / "routing_information.csv").open(newline="", encoding="utf-8") as handle:
+        routing_rows = list(csv.DictReader(handle))
+    colors = {"RP": "#6b7280", "AP4": "#2563eb", "AP12": "#dc2626", "AS12": "#059669"}
+    for name, value_key, ylabel in (("psi_spec_bit_over_time.png", "psi_bit", "Psi_spec bit"),):
+        fig, ax = plt.subplots(figsize=(8, 4.5))
+        for regime in REGIMES:
+            grouped = defaultdict(list)
+            for row in psi_rows:
+                if row["regime"] == regime: grouped[int(row["checkpoint"])].append(float(row[value_key]))
+            xs = sorted(grouped); ax.plot(xs, [statistics.mean(grouped[x]) for x in xs], marker="o", color=colors[regime], label=regime)
+        ax.set(xlabel="checkpoint", ylabel=ylabel, title="Held-out competence interaction by regime"); ax.legend(frameon=False); fig.tight_layout(); fig.savefig(figure_root / name, dpi=180); plt.close(fig)
+    fig, ax = plt.subplots(figsize=(7, 4.5))
+    with (REPORT_ROOT / "primary_contrasts.csv").open(newline="", encoding="utf-8") as handle:
+        contrast_rows = list(csv.DictReader(handle))
+    xs = [int(row["seed"]) for row in contrast_rows]
+    ax.axhline(0, color="#111827", linewidth=0.8)
+    ax.plot(xs, [float(row["AP12_minus_RP_psi_bit"]) for row in contrast_rows], "o-", label="AP12 − RP", color=colors["AP12"])
+    ax.plot(xs, [float(row["AP12_minus_AS12_psi_bit"]) for row in contrast_rows], "s--", label="AP12 − AS12", color=colors["AS12"])
+    ax.set(xlabel="environment seed", ylabel="final Psi_spec contrast", title="Paired final contrasts"); ax.legend(frameon=False); fig.tight_layout(); fig.savefig(figure_root / "paired_final_contrasts.png", dpi=180); plt.close(fig)
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    for regime in REGIMES:
+        grouped = defaultdict(list)
+        for row in routing_rows:
+            if row["regime"] == regime: grouped[int(row["checkpoint"])].append(float(row["I_excess_bits"]))
+        xs2 = sorted(grouped); ax.plot(xs2, [statistics.mean(grouped[x]) for x in xs2], marker="o", color=colors[regime], label=regime)
+    ax.axhline(0, color="#111827", linewidth=0.8); ax.set(xlabel="checkpoint", ylabel="I_excess(C;R) bits", title="Routing organization (permutation-null adjusted)"); ax.legend(frameon=False); fig.tight_layout(); fig.savefig(figure_root / "routing_information.png", dpi=180); plt.close(fig)
+    return {"status": "generated", "files": sorted(path.name for path in figure_root.glob("*.png"))}
+
+
 def main(argv: Iterable[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Minimal developmental society V1")
     parser.add_argument("--freeze", action="store_true")
@@ -870,7 +950,7 @@ def main(argv: Iterable[str] | None = None) -> None:
     elif args.run:
         print(json.dumps(asyncio.run(run_real(confirm_real=args.confirm_real)), indent=2))
     elif args.analyze:
-        result = analyze(); _write_report(result); print(json.dumps(result, indent=2))
+        result = analyze(); _write_report(result); result["figures"] = _make_figures(); print(json.dumps(result, indent=2))
     else:
         parser.print_help()
 
