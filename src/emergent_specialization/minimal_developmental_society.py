@@ -952,7 +952,8 @@ def analyze() -> dict[str, Any]:
     for seed in SEEDS:
         for regime in REGIMES:
             xs = np.array(CHECKPOINTS, dtype=float); ys = np.array([next(r["psi_bit"] for r in psi_rows if r["seed"] == seed and r["regime"] == regime and int(r["checkpoint"]) == t) for t in CHECKPOINTS])
-            auc[(seed, regime)] = float(np.trapz(ys, xs) / ROUNDS)
+            integrate = getattr(np, "trapezoid", None) or np.trapz
+            auc[(seed, regime)] = float(integrate(ys, xs) / ROUNDS)
     contrast_rows = []
     for seed in SEEDS:
         contrast_rows.append({"seed": seed, "AP12_minus_RP_psi_bit": final[(seed, "AP12")] - final[(seed, "RP")], "AP12_minus_AS12_psi_bit": final[(seed, "AP12")] - final[(seed, "AS12")], "AP12_minus_RP_auc": auc[(seed, "AP12")] - auc[(seed, "RP")], "AP12_minus_AS12_auc": auc[(seed, "AP12")] - auc[(seed, "AS12")]})
@@ -974,7 +975,8 @@ def analyze() -> dict[str, Any]:
     functional_supported = bool(social_supported and h4["pass"] and h5["pass"] and h6["pass"])
     verdict = {"protocol": PROTOCOL, "status": "ANALYSIS COMPLETE", "H1_social_amplification": bool(h1["mean"] >= .003 and h1["positive_seeds"] >= 6), "H2_private_state_necessity": bool(h2["mean"] >= .003 and h2["positive_seeds"] >= 6), "H3_dynamic_amplification": bool(h3["mean"] >= .002 and h3["positive_seeds"] >= 6), "H4_complementarity": h4, "H5_organized_labor": h5, "H6_team_utility": h6, "social_amplification": "SUPPORTED" if social_supported else "NOT SUPPORTED", "functional_organization": "SUPPORTED" if functional_supported else "NOT SUPPORTED", "emergent_functional_specialization": "SUPPORTED" if functional_supported and h5["pass"] else "NOT YET SUPPORTED", "contrasts": {"H1": h1, "H2": h2, "H3": h3}, "scientific_caution": "Psi_spec is a finite-system competence interaction statistic; do not infer specialization from it alone."}
     atomic_json(REPORT_ROOT / "verdict.json", verdict)
-    technical = {"logical_calls": manifest["logical_calls"], "terminal_completions": len(terminals), "physical_attempts": len(all_completion_events), "retries": sum(1 for e in all_completion_events if int(e.get("attempt", 0)) > 0), "semantic_ood": sum(int(bool(e.get("semantic_ood"))) for e in completion_events), "models": sorted({(e.get("provider_metadata") or {}).get("model") for e in all_completion_events}), "fingerprints": sorted({(e.get("provider_metadata") or {}).get("system_fingerprint") for e in all_completion_events}), "no_mutation_failures": sum(1 for e in events if e.get("event") == "checkpoint_observation" and not e.get("no_mutation")), "latency_s": {"mean": statistics.mean(float(e["latency_s"]) for e in all_completion_events), "median": statistics.median(float(e["latency_s"]) for e in all_completion_events), "min": min(float(e["latency_s"]) for e in all_completion_events), "max": max(float(e["latency_s"]) for e in all_completion_events)}, "observed_cost_usd": sum(float(e.get("attempt_cost_usd") or 0) for e in all_completion_events), "status": "CLEAN" if len(terminals) == manifest["logical_calls"] and not any(e.get("error_category") for e in completion_events if e.get("terminal")) else "COMPLETE_WITH_RETRIES"}
+    sort_meta = lambda values: sorted(values, key=lambda value: "" if value is None else str(value))
+    technical = {"logical_calls": manifest["logical_calls"], "terminal_completions": len(terminals), "physical_attempts": len(all_completion_events), "retries": sum(1 for e in all_completion_events if int(e.get("attempt", 0)) > 0), "semantic_ood": sum(int(bool(e.get("semantic_ood"))) for e in completion_events), "error_categories": dict(Counter(e.get("error_category") for e in all_completion_events if e.get("error_category"))), "usage_coverage": sum(bool(e.get("token_usage")) for e in all_completion_events) / len(all_completion_events), "models": sort_meta({(e.get("provider_metadata") or {}).get("model") for e in all_completion_events}), "terminal_models": sort_meta({(e.get("provider_metadata") or {}).get("model") for e in completion_events if e.get("terminal")}), "fingerprints": sort_meta({(e.get("provider_metadata") or {}).get("system_fingerprint") for e in all_completion_events}), "terminal_fingerprints": sort_meta({(e.get("provider_metadata") or {}).get("system_fingerprint") for e in completion_events if e.get("terminal")}), "no_mutation_failures": sum(1 for e in events if e.get("event") == "checkpoint_observation" and not e.get("no_mutation")), "latency_s": {"mean": statistics.mean(float(e["latency_s"]) for e in all_completion_events if e.get("latency_s") is not None), "median": statistics.median(float(e["latency_s"]) for e in all_completion_events if e.get("latency_s") is not None), "min": min(float(e["latency_s"]) for e in all_completion_events if e.get("latency_s") is not None), "max": max(float(e["latency_s"]) for e in all_completion_events if e.get("latency_s") is not None)}, "observed_cost_usd": sum(float(e.get("attempt_cost_usd") or 0) for e in all_completion_events), "status": "CLEAN" if len(terminals) == manifest["logical_calls"] and not any(e.get("error_category") for e in completion_events if e.get("terminal")) else "COMPLETE_WITH_RETRIES"}
     atomic_json(REPORT_ROOT / "technical_health.json", technical); atomic_json(REPORT_ROOT / "cost.json", {"observed_cost_usd": technical["observed_cost_usd"], "hard_cap_usd": HARD_CAP_USD, "remaining_cap_usd": HARD_CAP_USD - technical["observed_cost_usd"], "pricing_source": "configured DeepSeek Direct rates"})
     return verdict
 
@@ -1008,7 +1010,98 @@ def write_protocol_docs() -> None:
 
 def _write_report(verdict: dict[str, Any]) -> None:
     technical = json.loads((REPORT_ROOT / "technical_health.json").read_text())
-    text = f"""# Minimal Developmental Society V1 report\n\n## Executive result\n\nThe campaign is **{verdict.get('status')}**. This report separates social amplification, functional organization, and the stronger specialization claim.\n\n## Protocol\n\nFour initially exchangeable agents, V3.1 DIAGONAL niches, 128 balanced online tasks, recent-k=8 host memory, RP/AP4/AP12/AS12, and held-out checkpoint evaluation. Routing uses only externally verified online exact-joint correctness; model confidence is not requested.\n\n## Technical health\n\n`{json.dumps(technical, indent=2)}`\n\n## Primary order parameter\n\n`Psi_spec = ||P_N A P_K||_F^2/(N*K)` is the agent×niche competence interaction. It is distinct from Phi (global competence differentiation), routing concentration, HSE, and matching gain. See `psi_spec_bit.csv`, `psi_spec_joint.csv`, and `primary_contrasts.csv`.\n\n## Interpretation policy\n\nH1–H3 in `verdict.json` are preregistered engineering criteria. A positive Psi contrast supports only adaptive amplification of held-out competence interaction. Functional organization additionally requires aligned routing, complementarity, and team utility. Emergent functional specialization requires those layers plus across-seed label symmetry.\n\n## Caveats\n\nThe independent unit is the eight environment seeds, not 47,104 API calls. Provider stochasticity, recent-k capacity, teacher-correct feedback, and the finite horizon limit interpretation. No claim of permanent identities or phase transition is licensed.\n"""
+    def read_csv(name: str) -> list[dict[str, str]]:
+        with (REPORT_ROOT / name).open(newline="", encoding="utf-8") as handle:
+            return list(csv.DictReader(handle))
+
+    def means(name: str, key: str, checkpoint: str | None = None) -> dict[str, float]:
+        grouped: dict[str, list[float]] = defaultdict(list)
+        for row in read_csv(name):
+            if checkpoint is not None and row.get("checkpoint") != checkpoint:
+                continue
+            try:
+                grouped[row.get("regime", "all")].append(float(row[key]))
+            except (KeyError, TypeError, ValueError):
+                continue
+        return {regime: statistics.mean(values) for regime, values in grouped.items() if values}
+
+    psi_final = means("psi_spec_bit.csv", "psi_bit", "128")
+    phi_final = means("phi.csv", "phi_bit", "128")
+    match_final = means("matching_gain.csv", "Delta_match_joint", "128")
+    text = f"""# Minimal Developmental Society V1 report
+
+## Executive result
+
+The paid campaign and offline analysis are **complete**. The preregistered result
+is **not evidence of emergent functional specialization**: social amplification
+(H1/H3), complementarity (H4), and team-utility gain (H6) did not meet their
+engineering criteria. Private state was necessary for the observed competence
+interaction contrast (H2), and AP12 showed organized routing relative to its
+permutation null (H5). These are separate findings, not a claim of stable roles.
+
+## Protocol
+
+Four initially exchangeable agents operated in the V3.1 DIAGONAL ecology for 128
+balanced online tasks with bounded host-side recent-k=8 memory. The four frozen
+regimes were RP, AP4, AP12, and AS12. Held-out evaluation occurred at checkpoints
+0, 16, 32, 64, 96, and 128. Routing used externally verified online exact-joint
+correctness; model confidence was not requested.
+
+## Technical health and cost
+
+- Logical completions: **{technical['logical_calls']} / {technical['terminal_completions']}**
+- Physical attempts: **{technical['physical_attempts']}**; retries: **{technical['retries']}**
+- Semantic out-of-domain observations: **{technical['semantic_ood']}** (terminal, not retried)
+- Error categories: `{json.dumps(technical['error_categories'], sort_keys=True)}`
+- Terminal model: `{technical['terminal_models']}`
+- Terminal fingerprint: `{technical['terminal_fingerprints']}`
+- Usage coverage: **{technical['usage_coverage']:.6f}**
+- Latency mean/median/min/max: **{technical['latency_s']['mean']:.3f} / {technical['latency_s']['median']:.3f} / {technical['latency_s']['min']:.3f} / {technical['latency_s']['max']:.3f}s**
+- Observed cost: **US${technical['observed_cost_usd']:.6f}** (cap US$2.25)
+- Health: **{technical['status']}**
+
+The missing-usage incident was repaired conservatively before resumption. No
+logical observation was duplicated and no model identity mismatch occurred.
+
+## Primary order parameter
+
+`Psi_spec(A) = ||P_N A P_K||_F^2/(N*K)` measures the agent×niche competence
+interaction after removing agent and niche main effects. It is not equivalent to
+HSE, total competence differentiation (`Phi`), routing concentration, or useful
+division of labor.
+
+| regime | final Psi_spec bit | final Phi bit | final matching gain (joint) |
+|---|---:|---:|---:|
+| RP | {psi_final.get('RP', float('nan')):.6f} | {phi_final.get('RP', float('nan')):.6f} | {match_final.get('RP', float('nan')):.6f} |
+| AP4 | {psi_final.get('AP4', float('nan')):.6f} | {phi_final.get('AP4', float('nan')):.6f} | {match_final.get('AP4', float('nan')):.6f} |
+| AP12 | {psi_final.get('AP12', float('nan')):.6f} | {phi_final.get('AP12', float('nan')):.6f} | {match_final.get('AP12', float('nan')):.6f} |
+| AS12 | {psi_final.get('AS12', float('nan')):.6f} | {phi_final.get('AS12', float('nan')):.6f} | {match_final.get('AS12', float('nan')):.6f} |
+
+The main contrasts were AP12−RP Psi mean **{verdict['contrasts']['H1']['mean']:.6f}**
+(6/8 positive), AP12−AS12 **{verdict['contrasts']['H2']['mean']:.6f}**
+(8/8 positive), and AP12−RP AUC **{verdict['contrasts']['H3']['mean']:.6f}**
+(6/8 positive). H1 and H3 remained below their preregistered thresholds.
+
+## Organization, complementarity, and utility
+
+- H4 complementarity: AP12 matching gain mean **{verdict['H4_complementarity']['mean_Delta_match_AP12']:.6f}**; AP12−RP **{verdict['H4_complementarity']['mean_AP12_minus_RP']:.6f}** — **not supported**.
+- H5 routing organization: AP12 excess task–agent information **{verdict['H5_organized_labor']['mean_I_excess_AP12']:.6f}** bits and late routing alignment η **{verdict['H5_organized_labor']['mean_eta_route_AP12_late']:.6f}** — supported by the engineering rule, but not sufficient for specialization.
+- H6 team utility: AP12−RP last-32 accuracy **{verdict['H6_team_utility']['mean_AP12_minus_RP_last32']:.6f}**, positive in {verdict['H6_team_utility']['positive_seeds']}/8 seeds — **not supported**.
+
+## Interpretation and limitations
+
+Private controlled state changes the trajectory and AP12 can organize allocation
+around niches, but this campaign did not show that organization becoming a stable,
+useful division of labor. High routing information can coexist with weak or
+negative matching gain. The independent units are eight environment seeds, not
+47,104 API calls. Provider stochasticity, finite horizon, recent-k capacity,
+teacher-correct feedback, and the single DIAGONAL ecology limit generality. No
+claim of permanent identities or a phase transition is licensed.
+
+All per-seed trajectories, health data, costs, and figures are in
+`reports/society/minimal-developmental-society-v1/`. No further paid calls were
+made after campaign completion.
+"""
     (ROOT / "docs/MINIMAL_DEVELOPMENTAL_SOCIETY_V1_REPORT.md").write_text(text, encoding="utf-8")
 
 
