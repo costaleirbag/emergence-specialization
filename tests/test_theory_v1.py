@@ -20,7 +20,7 @@ from emergent_specialization.theory_v1.prediction import predictions_for_k
 from emergent_specialization.theory_v1.scoring import kendall_tau, pairwise_concordance, spearman
 from emergent_specialization.theory_v1.scorecard import full_scorecard, score_t7_criticality, score_t9_mode
 from emergent_specialization.theory_v1.micro_runner import build_tasks, render_user
-from emergent_specialization.theory_v1.macro_runner import expected_calls as macro_expected_calls
+from emergent_specialization.theory_v1.macro_runner import expected_calls as macro_expected_calls, run_mock_protocol
 
 
 class TheoryV1Tests(unittest.TestCase):
@@ -130,6 +130,41 @@ class TheoryV1Tests(unittest.TestCase):
         self.assertEqual(counts["online"], 36864)
         self.assertEqual(counts["post_checkpoints"], 147456)
         self.assertEqual(counts["total"], 186368)
+
+    def test_serial_and_concurrent_mock_protocol_are_identical(self):
+        import asyncio
+        serial = asyncio.run(run_mock_protocol(1))
+        concurrent = asyncio.run(run_mock_protocol(32))
+        self.assertEqual(serial["t0"], concurrent["t0"])
+        self.assertEqual(serial["trajectories"], concurrent["trajectories"])
+        self.assertGreater(concurrent["max_active"], 1)
+        self.assertLessEqual(concurrent["max_active"], 32)
+
+    def test_mock_trajectory_isolation_and_checkpoint_immutability(self):
+        import asyncio
+        result = asyncio.run(run_mock_protocol(32))
+        for trajectory in result["trajectories"]:
+            self.assertEqual(trajectory["final_memory"], trajectory["events"][-1]["memory"])
+            self.assertEqual(trajectory["final_posterior"], trajectory["events"][-1]["posterior"])
+            self.assertEqual(len([e for e in trajectory["events"] if "checkpoint" in e]), 2)
+
+    def test_concurrent_jsonl_logging_has_no_truncated_records(self):
+        import asyncio
+        import json
+        import tempfile
+        from pathlib import Path
+        from emergent_specialization.theory_v1.macro_runner import append_jsonl
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "events.jsonl"
+            async def write(i):
+                append_jsonl(path, {"logical_call_id": f"mock-{i}", "value": i})
+            async def run_writes():
+                await asyncio.gather(*[write(i) for i in range(400)])
+            asyncio.run(run_writes())
+            rows = [json.loads(line) for line in path.read_text().splitlines()]
+            self.assertEqual(len(rows), 400)
+            self.assertEqual(len({row["logical_call_id"] for row in rows}), 400)
 
 
 if __name__ == "__main__":

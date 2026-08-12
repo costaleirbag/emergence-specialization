@@ -1,0 +1,19 @@
+{
+  "protocol": "THEORY-V1",
+  "classification": "INFRASTRUCTURE_ONLY",
+  "allowed_changes": [
+    "async orchestration",
+    "global request semaphore and telemetry",
+    "trajectory scheduling",
+    "checkpoint snapshot scheduling",
+    "concurrency-safe append logging",
+    "offline deterministic equivalence tests",
+    "quarantine/accounting provenance"
+  ],
+  "forbidden_scientific_files_changed": [],
+  "scientific_files_changed": [],
+  "prediction_manifest_changed": false,
+  "prediction_seal_changed": false,
+  "micro_raw_changed": false,
+  "review": "No prompt, task generation, truth calculation, router, memory rule, metric, ecology, seed, prediction, or scorecard source was modified."
+}

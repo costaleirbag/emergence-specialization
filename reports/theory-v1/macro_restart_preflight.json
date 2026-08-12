@@ -1,0 +1,21 @@
+{
+  "protocol": "THEORY-V1",
+  "status": "READY_AFTER_EXECUTION_RESEAL",
+  "micro_cost_usd": 0.7598045784,
+  "aborted_macro_cost_usd": 0.123065488,
+  "cumulative_cost_before_restart_usd": 0.8828700664,
+  "aborted_macro_physical_attempts": 3716,
+  "recent_cost_per_attempt_usd": 0.0000331177308934338,
+  "restarted_macro_logical_calls": 186368,
+  "projected_restarted_macro_cost_usd": 6.17208527114747,
+  "projected_cumulative_cost_usd": 7.05495533754747,
+  "remaining_safety_margin_fraction": 0.10,
+  "projected_cumulative_with_safety_usd": 7.672163864662217,
+  "hard_ceiling_usd": 8.0,
+  "cost_gate": "PASS",
+  "pricing_basis": "observed aborted-MACRO token-derived cost per physical attempt",
+  "partial_run_excluded_from_restart": true,
+  "old_t0_reused": false,
+  "predictions_regenerated": false,
+  "execution_reseal_tag": "theory-v1-macro-execution-resealed-20260812"
+}

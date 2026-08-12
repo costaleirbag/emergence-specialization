@@ -1,6 +1,12 @@
 {
   "legacy": "DEVELOPMENT",
   "macro": "CONFIRMATORY",
+  "aborted_macro_serial": {
+    "category": "TECHNICAL_ABORT / QUARANTINED",
+    "path": "data/quarantine/theory-v1-macro-aborted-serial-run-20260812",
+    "include_in_scorecard": false,
+    "scientific_metrics_inspected": false
+  },
   "micro": "PARAMETERIZATION",
   "protocol": "THEORY-V1",
   "status": "prepared"

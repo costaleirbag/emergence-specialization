@@ -14,8 +14,9 @@ predictions are sealed.
 | Learner calibration V1/V2, relation/cross-domain controls | DEVELOPMENT | Learner bottleneck context; no prospective Theory V1 confirmation | partial |
 | Local Plasticity Curve V1 | DEVELOPMENT | Microscopic motivation; not an independent Theory V1 test | qualified legacy gate |
 | Minimal Developmental Society V1 and repaired analysis | DEVELOPMENT | Social motivation; not Theory V1 confirmation | partial organization |
-| New Theory V1 MICRO campaign | PARAMETERIZATION | Estimate `K^(4)`, `K^(8)`, `K^(12)` only | not run in this preparation |
-| New Theory V1 MACRO campaign | CONFIRMATORY | Test sealed predictions T1–T9 | blocked pending budget/preflight |
+| Theory V1 MICRO campaign | PARAMETERIZATION | Estimate `K^(4)`, `K^(8)`, `K^(12)` only | complete |
+| Aborted serial Theory V1 MACRO attempt | TECHNICAL_ABORT / QUARANTINED | Throughput and infrastructure diagnostics only | never include in scorecard or scientific estimates |
+| Restarted Theory V1 MACRO campaign | CONFIRMATORY | Test sealed predictions T1–T9 | pending execution reseal |
 
 No existing dataset is silently promoted to confirmation. If a future Theory V2
 is written, all Theory V1 prospective data become DEVELOPMENT for that later
