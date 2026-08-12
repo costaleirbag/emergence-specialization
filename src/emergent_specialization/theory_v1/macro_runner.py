@@ -253,11 +253,15 @@ async def run_macro(*, confirm_real: bool = False, concurrency: int = CONCURRENC
             for ecology in ECOLOGIES:
                 for seed in manifest["social_seeds"][ecology]:
                     spec = manifest["seed_specs"][f"{ecology}:{seed}"]; state = states[(ecology, int(seed), int(cell["cell_id"]))]
+                    existing_step_ids = {str(e.get("logical_id")) for e in step_events}
                     for t, task in enumerate(spec["online"], 1):
                         lid = _lid("online", ecology, int(seed), str(cell["cell_id"]), t, -1, int(task["niche"]), t=t)
-                        if lid in terminal: continue
-                        niche = int(task["niche"]); mu = state.mu(niche); selected = _route(mu, float(cell["beta"]), float(cell["epsilon"]), float(spec["routing_u"][t - 1])); chosen = await _completion(backend, task=task, ecology=ecology, logical_id=lid, memory=state.memories[selected], events_path=events_path, semaphore=semaphore, attempts=attempts, append_lock=append_lock); terminal[lid] = chosen
+                        niche = int(task["niche"]); mu = state.mu(niche); selected = _route(mu, float(cell["beta"]), float(cell["epsilon"]), float(spec["routing_u"][t - 1])); chosen = terminal[lid] if lid in terminal else await _completion(backend, task=task, ecology=ecology, logical_id=lid, memory=state.memories[selected], events_path=events_path, semaphore=semaphore, attempts=attempts, append_lock=append_lock); terminal[lid] = chosen
+                        step_id = stable_hash({"lid": lid, "event": "online_step"})
+                        if step_id in existing_step_ids:
+                            continue
                         recipients = state.add_feedback(selected, task, bool(chosen.get("correct")), t, spec["sharing_u"][t - 1]); step_event = {"protocol": PROTOCOL, "event": "online_step", "logical_id": stable_hash({"lid": lid, "event": "online_step"}), "ecology": ecology, "seed": int(seed), "cell_id": int(cell["cell_id"]), "t": t, "task": task, "selected_agent": selected, "mu_before": mu, "routing_u": spec["routing_u"][t - 1], "sharing_u": spec["sharing_u"][t - 1], "recipients": recipients, "decisions": chosen.get("decisions"), "correct": chosen.get("correct"), "finished_at_utc": now()}; append_jsonl(events_path, step_event); append_jsonl(MACRO_ROOT / "macro_steps.jsonl", step_event)
+                        existing_step_ids.add(step_id)
                     for checkpoint in MACRO_CHECKPOINTS[1:]:
                         if checkpoint != t: continue
                         pending = []
