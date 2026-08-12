@@ -5799,3 +5799,29 @@ $$
 
 Essa é, hoje, a versão mais completa da ideia do projeto.
 
+---
+
+## Addendum — Theory V1: prediction before the next society
+
+Em 12 de agosto de 2026 o projeto separou explicitamente os dados de
+desenvolvimento da próxima tentativa de teste prospectivo. Todos os resultados
+anteriores — inclusive a curva de plasticidade local e a análise reparada da
+sociedade — são **DEVELOPMENT**: motivam e informam a teoria, mas não contam como
+confirmação independente dela.
+
+Theory V1 congela um modelo efetivo local. A resposta microscópica a uma troca
+de um slot de memória é estimada por `K^(k)`, o operador centrado é
+`T_k = P_K K^(k)ᵀ D_ρ P_K`, a retenção mean-field é
+`r(k,q)=1-[q+(1-q)/N]/k`, e a dinâmica linearizada é
+`J = rI + (1-q)((1-ε)β/N)T_k`. `Psi_spec` continua sendo a medida primária de
+formação de interação agente×nicho; utilidade coletiva, routing e HSE não podem
+substituí-la.
+
+O protocolo congelado define duas ecologias, sementes novas, três capacidades
+de memória e uma grade social fixa. O plano possui 26.112 chamadas MICRO para
+parametrização e 186.368 chamadas MACRO para confirmação social. Antes de
+qualquer chamada MACRO, as estimativas e previsões precisam estar commitadas e
+seladas. Nenhum resultado Theory V1 foi coletado nesta preparação; a
+implementação offline e os testes estão em `src/emergent_specialization/theory_v1/`
+e `docs/theory/`. Se o custo forecast exceder o teto, o protocolo será
+bloqueado, não reduzido nem adaptado.

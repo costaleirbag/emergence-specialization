@@ -23,6 +23,12 @@ The repaired analysis is the canonical society result:
 [MINIMAL_DEVELOPMENTAL_SOCIETY_V1_ANALYSIS_REPAIR_REPORT.md](docs/MINIMAL_DEVELOPMENTAL_SOCIETY_V1_ANALYSIS_REPAIR_REPORT.md).
 The initial report is retained with a `SUPERSEDED` notice for provenance.
 
+Theory V1 is now frozen as a prospective challenge, not a result. Its offline
+equations, epistemic ledger, deterministic manifests, and mock validation are
+under `src/emergent_specialization/theory_v1/` and `docs/theory/`. The fixed
+design plans 212,480 logical completions; the preflight currently blocks paid
+execution because the required safety-margin forecast exceeds its US$6.25 cap.
+
 For navigation, see the [documentation map](docs/README.md), the
 [experiment registry](docs/EXPERIMENT_REGISTRY.md), and the
 [artifact index](docs/ARTIFACT_INDEX.md). Large handoff packages are preserved

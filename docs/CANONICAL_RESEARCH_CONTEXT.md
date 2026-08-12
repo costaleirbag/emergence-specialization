@@ -322,3 +322,22 @@ superseded analysis archive are recorded in
 `reports/society/minimal-developmental-society-v1/original-analysis-invalid/`.
 No new model calls were made during the repair. The next action is principal
 researcher review, not an automatic follow-up experiment.
+
+## 2026-08-12 Theory V1 freeze preparation
+
+Theory V1 marks an epistemic boundary rather than a new result. All prior
+experiments are classified as DEVELOPMENT data. The frozen effective model uses
+the measured local plasticity operator `K^(k)`, centered transfer
+`T_k=P_K K^(k)ᵀ D_rho P_K`, finite-memory retention
+`r=1-[q+(1-q)/N]/k`, and
+`J=rI+(1-q)((1-epsilon)beta/N)T_k`. `Psi_spec` remains the primary formation
+observable; utility and routing organization remain secondary.
+
+The offline Theory V1 implementation, deterministic ecologies, call manifests,
+and mock tests are now versioned under `src/emergent_specialization/theory_v1/`
+and `docs/theory/`. The frozen challenge specifies 26,112 MICRO parameterization
+calls and 186,368 MACRO calls (212,480 total) across V31_FRESH and a new affine
+Boolean ecology. No paid Theory V1 call has been made. A final cost preflight is
+required before any provider execution; if the fixed design plus safety margin
+exceeds its US$6.25 ceiling, the challenge remains blocked without shrinking or
+retrofitting the protocol.

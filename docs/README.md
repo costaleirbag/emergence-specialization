@@ -35,6 +35,20 @@ The `*_PREREGISTRATION.md`, `*_LOG.md`, `*_EXECUTION_LOG.md`, and
 automatically scientific conclusions. The corresponding report is the place to
 read the result; the raw run or package is the place to audit provenance.
 
+## Frozen Theory V1
+
+- [Frozen equations](theory/THEORY_V1_FROZEN.md)
+- [Derivation and assumptions](theory/THEORY_V1_DERIVATION.md)
+- [Prediction registry](theory/THEORY_V1_PREDICTION_REGISTRY.md)
+- [Prospective protocol](theory/THEORY_V1_PROSPECTIVE_PROTOCOL.md)
+- [Falsification criteria](theory/THEORY_V1_FALSIFICATION_CRITERIA.md)
+- [Limitations](theory/THEORY_V1_LIMITATIONS.md)
+- [Micro preflight report](theory/THEORY_V1_MICRO_PARAMETERIZATION_REPORT.md)
+- [Prospective challenge report](theory/THEORY_V1_PROSPECTIVE_CHALLENGE_REPORT.md)
+
+The current `reports/theory-v1/` files are pre-inference manifests and mock
+validation only. They contain no scientific social observations.
+
 ## Historical and superseded material
 
 Superseded analyses remain in place with an explicit notice. In particular,

@@ -58,6 +58,17 @@ These are hypotheses for a separately approved society protocol:
 
 None of these predictions licenses a society run in the present protocol.
 
+## Theory V1 prospective challenge (2026-08-12)
+
+The project now separates old DEVELOPMENT observations from a future
+parameterization/test boundary. Theory V1 freezes the local operator and
+linearized effective dynamics in [THEORY_V1_FROZEN.md](theory/THEORY_V1_FROZEN.md).
+New MICRO data may estimate only `K^(4)`, `K^(8)`, and `K^(12)`; predictions must
+be committed before any MACRO social observations. The fixed challenge uses two
+fresh ecology/seed spaces and 212,480 logical calls. The current repository
+contains only offline preparation and mock validation; no Theory V1 social data
+exist and no Theory V2 is defined.
+
 ## Ecology-level prerequisite (V3)
 
 Before interpreting a measured `L` or its centered operator, the task ecology
