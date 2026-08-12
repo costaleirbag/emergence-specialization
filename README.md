@@ -5,6 +5,30 @@ homogeneous LLM agents develop persistent, useful task differentiation solely
 from asymmetric feedback histories? The complete scientific design, controls,
 and methodological cautions are in [Emergent Specialization.md](Emergent%20Specialization.md).
 
+## Current research status
+
+This is active MSc research, not a finished benchmark. The current evidence is
+deliberately layered:
+
+- **Local plasticity:** qualified as a microscopic niche-specific competence
+  gate.
+- **Social amplification:** supported in the repaired Minimal Developmental
+  Society V1 analysis.
+- **Functional organization:** partial; competence interaction and aligned
+  routing were observed, but the preregistered realized team-utility gate
+  failed.
+- **Emergent functional specialization:** not yet supported.
+
+The repaired analysis is the canonical society result:
+[MINIMAL_DEVELOPMENTAL_SOCIETY_V1_ANALYSIS_REPAIR_REPORT.md](docs/MINIMAL_DEVELOPMENTAL_SOCIETY_V1_ANALYSIS_REPAIR_REPORT.md).
+The initial report is retained with a `SUPERSEDED` notice for provenance.
+
+For navigation, see the [documentation map](docs/README.md), the
+[experiment registry](docs/EXPERIMENT_REGISTRY.md), and the
+[artifact index](docs/ARTIFACT_INDEX.md). Large handoff packages are preserved
+locally under `.artifacts/packages/` and are indexed by SHA-256 rather than
+tracked in Git.
+
 ```mermaid
 flowchart TD
   P["Python experiment controller"] --> E["Hidden-world environment"]
@@ -88,10 +112,12 @@ For a no-call local validation, run the deterministic fake backend:
 uv run python -m emergent_specialization.experiment --config configs/pilot_private.yaml --dry-run
 ```
 
-The first new matched seed-1 pair is prepared, but intentionally not launched
-by this repository session. See [the pair protocol](docs/FIRST_REAL_PAIR_PROTOCOL.md)
-and [the readiness report](docs/FIRST_PAIR_READINESS_REPORT.md) for the health
-gate, exact commands, call accounting, and offline mock validation.
+The original matched private/shared pair and the later Minimal Developmental
+Society V1 campaign are preserved as historical runs. The current canonical
+society conclusion comes from an offline repair of the latter; no new run is
+implied by installing this repository. See [the pair protocol](docs/FIRST_REAL_PAIR_PROTOCOL.md),
+[the repair report](docs/MINIMAL_DEVELOPMENTAL_SOCIETY_V1_ANALYSIS_REPAIR_REPORT.md),
+and the [experiment registry](docs/EXPERIMENT_REGISTRY.md) for provenance.
 
 The new replication configs make **560 nominal** DeepSeek completions each: 80
 interaction calls plus 160 probe calls at each of checkpoints 0, 10, and 20.
