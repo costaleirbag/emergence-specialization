@@ -439,7 +439,7 @@ def micro_health() -> dict[str, Any]:
     events = learner._load_events(DATA_ROOT / "micro_events.jsonl")
     terminal = {event["logical_id"] for event in events if event.get("terminal")}
     errors = collections.Counter(event.get("error_category") for event in events if event.get("error_category"))
-    models = sorted({(event.get("provider_metadata") or {}).get("model") for event in events})
+    models = sorted({model for event in events for model in [(event.get("provider_metadata") or {}).get("model")] if model})
     cost = sum(float(event.get("attempt_cost_usd") or 0.0) for event in events)
     return {
         "protocol": PROTOCOL, "logical_expected": manifest["logical_calls"],
