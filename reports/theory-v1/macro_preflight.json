@@ -1,0 +1,16 @@
+{
+  "decision": "PROCEED_TO_MACRO",
+  "hard_ceiling_usd": 8.0,
+  "macro_logical_calls": 186368,
+  "macro_prompt_chars_max": 4238,
+  "macro_prompt_chars_mean": 2651.6666666666665,
+  "macro_prompt_chars_min": 451,
+  "micro_actual_cost_usd": 0.7598045784,
+  "micro_mean_cost_usd_per_attempt": 2.9065627879576145e-05,
+  "micro_physical_attempts": 26141,
+  "projected_macro_cost_usd": 5.406574428272593,
+  "projected_total_cost_usd": 6.166379006672593,
+  "projected_total_with_30pct_remaining_margin_usd": 7.788351335154371,
+  "prompt_ratio_to_micro": 0.998093281620693,
+  "protocol": "THEORY-V1"
+}
