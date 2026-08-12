@@ -26,6 +26,12 @@ role-label symmetry. Metrics computed directly from raw online events—routing 
 online utility, exposure/memory composition, technical health, and cost—are
 independent and were recomputed or verified unchanged. See `bug_impact_table.csv`.
 
+The repair also canonicalizes the top-level functional-organization verdict to
+the repaired three-layer verdict. The pre-repair scalar is retained under
+`legacy_fields` for provenance. The impact table's `last32_team_utility` row is
+computed only from rows with `segment == last32`; cumulative team-utility rows
+are not substituted for the preregistered final window.
+
 ## Repair validation
 
 Two independent raw-event aggregations (explicit grouped lookup and event-pivot

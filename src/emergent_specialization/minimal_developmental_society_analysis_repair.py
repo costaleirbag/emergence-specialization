@@ -34,6 +34,15 @@ RAW_FILES = {
     "preregistration": ROOT / "docs/MINIMAL_DEVELOPMENTAL_SOCIETY_V1_PREREGISTRATION.md",
 }
 
+SUPERSEDED_REPORT_NOTICE = """# SUPERSEDED ANALYSIS — Minimal Developmental Society V1
+
+> The initial offline competence aggregation contained a niche-accumulator bug.
+> The paid raw experiment remains valid, but this report must not be used as the
+> canonical scientific analysis. See the corrected repair report and the
+> machine-readable outputs under `reports/society/minimal-developmental-society-v1-analysis-repair/`.
+
+"""
+
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
     with path.open(encoding="utf-8") as handle:
@@ -214,6 +223,19 @@ def _summary_by_regime(rows: Sequence[Mapping[str, Any]], field: str, checkpoint
     return {regime: float(np.mean(values)) for regime, values in grouped.items()}
 
 
+def _filter_segment(rows: Sequence[Mapping[str, Any]], segment: str) -> list[Mapping[str, Any]]:
+    """Return only rows belonging to an explicitly named online segment."""
+    return [row for row in rows if str(row.get("segment")) == segment]
+
+
+def _preserve_superseded_report_notice() -> None:
+    """Keep the historical report visibly non-canonical after regeneration."""
+    path = ROOT / "docs/MINIMAL_DEVELOPMENTAL_SOCIETY_V1_REPORT.md"
+    body = path.read_text(encoding="utf-8")
+    if not body.startswith("# SUPERSEDED ANALYSIS"):
+        path.write_text(SUPERSEDED_REPORT_NOTICE + body, encoding="utf-8")
+
+
 def _copy_corrected_outputs() -> dict[str, str]:
     REPAIR_ROOT.mkdir(parents=True, exist_ok=True)
     mapping = {
@@ -345,7 +367,9 @@ def _write_impact_table(old_verdict: Mapping[str, Any], new_verdict: Mapping[str
     add("H4_complementarity", old_verdict.get("H4_complementarity"), new_verdict.get("H4_complementarity"), "matching gain consumes A_joint", old_verdict.get("H4_complementarity", {}).get("pass"), new_verdict.get("H4_complementarity", {}).get("pass"))
     add("I_excess", _summary_by_regime(read_csv(REPORT_ROOT / "original-analysis-invalid/routing_information.csv"), "I_excess_bits", max(society.CHECKPOINTS)), _summary_by_regime(read_csv(REPORT_ROOT / "routing_information.csv"), "I_excess_bits", max(society.CHECKPOINTS)), "computed directly from online routing events; should be unchanged")
     add("H5_organized_labor", old_verdict.get("H5_organized_labor"), new_verdict.get("H5_organized_labor"), "eta_route component depends on repaired competence; routing MI component is raw", old_verdict.get("H5_organized_labor", {}).get("pass"), new_verdict.get("H5_organized_labor", {}).get("pass"))
-    add("last32_team_utility", _summary_by_regime(read_csv(REPORT_ROOT / "original-analysis-invalid/team_utility.csv"), "accuracy"), _summary_by_regime(read_csv(REPORT_ROOT / "team_utility.csv"), "accuracy"), "computed directly from online_step correctness; should be unchanged")
+    old_team_utility = _filter_segment(read_csv(REPORT_ROOT / "original-analysis-invalid/team_utility.csv"), "last32")
+    new_team_utility = _filter_segment(read_csv(REPORT_ROOT / "team_utility.csv"), "last32")
+    add("last32_team_utility", _summary_by_regime(old_team_utility, "accuracy"), _summary_by_regime(new_team_utility, "accuracy"), "computed directly from online_step correctness after filtering segment == last32")
     add("H6_team_utility", old_verdict.get("H6_team_utility"), new_verdict.get("H6_team_utility"), "raw online utility; should be unchanged", old_verdict.get("H6_team_utility", {}).get("pass"), new_verdict.get("H6_team_utility", {}).get("pass"))
     add("role_persistence", read_csv(REPORT_ROOT / "original-analysis-invalid/role_persistence.csv"), read_csv(REPORT_ROOT / "role_persistence.csv"), "role assignments consume repaired A_joint")
     add("label_symmetry", read_csv(REPORT_ROOT / "original-analysis-invalid/label_symmetry.csv"), read_csv(REPORT_ROOT / "label_symmetry.csv"), "assigned roles consume repaired A_joint")
@@ -382,6 +406,12 @@ role-label symmetry. Metrics computed directly from raw online events—routing 
 online utility, exposure/memory composition, technical health, and cost—are
 independent and were recomputed or verified unchanged. See `bug_impact_table.csv`.
 
+The repair also canonicalizes the top-level functional-organization verdict to
+the repaired three-layer verdict. The pre-repair scalar is retained under
+`legacy_fields` for provenance. The impact table's `last32_team_utility` row is
+computed only from rows with `segment == last32`; cumulative team-utility rows
+are not substituted for the preregistered final window.
+
 ## Repair validation
 
 Two independent raw-event aggregations (explicit grouped lookup and event-pivot
@@ -396,7 +426,14 @@ made and no paid data were regenerated.
     (ROOT / "docs/MINIMAL_DEVELOPMENTAL_SOCIETY_V1_ANALYSIS_BUG_AUDIT.md").write_text(audit, encoding="utf-8")
 
     h = corrected.get("contrasts", {})
-    report = f"""# Minimal Developmental Society V1 — analysis repair report
+    report = f"""# SUPERSEDED ANALYSIS — Minimal Developmental Society V1
+
+> The initial offline competence aggregation contained a niche-accumulator bug.
+> The paid raw experiment remains valid, but this report must not be used as the
+> canonical scientific analysis. See the corrected repair report and the
+> machine-readable outputs under `reports/society/minimal-developmental-society-v1-analysis-repair/`.
+
+# Minimal Developmental Society V1 — analysis repair report
 
 ## Executive correction
 
@@ -490,6 +527,7 @@ def run_repair() -> dict[str, Any]:
     # implementation.  It reads only the immutable event log.
     verdict = society.analyze()
     society._write_report(verdict)
+    _preserve_superseded_report_notice()
     society._make_figures()
     events = read_jsonl(RAW_FILES["events"])
     terminals = society._existing_terminal(events)
@@ -524,10 +562,19 @@ def run_repair() -> dict[str, Any]:
     figure_files = _write_figures(joint_rows)
     verdict_path = REPAIR_ROOT / "corrected_verdict.json"
     corrected = json.loads(verdict_path.read_text(encoding="utf-8"))
+    three_layer_verdict = {
+        "social_amplification": "SUPPORTED" if all(corrected.get(name) for name in ("H1_social_amplification", "H2_private_state_necessity", "H3_dynamic_amplification")) else "NOT SUPPORTED",
+        "functional_organization": "PARTIAL" if corrected.get("H4_complementarity", {}).get("pass") and corrected.get("H5_organized_labor", {}).get("pass") else "NOT SUPPORTED",
+        "emergent_functional_specialization": "NOT YET SUPPORTED",
+    }
+    legacy_functional_organization = corrected.get("functional_organization")
+    if legacy_functional_organization != three_layer_verdict["functional_organization"]:
+        legacy_fields = dict(corrected.get("legacy_fields", {}))
+        legacy_fields.setdefault("functional_organization", legacy_functional_organization)
+        corrected["legacy_fields"] = legacy_fields
     corrected.update({"analysis_repair": True, "new_model_calls": 0, "new_inference_cost_usd": 0.0, "aggregation_validation": aggregation_check, "matching_validation": matching_check,
-                     "three_layer_verdict": {"social_amplification": "SUPPORTED" if all(corrected.get(name) for name in ("H1_social_amplification", "H2_private_state_necessity", "H3_dynamic_amplification")) else "NOT SUPPORTED",
-                                             "functional_organization": "PARTIAL" if corrected.get("H4_complementarity", {}).get("pass") and corrected.get("H5_organized_labor", {}).get("pass") else "NOT SUPPORTED",
-                                             "emergent_functional_specialization": "NOT YET SUPPORTED"}})
+                     "three_layer_verdict": three_layer_verdict,
+                     "functional_organization": three_layer_verdict["functional_organization"]})
     verdict_path.write_text(json.dumps(corrected, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (REPAIR_ROOT / "figures.json").write_text(json.dumps({"files": figure_files}, indent=2) + "\n", encoding="utf-8")
     validation = json.loads((REPAIR_ROOT / "aggregation_validation.json").read_text(encoding="utf-8"))

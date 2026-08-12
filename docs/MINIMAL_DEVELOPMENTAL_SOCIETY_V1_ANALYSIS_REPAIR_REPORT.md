@@ -1,3 +1,10 @@
+# SUPERSEDED ANALYSIS — Minimal Developmental Society V1
+
+> The initial offline competence aggregation contained a niche-accumulator bug.
+> The paid raw experiment remains valid, but this report must not be used as the
+> canonical scientific analysis. See the corrected repair report and the
+> machine-readable outputs under `reports/society/minimal-developmental-society-v1-analysis-repair/`.
+
 # Minimal Developmental Society V1 — analysis repair report
 
 ## Executive correction
