@@ -35,7 +35,7 @@ making a scientific handoff.
 From the repository root:
 
 ```bash
-for f in .artifacts/packages/*.tar.gz.sha256; do
+for f in .artifacts/packages/*.sha256; do
   expected=$(awk '{print $1}' "$f")
   archive="${f%.sha256}"
   actual=$(shasum -a 256 "$archive" | awk '{print $1}')
