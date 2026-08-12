@@ -8,6 +8,7 @@
     "checkpoint snapshot scheduling",
     "checkpoint schedule implementation repair",
     "resume state reconstruction",
+    "missing-usage conservative accounting and technical retry journaling",
     "concurrency-safe append logging",
     "offline deterministic equivalence tests",
     "quarantine/accounting provenance"

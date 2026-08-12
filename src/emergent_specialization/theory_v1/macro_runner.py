@@ -320,20 +320,58 @@ async def _completion(backend: DeepSeekDirectBackend, *, task: dict[str, Any], e
         # they were billable in-flight requests and can spuriously trip the
         # hard budget guard during large checkpoint gathers.
         async with semaphore:
-            reserved = False
+            _budget_change(reserve=RESERVATION_USD)
+            reserved = True
             try:
-                _budget_change(reserve=RESERVATION_USD)
-                reserved = True
                 response = await backend.complete(system_prompt=SYSTEM_PROMPT, user_prompt=prompt, model=MODEL, model_parameters={"thinking": THINKING, "max_tokens": MAX_TOKENS})
-                cost = _cost(response)
-                if cost is None:
-                    raise RuntimeError("MACRO usage/cost unavailable")
-                _budget_change(release=RESERVATION_USD, actual=cost)
-                reserved = False
-            except Exception:
+            except Exception as exc:
                 if reserved:
-                    _budget_change(release=RESERVATION_USD)
-                raise
+                    # A transport exception may still be billable. Charge the
+                    # frozen conservative bound, journal it under this logical
+                    # ID, and use the already-frozen technical retry allowance.
+                    _budget_change(release=RESERVATION_USD, actual=RESERVATION_USD)
+                    reserved = False
+                event = {
+                    "protocol": PROTOCOL, "event": "completion", "logical_id": logical_id,
+                    "attempt": attempt, "ecology": ecology, "task": task, "memory": list(memory),
+                    "decisions": None, "expected": task.get("y"), "correct": False,
+                    "error": f"provider exception: {type(exc).__name__}",
+                    "error_category": "transient_transport", "terminal": False,
+                    "raw_model_response": None, "latency_s": None, "token_usage": None,
+                    "provider_metadata": {}, "attempt_cost_usd": RESERVATION_USD,
+                    "cost_source": "conservative_upper_bound_missing_usage",
+                    "finished_at_utc": now(),
+                }
+                async with append_lock:
+                    append_jsonl(events_path, event)
+                attempt += 1; attempts[logical_id] = attempt
+                continue
+            cost = _cost(response)
+            if cost is None:
+                # Usage metadata is technical accounting state, independent of
+                # answer correctness. Preserve the raw attempt, do not score it,
+                # charge the conservative bound, and retry the same logical ID.
+                _budget_change(release=RESERVATION_USD, actual=RESERVATION_USD)
+                reserved = False
+                event = {
+                    "protocol": PROTOCOL, "event": "completion", "logical_id": logical_id,
+                    "attempt": attempt, "ecology": ecology, "task": task, "memory": list(memory),
+                    "decisions": None, "expected": task.get("y"), "correct": False,
+                    "error": response.error or "provider usage/cost unavailable",
+                    "error_category": response.error_category or "usage_unavailable",
+                    "terminal": False, "raw_model_response": response.raw_response,
+                    "latency_s": response.latency_s, "token_usage": response.token_usage,
+                    "provider_metadata": response.provider_metadata or {},
+                    "attempt_cost_usd": RESERVATION_USD,
+                    "cost_source": "conservative_upper_bound_missing_usage",
+                    "finished_at_utc": now(),
+                }
+                async with append_lock:
+                    append_jsonl(events_path, event)
+                attempt += 1; attempts[logical_id] = attempt
+                continue
+            _budget_change(release=RESERVATION_USD, actual=cost)
+            reserved = False
         decisions, parse_category = learner.parse_decisions(response.raw_response); provider = response.provider_metadata or {}
         if provider.get("model") != MODEL: raise RuntimeError(f"MACRO model identity changed: {provider.get('model')!r}")
         category = response.error_category or parse_category; error = response.error or parse_category; terminal = decisions is not None or category == "out_of_domain"

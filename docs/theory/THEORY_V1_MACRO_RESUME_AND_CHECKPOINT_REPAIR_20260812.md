@@ -31,3 +31,20 @@ tasks, prompts, truth function, router, memory rule, seeds, predictions, or
 metrics. A deterministic fake-backend test verifies that a split/resumed
 trajectory reaches the exact serial final state and fills all four checkpoint
 sets without state mutation.
+
+## Missing-usage accounting
+
+A later resume stopped when DeepSeek returned a physical response without a
+usable token-usage block. This is provider/accounting metadata, not scientific
+answer quality. The runner now mirrors the already-validated MICRO policy:
+
+- preserve the raw physical attempt under its original logical ID;
+- set it as a nonterminal `usage_unavailable` technical observation;
+- do not parse or score its scientific answer;
+- conservatively charge the frozen US$0.00050 reservation bound;
+- use at most the pre-existing technical retry allowance for that same logical
+  ID.
+
+Thus no wrong scientific answer receives a retry because it was wrong, no cost
+is invented below the conservative bound, and every final scientific unit still
+has exactly one terminal observation.

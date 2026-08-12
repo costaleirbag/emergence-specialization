@@ -28,6 +28,8 @@ from emergent_specialization.theory_v1.macro_runner import (
     RequestGate,
     State,
     _lid,
+    _completion,
+    _probe,
     _run_trajectory,
     _seed_spec,
 )
@@ -228,6 +230,56 @@ class TheoryV1Tests(unittest.TestCase):
             self.assertEqual(len(checkpoint_rows), 512)
             self.assertEqual({row["checkpoint"] for row in checkpoint_rows}, {16, 32, 64, 128})
             self.assertTrue(all(row["no_mutation"] for row in checkpoint_rows))
+
+    def test_missing_usage_is_conservatively_charged_and_retried_same_logical_id(self):
+        import asyncio
+        import collections
+        import json
+        import tempfile
+        from pathlib import Path
+        from emergent_specialization.theory_v1 import macro_runner
+
+        class UsageSequenceBackend:
+            def __init__(self):
+                self.responses = [
+                    BackendResponse(
+                        raw_response='{"decisions":[1,1,1]}', latency_s=0.1,
+                        token_usage=None,
+                        provider_metadata={"model": "deepseek-v4-flash"},
+                    ),
+                    BackendResponse(
+                        raw_response='{"decisions":[0,0,0]}', latency_s=0.1,
+                        token_usage={"input_tokens": 10, "output_tokens": 4},
+                        provider_metadata={"model": "deepseek-v4-flash"},
+                    ),
+                ]
+
+            async def complete(self, **kwargs):
+                return self.responses.pop(0)
+
+        ecology, seed = "V31_FRESH", 73201
+        spec = _seed_spec(ecology, seed)
+        task = _probe(ecology, seed, spec, 0, 0, 16)
+        logical_id = "usage-regression-logical-id"
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "events.jsonl"
+            with mock.patch.object(macro_runner, "_budget_change", return_value={}):
+                result = asyncio.run(_completion(
+                    UsageSequenceBackend(), task=task, ecology=ecology,
+                    logical_id=logical_id, memory=[], events_path=path,
+                    semaphore=RequestGate(32), attempts=collections.Counter(),
+                    append_lock=asyncio.Lock(),
+                ))
+            rows = [json.loads(line) for line in path.read_text().splitlines()]
+            self.assertEqual(len(rows), 2)
+            self.assertEqual({row["logical_id"] for row in rows}, {logical_id})
+            self.assertEqual(rows[0]["error_category"], "usage_unavailable")
+            self.assertFalse(rows[0]["terminal"])
+            self.assertIsNone(rows[0]["decisions"])
+            self.assertEqual(rows[0]["attempt_cost_usd"], macro_runner.RESERVATION_USD)
+            self.assertEqual(rows[0]["cost_source"], "conservative_upper_bound_missing_usage")
+            self.assertTrue(rows[1]["terminal"])
+            self.assertEqual(result["attempt"], 1)
 
 
 if __name__ == "__main__":
