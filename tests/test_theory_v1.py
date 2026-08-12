@@ -19,6 +19,7 @@ from emergent_specialization.theory_v1.micro_estimation import estimate_k_explic
 from emergent_specialization.theory_v1.prediction import predictions_for_k
 from emergent_specialization.theory_v1.scoring import kendall_tau, pairwise_concordance, spearman
 from emergent_specialization.theory_v1.scorecard import full_scorecard, score_t7_criticality, score_t9_mode
+from emergent_specialization.theory_v1.micro_runner import build_tasks, render_user
 
 
 class TheoryV1Tests(unittest.TestCase):
@@ -103,6 +104,24 @@ class TheoryV1Tests(unittest.TestCase):
         self.assertEqual(scorecard["T1"]["status"], "NOT_RUN")
         self.assertEqual(score_t7_criticality([], []), {"test": "T7", "status": "NOT_RUN", "reason": "no confirmatory observations"})
         self.assertEqual(score_t9_mode([])["status"], "NON_IDENTIFIABLE")
+
+    def test_micro_runner_builds_exact_frozen_context_count(self):
+        tasks = build_tasks()
+        self.assertEqual(len(tasks), 26112)
+        self.assertEqual(len({task["logical_id"] for task in tasks}), 26112)
+        prompt_hashes = {task["prompt_hash"] for task in tasks}
+        self.assertGreater(len(prompt_hashes), 1)
+        self.assertLessEqual(len(prompt_hashes), len(tasks))
+        self.assertTrue(all(task["prompt_hash"] for task in tasks))
+
+    def test_micro_runner_uses_held_out_probes_and_feedback_only_memory(self):
+        task = next(task for task in build_tasks() if task["ecology"] == "V31_FRESH" and task["k"] == 8)
+        memory_xs = {tuple(item["x"]) for item in task["memory"]}
+        self.assertNotIn(tuple(task["probe"]["x"]), memory_xs)
+        prompt = render_user(task)
+        self.assertIn("Resolved decision:", prompt)
+        self.assertNotIn("confidence", prompt.lower())
+        self.assertNotIn("prediction", prompt.lower())
 
 
 if __name__ == "__main__":

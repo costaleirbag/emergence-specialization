@@ -16,6 +16,8 @@ from .dynamics import jacobian, psi_spec, spectral_summary
 from .micro_design import macro_cells, micro_manifest, expected_call_counts
 from .micro_estimation import estimate_k_explicit, estimate_k_pairwise
 from .prediction import build_prediction_registry
+from .micro_runner import freeze_manifest as freeze_micro_manifest
+from .micro_runner import micro_health, run_micro
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -61,12 +63,24 @@ def mock() -> dict[str, object]:
 
 
 def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(description="Theory V1 offline preparation")
-    parser.add_argument("stage", choices=("prepare", "mock"))
+    parser = argparse.ArgumentParser(description="Theory V1 preparation and explicitly gated MICRO runner")
+    parser.add_argument("stage", choices=("prepare", "mock", "micro-freeze", "micro-run", "micro-health"))
+    parser.add_argument("--confirm-real", action="store_true")
+    parser.add_argument("--concurrency", type=int, default=8)
     args = parser.parse_args(argv)
-    print(json.dumps(prepare() if args.stage == "prepare" else mock(), indent=2, sort_keys=True))
+    if args.stage == "prepare":
+        result = prepare()
+    elif args.stage == "mock":
+        result = mock()
+    elif args.stage == "micro-freeze":
+        manifest = freeze_micro_manifest()
+        result = {"status": "MICRO_MANIFEST_FROZEN", "logical_calls": manifest["logical_calls"], "tasks_hash": manifest["tasks_hash"]}
+    elif args.stage == "micro-run":
+        result = __import__("asyncio").run(run_micro(confirm_real=args.confirm_real, concurrency=args.concurrency))
+    else:
+        result = micro_health()
+    print(json.dumps(result, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
     main()
-

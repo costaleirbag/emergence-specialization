@@ -1,13 +1,13 @@
 {
   "protocol": "THEORY-V1",
-  "status": "BLOCKED_BEFORE_PAID_INFERENCE",
+  "status": "READY_FOR_MICRO_IF_CREDENTIAL_AND_PROVIDER_GATES_PASS",
   "model": "deepseek-v4-flash",
   "provider": "DeepSeek Direct",
   "thinking": "off",
   "expected_logical_calls": 212480,
   "micro_calls": 26112,
   "macro_calls": 186368,
-  "hard_ceiling_usd": 6.25,
+  "hard_ceiling_usd": 8.0,
   "recent_observed_costs_usd_per_call": [0.000025546741911764705, 0.000021191794166666668, 0.000022189855434782607, 0.00002587008101851852],
   "recent_mean_cost_usd_per_call": 0.000023699618132933126,
   "forecast_usd": 5.035694860885631,
@@ -16,6 +16,6 @@
     "V31_FRESH": 2849,
     "AFFINE_BOOLEAN_V1": 2147
   },
-  "decision": "DO_NOT_START_PAID_INFERENCE",
-  "reason": "Frozen design plus required 30% safety margin exceeds the US$6.25 ceiling; protocol must not be silently shrunk."
+  "decision": "MICRO_MAY_START_AFTER_RESEAL_AND_RUNTIME_GATES",
+  "reason": "Budget-only amendment raises the ceiling to US$8.00; unchanged forecast plus 30% margin is within the amended ceiling."
 }
