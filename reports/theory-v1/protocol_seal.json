@@ -1,0 +1,14 @@
+{
+  "protocol": "THEORY-V1",
+  "status": "SEALED_BEFORE_MICRO",
+  "theory_commit": "92e38a4",
+  "model": "deepseek-v4-flash",
+  "provider": "DeepSeek Direct",
+  "thinking": "off",
+  "micro_calls": 26112,
+  "macro_calls": 186368,
+  "total_calls": 212480,
+  "hard_ceiling_usd": 6.25,
+  "paid_calls_executed": 0,
+  "prediction_seal": null
+}
