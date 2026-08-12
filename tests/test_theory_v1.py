@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 
 import numpy as np
 
@@ -20,7 +21,16 @@ from emergent_specialization.theory_v1.prediction import predictions_for_k
 from emergent_specialization.theory_v1.scoring import kendall_tau, pairwise_concordance, spearman
 from emergent_specialization.theory_v1.scorecard import full_scorecard, score_t7_criticality, score_t9_mode
 from emergent_specialization.theory_v1.micro_runner import build_tasks, render_user
-from emergent_specialization.theory_v1.macro_runner import expected_calls as macro_expected_calls, run_mock_protocol
+from emergent_specialization.models import BackendResponse
+from emergent_specialization.theory_v1.macro_runner import (
+    expected_calls as macro_expected_calls,
+    run_mock_protocol,
+    RequestGate,
+    State,
+    _lid,
+    _run_trajectory,
+    _seed_spec,
+)
 
 
 class TheoryV1Tests(unittest.TestCase):
@@ -165,6 +175,59 @@ class TheoryV1Tests(unittest.TestCase):
             rows = [json.loads(line) for line in path.read_text().splitlines()]
             self.assertEqual(len(rows), 400)
             self.assertEqual(len({row["logical_call_id"] for row in rows}), 400)
+
+    def test_macro_resume_replays_state_and_fills_every_frozen_checkpoint(self):
+        import asyncio
+        import collections
+        import json
+        import tempfile
+        from pathlib import Path
+        from emergent_specialization.theory_v1 import macro_runner
+
+        class FakeBackend:
+            async def complete(self, **kwargs):
+                return BackendResponse(
+                    raw_response='{"decisions":[0,0,0]}', latency_s=0.0,
+                    token_usage={"input_tokens": 1, "output_tokens": 1},
+                    provider_metadata={"model": "deepseek-v4-flash"},
+                )
+
+        ecology, seed = "V31_FRESH", 73201
+        cell = {"cell_id": 0, **macro_cells()[0]}
+        spec = _seed_spec(ecology, seed)
+
+        async def execute(state, terminal, prior_steps, root, label):
+            events = root / f"{label}-events.jsonl"
+            checkpoints = root / f"{label}-checkpoints.jsonl"
+            with mock.patch.object(macro_runner, "DATA_ROOT", root), mock.patch.object(macro_runner, "_budget_change", return_value={}):
+                await _run_trajectory(
+                    backend=FakeBackend(), ecology=ecology, seed=seed, cell=cell, spec=spec,
+                    state=state, terminal=terminal, prior_steps=prior_steps,
+                    attempts=collections.Counter(), events_path=events,
+                    checkpoint_path=checkpoints, gate=RequestGate(32),
+                    append_lock=asyncio.Lock(),
+                )
+            return events, checkpoints
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            full_state, full_terminal = State(ecology, seed, cell), {}
+            full_events, full_checkpoints = asyncio.run(execute(full_state, full_terminal, {}, root, "full"))
+            full_rows = [json.loads(line) for line in full_events.read_text().splitlines()]
+            prior_steps = {int(row["t"]): row for row in full_rows if row.get("event") == "online_step" and int(row["t"]) <= 64}
+            partial_terminal = {
+                _lid("online", ecology, seed, "0", t, -1, int(spec["online"][t - 1]["niche"]), t=t):
+                full_terminal[_lid("online", ecology, seed, "0", t, -1, int(spec["online"][t - 1]["niche"]), t=t)]
+                for t in range(1, 65)
+            }
+            resumed_state = State(ecology, seed, cell)
+            resumed_events, resumed_checkpoints = asyncio.run(execute(resumed_state, partial_terminal, prior_steps, root, "resume"))
+            checkpoint_rows = [json.loads(line) for line in resumed_checkpoints.read_text().splitlines()]
+            self.assertEqual(full_state.scientific_state_hash(), resumed_state.scientific_state_hash())
+            self.assertEqual(len(partial_terminal), 640)
+            self.assertEqual(len(checkpoint_rows), 512)
+            self.assertEqual({row["checkpoint"] for row in checkpoint_rows}, {16, 32, 64, 128})
+            self.assertTrue(all(row["no_mutation"] for row in checkpoint_rows))
 
 
 if __name__ == "__main__":

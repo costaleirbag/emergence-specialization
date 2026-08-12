@@ -6,6 +6,8 @@
     "global request semaphore and telemetry",
     "trajectory scheduling",
     "checkpoint snapshot scheduling",
+    "checkpoint schedule implementation repair",
+    "resume state reconstruction",
     "concurrency-safe append logging",
     "offline deterministic equivalence tests",
     "quarantine/accounting provenance"
@@ -15,5 +17,5 @@
   "prediction_manifest_changed": false,
   "prediction_seal_changed": false,
   "micro_raw_changed": false,
-  "review": "No prompt, task generation, truth calculation, router, memory rule, metric, ecology, seed, prediction, or scorecard source was modified."
+  "review": "No prompt, task generation, truth calculation, router, memory rule, metric, ecology, seed, prediction, or scorecard source was modified. The repair restores the pre-existing frozen checkpoint schedule (0,16,32,64,128)."
 }

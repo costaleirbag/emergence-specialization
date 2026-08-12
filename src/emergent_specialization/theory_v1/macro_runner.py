@@ -31,11 +31,14 @@ from ..models import BackendResponse
 from ..providers import DeepSeekDirectBackend
 from .ecologies import AffineBooleanV1, V31Fresh
 from .micro_design import ECOLOGIES, MACRO_CHECKPOINTS, MACRO_ROUNDS, N_NICHES, PROBES_PER_NICHE, SOCIAL_SEEDS, macro_cells, stable_hash
-from .micro_runner import HARD_CAP_USD, INPUT_PRICE, CACHED_INPUT_PRICE, OUTPUT_PRICE, MODEL, THINKING, MAX_TOKENS, REPORT_ROOT, DATA_ROOT, SYSTEM_PROMPT, OUTPUT_INSTRUCTION
+from .micro_runner import INPUT_PRICE, CACHED_INPUT_PRICE, OUTPUT_PRICE, MODEL, THINKING, MAX_TOKENS, REPORT_ROOT, DATA_ROOT, SYSTEM_PROMPT, OUTPUT_INSTRUCTION
 
 MACRO_ROOT = DATA_ROOT / "macro"
 MACRO_REPORT = REPORT_ROOT / "macro_execution_manifest.json"
 PROTOCOL = "THEORY-V1"
+# Budget amendment 2026-08-12. This is deliberately local to MACRO execution:
+# MICRO's frozen manifest remains historical provenance at its original cap.
+HARD_CAP_USD = 11.00
 NUM_AGENTS = 4
 MEMORY_MIN = 1
 CONCURRENCY = 32
@@ -249,6 +252,26 @@ def _budget_change(*, reserve: float = 0.0, release: float = 0.0, actual: float 
         budget.update(spent_usd=spent + actual, reserved_usd=held - release + reserve, updated_at_utc=now()); atomic_json(path, budget); return budget
 
 
+def amend_budget_cap(*, new_cap_usd: float, reason: str) -> dict[str, Any]:
+    """Apply an explicit, append-auditable principal-authorized cap amendment."""
+    if float(new_cap_usd) < HARD_CAP_USD:
+        raise ValueError("Theory V1 budget amendment cannot reduce below active cap")
+    path = DATA_ROOT / "campaign_budget.json"; lock_path = path.with_suffix(".lock")
+    with lock_path.open("a+") as lock:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+        budget = json.loads(path.read_text(encoding="utf-8"))
+        previous = float(budget.get("hard_cap_usd", 0.0))
+        if previous > float(new_cap_usd) + 1e-12:
+            raise RuntimeError("refusing to overwrite a higher existing budget cap")
+        budget.update(
+            hard_cap_usd=float(new_cap_usd),
+            budget_amendment={"previous_cap_usd": previous, "new_cap_usd": float(new_cap_usd), "reason": reason, "at_utc": now()},
+            updated_at_utc=now(),
+        )
+        atomic_json(path, budget)
+        return budget
+
+
 def _cost(response: BackendResponse) -> float | None:
     from ..costs import estimate_usage_cost
     return estimate_usage_cost(response.token_usage, input_per_million_tokens=INPUT_PRICE, cached_input_per_million_tokens=CACHED_INPUT_PRICE, output_per_million_tokens=OUTPUT_PRICE)
@@ -263,6 +286,9 @@ class State:
 
     def mu(self, niche: int) -> list[float]:
         return [self.alpha[i][niche] / (self.alpha[i][niche] + self.beta[i][niche]) for i in range(NUM_AGENTS)]
+
+    def scientific_state_hash(self) -> str:
+        return stable_hash({"memories": self.memories, "alpha": self.alpha, "beta": self.beta})
 
     def add_feedback(self, selected: int, task: dict[str, Any], correct: bool, t: int, share_u: Sequence[float]) -> list[int]:
         niche = int(task["niche"])
@@ -289,15 +315,25 @@ def _route(mu: Sequence[float], beta: float, epsilon: float, u: float) -> int:
 async def _completion(backend: DeepSeekDirectBackend, *, task: dict[str, Any], ecology: str, logical_id: str, memory: Sequence[dict[str, Any]], events_path: Path, semaphore: RequestGate, attempts: dict[str, int], append_lock: asyncio.Lock) -> dict[str, Any]:
     prompt = render_user(ecology, task, memory); attempt = attempts.get(logical_id, 0)
     while attempt < MAX_ATTEMPTS:
-        _budget_change(reserve=RESERVATION_USD)
-        try:
-            async with semaphore:
+        # The reservation is acquired *inside* the transport gate.  Reserving
+        # before waiting would charge arbitrary queued coroutines as though
+        # they were billable in-flight requests and can spuriously trip the
+        # hard budget guard during large checkpoint gathers.
+        async with semaphore:
+            reserved = False
+            try:
+                _budget_change(reserve=RESERVATION_USD)
+                reserved = True
                 response = await backend.complete(system_prompt=SYSTEM_PROMPT, user_prompt=prompt, model=MODEL, model_parameters={"thinking": THINKING, "max_tokens": MAX_TOKENS})
-        except Exception:
-            _budget_change(release=RESERVATION_USD); raise
-        cost = _cost(response)
-        if cost is None: _budget_change(release=RESERVATION_USD); raise RuntimeError("MACRO usage/cost unavailable")
-        _budget_change(release=RESERVATION_USD, actual=cost)
+                cost = _cost(response)
+                if cost is None:
+                    raise RuntimeError("MACRO usage/cost unavailable")
+                _budget_change(release=RESERVATION_USD, actual=cost)
+                reserved = False
+            except Exception:
+                if reserved:
+                    _budget_change(release=RESERVATION_USD)
+                raise
         decisions, parse_category = learner.parse_decisions(response.raw_response); provider = response.provider_metadata or {}
         if provider.get("model") != MODEL: raise RuntimeError(f"MACRO model identity changed: {provider.get('model')!r}")
         category = response.error_category or parse_category; error = response.error or parse_category; terminal = decisions is not None or category == "out_of_domain"
@@ -312,6 +348,7 @@ async def _completion(backend: DeepSeekDirectBackend, *, task: dict[str, Any], e
 async def _evaluate_checkpoint(*, backend: DeepSeekDirectBackend, ecology: str, seed: int, cell: dict[str, Any], spec: dict[str, Any], checkpoint: int, state: State, terminal: dict[str, Any], attempts: dict[str, int], events_path: Path, checkpoint_path: Path, gate: RequestGate, append_lock: asyncio.Lock) -> None:
     """Evaluate one immutable state snapshot; no scientific state is mutated."""
     snapshot = copy.deepcopy(state.memories)
+    state_hash_before = state.scientific_state_hash()
     pending = []
     for agent in range(NUM_AGENTS):
         for niche in range(N_NICHES):
@@ -328,21 +365,38 @@ async def _evaluate_checkpoint(*, backend: DeepSeekDirectBackend, ecology: str, 
     ])
     for (lid, agent, task, memory), result in zip(pending, results):
         terminal[lid] = result
-        append_jsonl(checkpoint_path, {
-            "protocol": PROTOCOL, "event": "checkpoint_observation", "logical_id": lid,
-            "ecology": ecology, "seed": seed, "cell_id": int(cell["cell_id"]),
-            "checkpoint": checkpoint, "agent": agent, "niche": task["niche"],
-            "probe_index": task["probe_index"], "memory_hash": stable_hash(memory),
-            "memory_hash_after": stable_hash(state.memories[agent]),
-            "no_mutation": stable_hash(memory) == stable_hash(state.memories[agent]),
-            "correct": result.get("correct"), "finished_at_utc": now(),
-        })
+        async with append_lock:
+            append_jsonl(checkpoint_path, {
+                "protocol": PROTOCOL, "event": "checkpoint_observation", "logical_id": lid,
+                "ecology": ecology, "seed": seed, "cell_id": int(cell["cell_id"]),
+                "checkpoint": checkpoint, "agent": agent, "niche": task["niche"],
+                "probe_index": task["probe_index"], "memory_hash": stable_hash(memory),
+                "memory_hash_after": stable_hash(state.memories[agent]),
+                "no_mutation": stable_hash(memory) == stable_hash(state.memories[agent]),
+                "correct": result.get("correct"), "finished_at_utc": now(),
+            })
+    if state.scientific_state_hash() != state_hash_before:
+        raise RuntimeError("checkpoint evaluation mutated scientific trajectory state")
 
 
-async def _run_trajectory(*, backend: DeepSeekDirectBackend, ecology: str, seed: int, cell: dict[str, Any], spec: dict[str, Any], state: State, terminal: dict[str, Any], existing_step_ids: set[str], attempts: dict[str, int], events_path: Path, checkpoint_path: Path, gate: RequestGate, append_lock: asyncio.Lock) -> None:
+async def _run_trajectory(*, backend: DeepSeekDirectBackend, ecology: str, seed: int, cell: dict[str, Any], spec: dict[str, Any], state: State, terminal: dict[str, Any], prior_steps: dict[int, dict[str, Any]], attempts: dict[str, int], events_path: Path, checkpoint_path: Path, gate: RequestGate, append_lock: asyncio.Lock) -> None:
     """Run exactly one ecology×seed×cell state machine sequentially."""
     for t, task in enumerate(spec["online"], 1):
         lid = _lid("online", ecology, seed, str(cell["cell_id"]), t, -1, int(task["niche"]), t=t)
+        prior = prior_steps.get(t)
+        if prior is not None:
+            if stable_hash(prior.get("task")) != stable_hash(task):
+                raise RuntimeError("persisted online task differs from frozen MACRO manifest")
+            state.add_feedback(int(prior["selected_agent"]), task, bool(prior["correct"]), t, prior["sharing_u"])
+            for checkpoint in MACRO_CHECKPOINTS[1:]:
+                if checkpoint == t:
+                    await _evaluate_checkpoint(
+                        backend=backend, ecology=ecology, seed=seed, cell=cell, spec=spec,
+                        checkpoint=checkpoint, state=state, terminal=terminal, attempts=attempts,
+                        events_path=events_path, checkpoint_path=checkpoint_path, gate=gate,
+                        append_lock=append_lock,
+                    )
+            continue
         niche = int(task["niche"])
         mu = state.mu(niche)
         selected = _route(mu, float(cell["beta"]), float(cell["epsilon"]), float(spec["routing_u"][t - 1]))
@@ -353,29 +407,26 @@ async def _run_trajectory(*, backend: DeepSeekDirectBackend, ecology: str, seed:
         )
         terminal[lid] = chosen
         step_id = stable_hash({"lid": lid, "event": "online_step"})
-        if step_id not in existing_step_ids:
-            recipients = state.add_feedback(selected, task, bool(chosen.get("correct")), t, spec["sharing_u"][t - 1])
-            step_event = {
-                "protocol": PROTOCOL, "event": "online_step", "logical_id": step_id,
-                "ecology": ecology, "seed": seed, "cell_id": int(cell["cell_id"]),
-                "t": t, "task": task, "selected_agent": selected, "mu_before": mu,
-                "routing_u": spec["routing_u"][t - 1], "sharing_u": spec["sharing_u"][t - 1],
-                "recipients": recipients, "decisions": chosen.get("decisions"),
-                "correct": chosen.get("correct"), "finished_at_utc": now(),
-            }
+        recipients = state.add_feedback(selected, task, bool(chosen.get("correct")), t, spec["sharing_u"][t - 1])
+        step_event = {
+            "protocol": PROTOCOL, "event": "online_step", "logical_id": step_id,
+            "ecology": ecology, "seed": seed, "cell_id": int(cell["cell_id"]),
+            "t": t, "task": task, "selected_agent": selected, "mu_before": mu,
+            "routing_u": spec["routing_u"][t - 1], "sharing_u": spec["sharing_u"][t - 1],
+            "recipients": recipients, "decisions": chosen.get("decisions"),
+            "correct": chosen.get("correct"), "finished_at_utc": now(),
+        }
+        async with append_lock:
             append_jsonl(events_path, step_event)
             append_jsonl(DATA_ROOT / "macro" / "macro_steps.jsonl", step_event)
-            existing_step_ids.add(step_id)
-    # The only checkpoint after a completed trajectory is t=128.  The frozen
-    # schedule is still read from the manifest so this remains protocol-driven.
-    for checkpoint in MACRO_CHECKPOINTS[1:]:
-        if checkpoint == MACRO_ROUNDS:
-            await _evaluate_checkpoint(
-                backend=backend, ecology=ecology, seed=seed, cell=cell, spec=spec,
-                checkpoint=checkpoint, state=state, terminal=terminal, attempts=attempts,
-                events_path=events_path, checkpoint_path=checkpoint_path, gate=gate,
-                append_lock=append_lock,
-            )
+        for checkpoint in MACRO_CHECKPOINTS[1:]:
+            if checkpoint == t:
+                await _evaluate_checkpoint(
+                    backend=backend, ecology=ecology, seed=seed, cell=cell, spec=spec,
+                    checkpoint=checkpoint, state=state, terminal=terminal, attempts=attempts,
+                    events_path=events_path, checkpoint_path=checkpoint_path, gate=gate,
+                    append_lock=append_lock,
+                )
 
 
 def _lid(phase: str, ecology: str, seed: int, cell_id: str, checkpoint: int, agent: int, niche: int, probe: int | None = None, t: int | None = None) -> str:
@@ -400,13 +451,16 @@ async def run_macro(*, confirm_real: bool = False, concurrency: int = CONCURRENC
     status = json.loads(status_path.read_text(encoding="utf-8")) if status_path.exists() else {"protocol": PROTOCOL, "status": "initialized", "manifest_hash": manifest["manifest_hash"], "logical_calls": manifest["logical_calls"], "created_at_utc": now()}
     if status.get("manifest_hash") != manifest["manifest_hash"]: raise RuntimeError("MACRO status/manifest mismatch")
     status.update(status="running", started_or_resumed_at_utc=now()); atomic_json(status_path, status)
-    states = {(ecology, int(seed), int(cell["cell_id"])): State(ecology, int(seed), cell) for ecology in ECOLOGIES for seed in manifest["social_seeds"][ecology] for cell in manifest["cells"]}
     step_events = [e for e in events if e.get("event") == "online_step"]
     if not step_events:
         step_events = learner._load_events(MACRO_ROOT / "macro_steps.jsonl")
+    steps_by_trajectory: dict[tuple[str, int, int], dict[int, dict[str, Any]]] = collections.defaultdict(dict)
     for e in step_events:
-        state = states[(e["ecology"], int(e["seed"]), int(e["cell_id"]))]
-        state.add_feedback(int(e["selected_agent"]), e["task"], bool(e["correct"]), int(e["t"]), e["sharing_u"])
+        key = (e["ecology"], int(e["seed"]), int(e["cell_id"]))
+        t = int(e["t"])
+        if t in steps_by_trajectory[key]:
+            raise RuntimeError("duplicate persisted MACRO online step")
+        steps_by_trajectory[key][t] = e
     backend = None; gate = RequestGate(concurrency); append_lock = asyncio.Lock()
     run_id = "theory-v1-macro-confirmatory-restarted-20260812"
     try:
@@ -437,18 +491,18 @@ async def run_macro(*, confirm_real: bool = False, concurrency: int = CONCURRENC
                 # shared bookkeeping and is schedule-independent.
                 terminal[lid] = result
 
-        existing_step_ids = {str(e.get("logical_id")) for e in step_events}
         checkpoint_path = MACRO_ROOT / "macro_checkpoint_observations.jsonl"
         trajectory_jobs = []
         for cell in manifest["cells"]:
             for ecology in ECOLOGIES:
                 for seed in manifest["social_seeds"][ecology]:
                     spec = manifest["seed_specs"][f"{ecology}:{seed}"]
-                    state = states[(ecology, int(seed), int(cell["cell_id"]))]
+                    key = (ecology, int(seed), int(cell["cell_id"]))
+                    state = State(ecology, int(seed), cell)
                     trajectory_jobs.append(_run_trajectory(
                         backend=backend, ecology=ecology, seed=int(seed), cell=cell,
                         spec=spec, state=state, terminal=terminal,
-                        existing_step_ids=existing_step_ids, attempts=attempts,
+                        prior_steps=steps_by_trajectory.get(key, {}), attempts=attempts,
                         events_path=events_path, checkpoint_path=checkpoint_path,
                         gate=gate, append_lock=append_lock,
                     ))
