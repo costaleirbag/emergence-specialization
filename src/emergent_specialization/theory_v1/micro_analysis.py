@@ -48,7 +48,7 @@ def health() -> dict[str, Any]:
         category = event.get("error_category")
         if category:
             errors[str(category)] += 1
-    models = sorted({(event.get("provider_metadata") or {}).get("model") for event in events})
+    models = sorted({model for event in events for model in [(event.get("provider_metadata") or {}).get("model")] if model})
     fingerprints = sorted({(event.get("provider_metadata") or {}).get("system_fingerprint") for event in events if (event.get("provider_metadata") or {}).get("system_fingerprint")})
     physical = len(events)
     logical = manifest["logical_calls"]
