@@ -20,6 +20,7 @@ from emergent_specialization.theory_v1.prediction import predictions_for_k
 from emergent_specialization.theory_v1.scoring import kendall_tau, pairwise_concordance, spearman
 from emergent_specialization.theory_v1.scorecard import full_scorecard, score_t7_criticality, score_t9_mode
 from emergent_specialization.theory_v1.micro_runner import build_tasks, render_user
+from emergent_specialization.theory_v1.macro_runner import expected_calls as macro_expected_calls
 
 
 class TheoryV1Tests(unittest.TestCase):
@@ -122,6 +123,13 @@ class TheoryV1Tests(unittest.TestCase):
         self.assertIn("Resolved decision:", prompt)
         self.assertNotIn("confidence", prompt.lower())
         self.assertNotIn("prediction", prompt.lower())
+
+    def test_macro_call_accounting_is_frozen(self):
+        counts = macro_expected_calls()
+        self.assertEqual(counts["t0"], 2048)
+        self.assertEqual(counts["online"], 36864)
+        self.assertEqual(counts["post_checkpoints"], 147456)
+        self.assertEqual(counts["total"], 186368)
 
 
 if __name__ == "__main__":

@@ -18,6 +18,8 @@ from .micro_estimation import estimate_k_explicit, estimate_k_pairwise
 from .prediction import build_prediction_registry
 from .micro_runner import freeze_manifest as freeze_micro_manifest
 from .micro_runner import micro_health, run_micro
+from .micro_analysis import analyze_micro, generate_predictions
+from .macro_runner import build_manifest as build_macro_manifest, health as macro_health, run_macro
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -64,7 +66,7 @@ def mock() -> dict[str, object]:
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Theory V1 preparation and explicitly gated MICRO runner")
-    parser.add_argument("stage", choices=("prepare", "mock", "micro-freeze", "micro-run", "micro-health"))
+    parser.add_argument("stage", choices=("prepare", "mock", "micro-freeze", "micro-run", "micro-health", "micro-analyze", "predict", "macro-freeze", "macro-run", "macro-health"))
     parser.add_argument("--confirm-real", action="store_true")
     parser.add_argument("--concurrency", type=int, default=8)
     args = parser.parse_args(argv)
@@ -77,6 +79,17 @@ def main(argv: list[str] | None = None) -> None:
         result = {"status": "MICRO_MANIFEST_FROZEN", "logical_calls": manifest["logical_calls"], "tasks_hash": manifest["tasks_hash"]}
     elif args.stage == "micro-run":
         result = __import__("asyncio").run(run_micro(confirm_real=args.confirm_real, concurrency=args.concurrency))
+    elif args.stage == "micro-analyze":
+        result = analyze_micro()
+    elif args.stage == "predict":
+        result = generate_predictions()
+    elif args.stage == "macro-freeze":
+        manifest = build_macro_manifest()
+        result = {"status": "MACRO_MANIFEST_FROZEN", "logical_calls": manifest["logical_calls"], "manifest_hash": manifest["manifest_hash"]}
+    elif args.stage == "macro-run":
+        result = __import__("asyncio").run(run_macro(confirm_real=args.confirm_real, concurrency=args.concurrency))
+    elif args.stage == "macro-health":
+        result = macro_health()
     else:
         result = micro_health()
     print(json.dumps(result, indent=2, sort_keys=True))
