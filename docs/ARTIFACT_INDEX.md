@@ -38,6 +38,7 @@ From the repository root:
 for f in .artifacts/packages/*.sha256; do
   expected=$(awk '{print $1}' "$f")
   archive="${f%.sha256}"
+  test -f "$archive" || archive="${archive}.tar.gz"
   actual=$(shasum -a 256 "$archive" | awk '{print $1}')
   test "$expected" = "$actual" || exit 1
 done
