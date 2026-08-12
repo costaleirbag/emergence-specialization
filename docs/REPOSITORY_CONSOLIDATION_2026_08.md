@@ -62,10 +62,16 @@ these local commits.
 
 ## Validation
 
-The isolated repair tests passed before this documentation commit. The final
-maintenance gate runs the complete unittest suite and `compileall`; results are
-recorded in the handoff message and should be repeated in CI once GitHub access
-is restored.
+The final maintenance gate passed:
+
+- `PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -q` — **242
+  tests, OK** (215.684 seconds).
+- `PYTHONPATH=src .venv/bin/python -m compileall -q src` — **exit 0**.
+- All ten retained checksum sidecars matched their moved archives.
+- The repository root contains no remaining archive or checksum files.
+
+The final local HEAD is recorded by the consolidation commit; repeat the same
+commands in CI once GitHub access is restored.
 
 ## Intentional non-actions
 
