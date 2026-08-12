@@ -332,13 +332,56 @@ async def run_micro(*, confirm_real: bool = False, concurrency: int = DEFAULT_CO
                         model=MODEL,
                         model_parameters={"thinking": THINKING, "max_tokens": MAX_TOKENS},
                     )
-            except Exception:
-                _budget_change(release=RESERVATION_USD)
-                raise
+            except Exception as exc:
+                # A transport exception may be billable even when the provider
+                # returned no usage block.  Journal a nonterminal technical
+                # attempt and charge the conservative reservation before
+                # retrying, rather than losing the physical attempt.
+                _budget_change(release=RESERVATION_USD, actual=RESERVATION_USD)
+                event = {
+                    "protocol": PROTOCOL, "logical_id": logical_id,
+                    "attempt": attempt, "task": task, "decisions": None,
+                    "expected": task["probe"]["y"], "correct": False,
+                    "error": f"provider exception: {type(exc).__name__}",
+                    "error_category": "transient_transport", "terminal": False,
+                    "raw_model_response": None, "latency_s": None,
+                    "token_usage": None, "provider_metadata": {},
+                    "attempt_cost_usd": RESERVATION_USD,
+                    "cost_source": "conservative_upper_bound_missing_usage",
+                    "finished_at_utc": now(),
+                }
+                async with lock:
+                    append_jsonl(events_path, event)
+                    total_cost += RESERVATION_USD
+                    retry_count += int(attempt)
+                attempt += 1
+                continue
             cost = _cost(response)
             if cost is None:
-                _budget_change(release=RESERVATION_USD)
-                raise RuntimeError("Theory V1 MICRO usage/cost unavailable")
+                # The completion exists but cannot be reconciled to provider
+                # usage.  Preserve it as a technical non-observation and use a
+                # conservative billable-attempt bound; the next attempt is the
+                # only one eligible to become the scientific observation.
+                _budget_change(release=RESERVATION_USD, actual=RESERVATION_USD)
+                provider = response.provider_metadata or {}
+                event = {
+                    "protocol": PROTOCOL, "logical_id": logical_id,
+                    "attempt": attempt, "task": task, "decisions": None,
+                    "expected": task["probe"]["y"], "correct": False,
+                    "error": response.error or "provider usage/cost unavailable",
+                    "error_category": response.error_category or "usage_unavailable",
+                    "terminal": False, "raw_model_response": response.raw_response,
+                    "latency_s": response.latency_s, "token_usage": response.token_usage,
+                    "provider_metadata": provider, "attempt_cost_usd": RESERVATION_USD,
+                    "cost_source": "conservative_upper_bound_missing_usage",
+                    "finished_at_utc": now(),
+                }
+                async with lock:
+                    append_jsonl(events_path, event)
+                    total_cost += RESERVATION_USD
+                    retry_count += int(attempt)
+                attempt += 1
+                continue
             _budget_change(release=RESERVATION_USD, actual=cost)
             decisions, parse_category = learner.parse_decisions(response.raw_response)
             provider = response.provider_metadata or {}
