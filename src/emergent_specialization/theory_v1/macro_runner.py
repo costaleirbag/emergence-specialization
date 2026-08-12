@@ -125,15 +125,18 @@ def expected_calls() -> dict[str, int]:
 
 
 def build_manifest() -> dict[str, Any]:
+    if MACRO_REPORT.exists():
+        existing = json.loads(MACRO_REPORT.read_text(encoding="utf-8"))
+        if existing.get("protocol") != PROTOCOL or existing.get("logical_calls") != expected_calls()["total"]:
+            raise RuntimeError("existing MACRO manifest is incompatible")
+        if existing.get("manifest_hash") != stable_hash({k: v for k, v in existing.items() if k != "manifest_hash"}):
+            raise RuntimeError("existing MACRO manifest hash is invalid")
+        return existing
     seeds = {(e, seed): _seed_spec(e, seed) for e in ECOLOGIES for seed in SOCIAL_SEEDS[e]}
     cells = [{"cell_id": i, **cell} for i, cell in enumerate(macro_cells())]
     counts = expected_calls()
     payload = {"protocol": PROTOCOL, "created_at_utc": now(), "git_head": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPORT_ROOT.parents[1], text=True).strip(), "model": MODEL, "provider": "DeepSeek Direct", "thinking": THINKING, "max_tokens": MAX_TOKENS, "hard_cap_usd": HARD_CAP_USD, "ecologies": list(ECOLOGIES), "social_seeds": {e: list(SOCIAL_SEEDS[e]) for e in ECOLOGIES}, "cells": cells, "seed_specs": {f"{e}:{s}": spec for (e, s), spec in seeds.items()}, "expected_calls": counts, "logical_calls": counts["total"], "task_order": "t0 then time-major ecology/seed/cell; checkpoint probes after each cell's 128 online tasks"}
     payload["manifest_hash"] = stable_hash(payload)
-    if MACRO_REPORT.exists():
-        old = json.loads(MACRO_REPORT.read_text(encoding="utf-8"))
-        if old.get("manifest_hash") != payload["manifest_hash"]: raise RuntimeError("existing MACRO manifest differs")
-        return old
     atomic_json(MACRO_REPORT, payload); return payload
 
 
