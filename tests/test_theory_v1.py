@@ -18,6 +18,7 @@ from emergent_specialization.theory_v1.micro_design import expected_call_counts,
 from emergent_specialization.theory_v1.micro_estimation import estimate_k_explicit, estimate_k_pairwise, superposition_diagnostics
 from emergent_specialization.theory_v1.prediction import predictions_for_k
 from emergent_specialization.theory_v1.scoring import kendall_tau, pairwise_concordance, spearman
+from emergent_specialization.theory_v1.scorecard import full_scorecard, score_t7_criticality, score_t9_mode
 
 
 class TheoryV1Tests(unittest.TestCase):
@@ -95,6 +96,13 @@ class TheoryV1Tests(unittest.TestCase):
         self.assertAlmostEqual(kendall_tau([1, 2, 3], [2, 4, 6]), 1.0)
         result = pairwise_concordance([0, .1, .2] * 4, [0, .1, .2] * 4, margin=.01)
         self.assertEqual(result["status"], "PASS")
+
+    def test_scorecard_is_explicitly_not_run_without_observations(self):
+        scorecard = full_scorecard()
+        self.assertEqual(scorecard["overall"], "NOT_RUN")
+        self.assertEqual(scorecard["T1"]["status"], "NOT_RUN")
+        self.assertEqual(score_t7_criticality([], []), {"test": "T7", "status": "NOT_RUN", "reason": "no confirmatory observations"})
+        self.assertEqual(score_t9_mode([])["status"], "NON_IDENTIFIABLE")
 
 
 if __name__ == "__main__":
