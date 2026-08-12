@@ -137,6 +137,36 @@ def build_manifest() -> dict[str, Any]:
     atomic_json(MACRO_REPORT, payload); return payload
 
 
+def preflight() -> dict[str, Any]:
+    """Reforecast MACRO from realized MICRO cost and rendered prompts."""
+    micro_status_path = DATA_ROOT / "micro_status.json"
+    if not micro_status_path.exists(): raise RuntimeError("MICRO status is missing")
+    micro_status = json.loads(micro_status_path.read_text(encoding="utf-8"))
+    if micro_status.get("status") != "completed": raise RuntimeError("MACRO preflight requires completed MICRO")
+    manifest = build_manifest()
+    micro_cost = float(micro_status.get("observed_cost_usd") or 0.0)
+    micro_physical = int(micro_status.get("physical_attempts") or 0)
+    if micro_physical <= 0: raise RuntimeError("MICRO has no billable attempts")
+    micro_mean_cost = micro_cost / micro_physical
+    micro_chars = 2656.732306985294
+    macro_chars: list[int] = []
+    for key, spec in manifest["seed_specs"].items():
+        ecology = spec["ecology"]; seed = int(spec["seed"])
+        for niche in range(N_NICHES):
+            probe = _probe(ecology, seed, spec, niche, 0, 0)
+            macro_chars.append(len(SYSTEM_PROMPT) + len(render_user(ecology, probe, [])))
+        max_k = max(int(cell["k"]) for cell in manifest["cells"])
+        max_memory = [_case(ecology, seed, i % N_NICHES, tuple(spec["online"][i % len(spec["online"])] ["x"]), "online", i) for i in range(max_k)]
+        for item in spec["online"][:8]:
+            macro_chars.append(len(SYSTEM_PROMPT) + len(render_user(ecology, item, max_memory)))
+    ratio = statistics.mean(macro_chars) / micro_chars
+    projected_macro = micro_mean_cost * manifest["logical_calls"] * ratio
+    decision = micro_cost + 1.30 * projected_macro <= HARD_CAP_USD
+    result = {"protocol": PROTOCOL, "micro_actual_cost_usd": micro_cost, "micro_physical_attempts": micro_physical, "micro_mean_cost_usd_per_attempt": micro_mean_cost, "macro_logical_calls": manifest["logical_calls"], "macro_prompt_chars_min": min(macro_chars), "macro_prompt_chars_max": max(macro_chars), "macro_prompt_chars_mean": statistics.mean(macro_chars), "prompt_ratio_to_micro": ratio, "projected_macro_cost_usd": projected_macro, "projected_total_cost_usd": micro_cost + projected_macro, "projected_total_with_30pct_remaining_margin_usd": micro_cost + 1.30 * projected_macro, "hard_ceiling_usd": HARD_CAP_USD, "decision": "PROCEED_TO_MACRO" if decision else "STOP_BEFORE_MACRO"}
+    atomic_json(REPORT_ROOT / "macro_preflight.json", result)
+    return result
+
+
 def _budget_change(*, reserve: float = 0.0, release: float = 0.0, actual: float = 0.0) -> dict[str, Any]:
     path = DATA_ROOT / "campaign_budget.json"; lock_path = path.with_suffix(".lock"); path.parent.mkdir(parents=True, exist_ok=True)
     with lock_path.open("a+") as lock:

@@ -19,7 +19,7 @@ from .prediction import build_prediction_registry
 from .micro_runner import freeze_manifest as freeze_micro_manifest
 from .micro_runner import micro_health, run_micro
 from .micro_analysis import analyze_micro, generate_predictions
-from .macro_runner import build_manifest as build_macro_manifest, health as macro_health, run_macro
+from .macro_runner import build_manifest as build_macro_manifest, health as macro_health, preflight as macro_preflight, run_macro
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -66,7 +66,7 @@ def mock() -> dict[str, object]:
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Theory V1 preparation and explicitly gated MICRO runner")
-    parser.add_argument("stage", choices=("prepare", "mock", "micro-freeze", "micro-run", "micro-health", "micro-analyze", "predict", "macro-freeze", "macro-run", "macro-health"))
+    parser.add_argument("stage", choices=("prepare", "mock", "micro-freeze", "micro-run", "micro-health", "micro-analyze", "predict", "macro-freeze", "macro-preflight", "macro-run", "macro-health"))
     parser.add_argument("--confirm-real", action="store_true")
     parser.add_argument("--concurrency", type=int, default=8)
     args = parser.parse_args(argv)
@@ -86,6 +86,8 @@ def main(argv: list[str] | None = None) -> None:
     elif args.stage == "macro-freeze":
         manifest = build_macro_manifest()
         result = {"status": "MACRO_MANIFEST_FROZEN", "logical_calls": manifest["logical_calls"], "manifest_hash": manifest["manifest_hash"]}
+    elif args.stage == "macro-preflight":
+        result = macro_preflight()
     elif args.stage == "macro-run":
         result = __import__("asyncio").run(run_macro(confirm_real=args.confirm_real, concurrency=args.concurrency))
     elif args.stage == "macro-health":
