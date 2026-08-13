@@ -56,7 +56,11 @@ SYSTEM_PROMPT = (
     "You are a single-agent decision learner. Use resolved cases only as "
     "feedback-only memory. Return only the requested JSON object."
 )
-OUTPUT_INSTRUCTION = 'Return only JSON: {"decisions":[0,1,0]}. The array must contain exactly three binary decisions in order.'
+OUTPUT_INSTRUCTION = (
+    'Return only a JSON object with one key named "decisions". Its value must be '
+    "an array containing exactly three binary integers. Do not include any other "
+    "keys or text."
+)
 RETRYABLE = {"parse_error", "empty_content", "transient_transport", "transport", "rate_limit", "server_error", "overloaded"}
 
 

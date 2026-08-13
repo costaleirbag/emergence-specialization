@@ -9,8 +9,18 @@ import numpy as np
 
 
 def _rank(values: Sequence[float]) -> np.ndarray:
-    order = np.argsort(np.argsort(np.asarray(values, dtype=float), kind="mergesort"), kind="mergesort")
-    return order.astype(float)
+    """Conventional one-based average ranks, including ties."""
+    values_array = np.asarray(values, dtype=float)
+    order = np.argsort(values_array, kind="mergesort")
+    ranks = np.empty(len(values_array), dtype=float)
+    index = 0
+    while index < len(order):
+        end = index + 1
+        while end < len(order) and values_array[order[end]] == values_array[order[index]]:
+            end += 1
+        ranks[order[index:end]] = (index + 1 + end) / 2.0
+        index = end
+    return ranks
 
 
 def spearman(x: Sequence[float], y: Sequence[float]) -> float:
@@ -50,4 +60,3 @@ def score_t1(predicted: Sequence[float], observed: Sequence[float], ecology_slic
     per_ecology = {name: spearman(predicted[start:end], observed[start:end]) for name, (start, end) in ecology_slices.items()}
     passed = pooled >= .70 and all(value >= .50 for value in per_ecology.values())
     return {"pooled_spearman": pooled, "ecology_spearman": per_ecology, "status": "PASS" if passed else "FAIL"}
-

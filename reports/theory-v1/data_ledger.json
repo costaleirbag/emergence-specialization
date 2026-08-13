@@ -15,5 +15,15 @@
     "equations_changed": false,
     "implementation_repaired_after_macro": true,
     "canonical_scorecard": "reports/theory-v1/repair/theory_v1_scorecard_repaired.json"
+  },
+  "theory_v1_1": {
+    "protocol": "THEORY-V1.1-HARNESS-CLEAN",
+    "status": "FROZEN_BEFORE_NEW_INFERENCE",
+    "stage_a": "INSTRUMENT_VALIDATION",
+    "micro": "PARAMETERIZATION",
+    "macro": "CONFIRMATORY_TARGETED",
+    "historical_v1": "PROSPECTIVE_BUT_HARNESS_CONFOUNDED",
+    "hard_cap_usd": 4.0,
+    "external_calls_executed": 0
   }
 }

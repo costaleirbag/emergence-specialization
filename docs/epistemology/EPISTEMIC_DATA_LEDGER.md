@@ -17,6 +17,9 @@ predictions are sealed.
 | Theory V1 MICRO campaign | PARAMETERIZATION | Estimate `K^(4)`, `K^(8)`, `K^(12)` only | **CONSUMED / DEVELOPMENT-FOR-V2** |
 | Aborted serial Theory V1 MACRO attempt | TECHNICAL_ABORT / QUARANTINED | Throughput and infrastructure diagnostics only | never include in scorecard or scientific estimates |
 | Restarted Theory V1 MACRO campaign | CONFIRMATORY | Test sealed predictions T1–T9 | **CONSUMED / DEVELOPMENT-FOR-V2** |
+| Theory V1.1 Stage A harness validation | INSTRUMENT VALIDATION | Validate the neutral output instrument only | pending |
+| Theory V1.1 MICRO campaign | PARAMETERIZATION | Estimate frozen `K^(4)`, `K^(8)`, `K^(12)` under clean harness | pending |
+| Theory V1.1 targeted MACRO campaign | CONFIRMATORY | Test four preregistered clean-harness V1 mechanism questions | pending |
 
 The canonical Theory V1 evaluation is the deterministic forensic reconstruction
 performed after the MACRO run. The equations and thresholds were frozen before

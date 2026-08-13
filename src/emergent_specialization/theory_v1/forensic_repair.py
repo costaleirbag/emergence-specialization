@@ -484,33 +484,58 @@ def scorecard(predictions: Sequence[Mapping[str, Any]], observed_rows: Sequence[
     panels = []
     for e in ECOLOGIES:
         for k0 in K_VALUES:
-            keys = [x for x in order if x[0] == e and x[1] == k0 and x[4] == 0]
+            # Frozen T3 is exactly the private epsilon=.10 beta grid.  The
+            # matched-gain beta=16, epsilon=.55 cell is not a T3 panel.
+            keys = [x for x in order if x[0] == e and x[1] == k0 and x[2] in MACRO_BETAS and x[3] == .1 and x[4] == 0]
             p = [pmap[x]["g_excess_pred"] for x in sorted(keys, key=lambda x: x[2])]; o = [omap[x]["g_excess_obs"] for x in sorted(keys, key=lambda x: x[2])]
             rho = spearman(p, o)
-            panels.append({"ecology": e, "k": k0, "spearman": rho, "predicted": p, "observed": o})
+            panels.append({"ecology": e, "k": k0, "n_beta_cells": len(keys), "betas": list(MACRO_BETAS), "spearman": rho, "predicted": p, "observed": o})
+    if any(panel["n_beta_cells"] != len(MACRO_BETAS) for panel in panels):
+        raise AssertionError("T3 requires exactly five private beta cells per ecology x k panel")
     t3 = {"test": "T3", "panels": panels, "panels_passing": sum(np.isfinite(x["spearman"]) and x["spearman"] >= .7 for x in panels), "status": "PASS" if sum(np.isfinite(x["spearman"]) and x["spearman"] >= .7 for x in panels) >= 5 else "FAIL"}
     t4 = {"test": "T4", "ecology": {}}
     for e in ECOLOGIES:
-        left = {(int(r["seed"]), r["cell_id"]): r["g_obs_bit"] for r in observed_rows if r["ecology"] == e and r["k"] == 8 and r["beta"] == 8 and r["epsilon"] == .1 and r["q_share"] == 0}
-        right = {(int(r["seed"]), r["cell_id"]): r["g_obs_bit"] for r in observed_rows if r["ecology"] == e and r["k"] == 8 and r["beta"] == 16 and r["epsilon"] == .55 and r["q_share"] == 0}
-        # Subtract the same k=8 beta=0 baseline before comparing matched cells.
+        left_rows = [r for r in observed_rows if r["ecology"] == e and r["k"] == 8 and r["beta"] == 8 and r["epsilon"] == .1 and r["q_share"] == 0]
+        right_rows = [r for r in observed_rows if r["ecology"] == e and r["k"] == 8 and r["beta"] == 16 and r["epsilon"] == .55 and r["q_share"] == 0]
+        left = {int(r["seed"]): r["g_obs_bit"] for r in left_rows}
+        right = {int(r["seed"]): r["g_obs_bit"] for r in right_rows}
+        if len(left_rows) != 8 or len(right_rows) != 8 or len(left) != 8 or len(right) != 8:
+            raise AssertionError("T4 requires exactly one observation per ecology x seed x matched cell")
+        # Pair by ecology and social seed, never by cell_id.  Subtracting the
+        # same beta=0 baseline cancels in the paired difference, but this keeps
+        # the reported values on the frozen excess-growth scale.
         diffs = [float(left[x] - right[x]) for x in sorted(set(left) & set(right))]
         t4["ecology"][e] = {"seed_differences": diffs, "mean_difference": float(np.mean(diffs)) if diffs else None, "status": "PASS" if diffs and abs(float(np.mean(diffs))) <= .002 else "FAIL"}
     t4["status"] = "PASS" if all(v["status"] == "PASS" for v in t4["ecology"].values()) else "FAIL"
     t5 = {"test": "T5", "ecology": {}}
     for e in ECOLOGIES:
-        vals = {q: [r["g_excess_obs"] for r in observed if r["ecology"] == e and r["k"] == 8 and r["beta"] == 12 and r["q_share"] == q] for q in (0.0, .5, 1.0)}
-        means = {str(q): float(np.mean(v)) if v else None for q, v in vals.items()}; seed_positive = sum(a > b for a, b in zip(vals[0.0], vals[1.0])) if vals[0.0] and vals[1.0] else 0
-        t5["ecology"][e] = {"means": means, "private_positive_seeds": seed_positive, "predicted_order": "0>.5>1", "observed_order": means.get("0.0") is not None and means["0.0"] >= means["0.5"] >= means["1.0"]}
+        baseline_rows = [r for r in observed_rows if r["ecology"] == e and r["k"] == 8 and r["beta"] == 0 and r["epsilon"] == .1 and r["q_share"] == 0]
+        baseline = {int(r["seed"]): float(r["g_obs_bit"]) for r in baseline_rows}
+        vals = {}
+        for q in (0.0, .5, 1.0):
+            q_rows = [r for r in observed_rows if r["ecology"] == e and r["k"] == 8 and r["beta"] == 12 and r["epsilon"] == .1 and r["q_share"] == q]
+            q_map = {int(r["seed"]): float(r["g_obs_bit"]) - baseline[int(r["seed"])] for r in q_rows}
+            if len(q_rows) != 8 or len(q_map) != 8:
+                raise AssertionError("T5 requires exactly eight seed-level observations for each q condition")
+            vals[q] = q_map
+        if len(baseline_rows) != 8 or len(baseline) != 8:
+            raise AssertionError("T5 requires eight seed-level observations for each q condition")
+        means = {str(q): float(np.mean(list(v.values()))) if v else None for q, v in vals.items()}
+        seed_positive = sum(vals[0.0][seed] > vals[1.0][seed] for seed in sorted(set(vals[0.0]) & set(vals[1.0])))
+        t5["ecology"][e] = {"means": means, "seed_values": {str(q): [vals[q][seed] for seed in sorted(vals[q])] for q in vals}, "private_positive_seeds": seed_positive, "seed_count": len(vals[0.0]), "predicted_order": "0>.5>1", "observed_order": means.get("0.0") is not None and means["0.0"] >= means["0.5"] >= means["1.0"]}
     t5["status"] = "PASS" if all(v["observed_order"] and v["private_positive_seeds"] >= 6 for v in t5["ecology"].values()) else "FAIL"
-    # T6 follows the only capacity comparison explicitly represented in the
-    # frozen registry: private beta=12, q=0 across k=4,8,12.  It is kept
-    # explicit so no Cartesian product or implicit broadcasting is possible.
+    # T6 consumes the complete eligible private k x beta grid: all frozen
+    # capacities and all five private beta values, both ecologies.
     t6_pred = []; t6_obs = []
     for e in ECOLOGIES:
         for k0 in K_VALUES:
-            x = (e, k0, 12.0, .1, 0.0); t6_pred.append(pmap[x]["g_excess_pred"]); t6_obs.append(omap[x]["g_excess_obs"])
-    t6 = {"test": "T6", "predicted": t6_pred, "observed": t6_obs, "spearman": spearman(t6_pred, t6_obs), "status": "PASS" if spearman(t6_pred, t6_obs) >= .7 else "FAIL"}
+            for beta0 in MACRO_BETAS:
+                x = (e, k0, beta0, .1, 0.0)
+                if x not in pmap or x not in omap:
+                    raise AssertionError(f"T6 missing eligible private cell {x}")
+                t6_pred.append(pmap[x]["g_excess_pred"]); t6_obs.append(omap[x]["g_excess_obs"])
+    t6_rho = spearman(t6_pred, t6_obs)
+    t6 = {"test": "T6", "eligible_cells": len(t6_pred), "predicted": t6_pred, "observed": t6_obs, "spearman": t6_rho, "status": "PASS" if t6_rho >= .7 else "FAIL"}
     # T7 uses all 36 repaired population rows. Transitional rows are excluded.
     t7_pairs = [(r["regime"], bool(omap[key(r)]["g_excess_obs"] > 0), key(r)) for r in predictions if key(r) in omap]
     eligible = [(p, o, k0) for p, o, k0 in t7_pairs if p != "TRANSITIONAL"]

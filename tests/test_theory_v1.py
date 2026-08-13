@@ -118,6 +118,7 @@ class TheoryV1Tests(unittest.TestCase):
 
     def test_rank_score_helpers(self):
         self.assertAlmostEqual(spearman([1, 2, 3], [2, 4, 6]), 1.0)
+        self.assertAlmostEqual(spearman([1, 1, 2], [3, 3, 1]), -1.0)
         self.assertAlmostEqual(kendall_tau([1, 2, 3], [2, 4, 6]), 1.0)
         result = pairwise_concordance([0, .1, .2] * 4, [0, .1, .2] * 4, margin=.01)
         self.assertEqual(result["status"], "PASS")
