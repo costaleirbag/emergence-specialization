@@ -92,6 +92,10 @@ class TheoryV11HarnessTests(unittest.TestCase):
         self.assertEqual(manifest["social_seeds"], {k: list(v) for k, v in theory_v1_1_macro.SOCIAL_SEEDS_V11.items()})
         self.assertEqual(macro_runner.macro_cells(), legacy_cells_before)
 
+    def test_v11_budget_amendment_is_macro_only(self):
+        self.assertEqual(theory_v1_1_macro.MACRO_HARD_CAP_USD, 5.0)
+        self.assertEqual(theory_v1_1_macro.HARD_CAP_USD, 4.0)
+
 
 if __name__ == "__main__":
     unittest.main()

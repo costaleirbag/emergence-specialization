@@ -10,6 +10,7 @@ router equations, memory semantics, or prompt rendering.
 from __future__ import annotations
 
 import json
+import hashlib
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -32,6 +33,7 @@ V11_MACRO_REPORT = V11_REPORT_ROOT / "macro_manifest.json"
 V11_PREDICTION_ROOT = V11_REPORT_ROOT / "predictions"
 V11_PREDICTION_PATH = V11_PREDICTION_ROOT / "prediction_manifest.json"
 PROTOCOL = "THEORY-V1.1"
+MACRO_HARD_CAP_USD = 5.00
 CHECKPOINTS = (0, 16, 32, 64, 128)
 ROUNDS = 128
 
@@ -47,7 +49,7 @@ def _bind_legacy() -> None:
     legacy.DATA_ROOT = V11_DATA_ROOT
     legacy.REPORT_ROOT = V11_REPORT_ROOT
     legacy.MACRO_REPORT = V11_MACRO_REPORT
-    legacy.HARD_CAP_USD = HARD_CAP_USD
+    legacy.HARD_CAP_USD = MACRO_HARD_CAP_USD
     legacy.MODEL = MODEL
     legacy.THINKING = THINKING
     legacy.macro_cells = lambda: [dict(cell) for cell in MACRO_CELLS_V11]
@@ -83,6 +85,48 @@ def build_manifest() -> dict[str, Any]:
     return manifest
 
 
+def _prediction_sha256() -> str:
+    digest = hashlib.sha256()
+    with V11_PREDICTION_PATH.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _initialize_budget() -> dict[str, Any]:
+    """Initialize the V1.1 cumulative ledger with already-observed costs."""
+    stage_a = json.loads((V11_DATA_ROOT / "stage_a_status.json").read_text(encoding="utf-8"))
+    micro = json.loads((V11_DATA_ROOT / "micro_status.json").read_text(encoding="utf-8"))
+    if stage_a.get("status") != "completed" or int(stage_a.get("logical_calls", -1)) != 1024:
+        raise RuntimeError("Stage A provenance is not complete")
+    if micro.get("status") != "completed" or int(micro.get("logical_calls", -1)) != 19584:
+        raise RuntimeError("MICRO provenance is not complete")
+    observed = float(stage_a.get("observed_cost_usd") or 0.0) + float(micro.get("observed_cost_usd") or 0.0)
+    path = V11_DATA_ROOT / "campaign_budget.json"
+    if path.exists():
+        budget = json.loads(path.read_text(encoding="utf-8"))
+        if budget.get("protocol") != PROTOCOL or abs(float(budget.get("hard_cap_usd", 0.0)) - MACRO_HARD_CAP_USD) > 1e-12:
+            raise RuntimeError("V1.1 budget ledger mismatch")
+        if float(budget.get("spent_usd", 0.0)) + 1e-9 < observed:
+            raise RuntimeError("V1.1 budget ledger undercounts completed stages")
+        return budget
+    budget = {
+        "protocol": PROTOCOL,
+        "hard_cap_usd": MACRO_HARD_CAP_USD,
+        "spent_usd": observed,
+        "reserved_usd": 0.0,
+        "prior_ceiling_usd": 4.00,
+        "budget_amendment": {
+            "previous_cap_usd": 4.00,
+            "new_cap_usd": MACRO_HARD_CAP_USD,
+            "reason": "principal-researcher budget-only amendment",
+        },
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(budget, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return budget
+
+
 def preflight() -> dict[str, Any]:
     with _bound_legacy():
         manifest = legacy.build_manifest()
@@ -93,6 +137,7 @@ def preflight() -> dict[str, Any]:
     (V11_REPORT_ROOT / "macro_preflight.json").write_text(
         json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
+    _initialize_budget()
     return result
 
 
@@ -105,6 +150,7 @@ async def run_macro(*, confirm_real: bool = False, concurrency: int = 32) -> dic
     # byte copy is a compatibility input only and is hash-checked below.
     if not V11_PREDICTION_PATH.exists():
         raise RuntimeError("V1.1 prediction seal is missing")
+    sealed_hash = _prediction_sha256()
     V11_REPORT_ROOT.mkdir(parents=True, exist_ok=True)
     root_prediction = V11_REPORT_ROOT / "prediction_manifest.json"
     payload = V11_PREDICTION_PATH.read_bytes()
@@ -118,7 +164,7 @@ async def run_macro(*, confirm_real: bool = False, concurrency: int = 32) -> dic
     result["run_id"] = "theory-v1-1-macro-confirmatory-20260813"
     status_path = V11_MACRO_ROOT / "macro_status.json"
     status = json.loads(status_path.read_text(encoding="utf-8"))
-    status.update(protocol=PROTOCOL, run_id=result["run_id"], prediction_manifest_sha256=stable_hash(json.loads(payload)))
+    status.update(protocol=PROTOCOL, run_id=result["run_id"], prediction_manifest_sha256=sealed_hash, budget_cap_usd=MACRO_HARD_CAP_USD)
     status_path.write_text(json.dumps(status, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return status
 
