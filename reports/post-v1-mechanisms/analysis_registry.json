@@ -1,0 +1,24 @@
+{
+  "protocol": "POST-V1-MECHANISM-DECOMPOSITION",
+  "status": "REGISTERED_BEFORE_RESULTS",
+  "external_model_calls": 0,
+  "external_budget_usd": 0.0,
+  "primary_data": [
+    "data/auto-research/theory-v1-1/stage_a_events.jsonl",
+    "data/auto-research/theory-v1-1/micro_events.jsonl",
+    "data/auto-research/theory-v1-1/macro/macro_events.jsonl",
+    "data/auto-research/theory-v1-1/macro/macro_steps.jsonl",
+    "data/auto-research/theory-v1-1/macro/macro_checkpoint_observations.jsonl"
+  ],
+  "primary_unit": "ecology x social seed",
+  "intervals": [[0,16],[16,32],[32,64],[64,128]],
+  "mechanisms": ["H1_router_staleness","H2_selection_on_noise","H3_exposure_memory_attenuation","H4_memory_state_insufficiency","H5_micro_macro_extrapolation","H6_sharing_timescale","H7_differentiation_churn","H8_multiple_bottlenecks"],
+  "registered_outputs": [
+    "state_panel.csv", "signal_transmission.csv", "belief_alignment.csv",
+    "reliability.csv", "routing_exposure.csv", "memory_dynamics.csv",
+    "delta_psi_decomposition.csv", "transportability.csv",
+    "memory_model_oof.csv", "mechanism_evidence_table.csv"
+  ],
+  "historical_v1_primary_use": false,
+  "theory_v2_defined": false
+}
