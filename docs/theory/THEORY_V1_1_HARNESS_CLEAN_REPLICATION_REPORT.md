@@ -126,5 +126,9 @@ budget decision and whether a future MACRO allocation is justified.
 - Total new inference: US$1.1687350640
 - New MACRO calls: `0`
 - New external calls after MICRO: `0`
+- Stage A raw SHA-256: `d91d5c95c9d7afe5bcd9707fa6a4a1822f3c713f128549d9edaadee4dcaf9bd5`
+- MICRO raw SHA-256: `91bf71db05358948a5e6e40dd8eee8f67722b8d0e3633b009315e3adfc28887d`
+- MICRO manifest SHA-256: `de847f3089f22da61eaf486d6d3a8f3d5d5fc523d47bc6ce1b446504397b5895`
+- Prediction manifest SHA-256: `ee88d43e3e47e11bf068510e37411832c95010a3012b9b9a491981e839062adb`
 - Credentials were used only by the authorized DeepSeek Direct stages; no key was
   exposed.
