@@ -25,11 +25,16 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 
+import numpy as np
+
 from .credentials import CredentialStore
 from .models import BackendResponse
 from .providers import DeepSeekDirectBackend
 from .observable_learner_calibration import parse_decisions
 from .theory_v1.ecologies import AffineBooleanV1, V31Fresh
+from .theory_v1.micro_design import K_VALUES, MICRO_MEMORY_STATES, double_swaps, single_swaps
+from .theory_v1.micro_estimation import estimate_k_explicit, estimate_k_pairwise, superposition_diagnostics
+from .theory_v1.micro_runner import _assignment_states, _memory_for, _probe_xs, _case as legacy_case
 
 ROOT = Path(__file__).resolve().parents[2]
 REPORT_ROOT = ROOT / "reports/theory-v1-1"
@@ -38,6 +43,10 @@ STAGE_A_ROOT = REPORT_ROOT / "harness_validation"
 EVENTS_PATH = DATA_ROOT / "stage_a_events.jsonl"
 STATUS_PATH = DATA_ROOT / "stage_a_status.json"
 MANIFEST_PATH = REPORT_ROOT / "stage_a_manifest.json"
+MICRO_ROOT = REPORT_ROOT / "micro"
+MICRO_EVENTS_PATH = DATA_ROOT / "micro_events.jsonl"
+MICRO_STATUS_PATH = DATA_ROOT / "micro_status.json"
+MICRO_MANIFEST_PATH = REPORT_ROOT / "micro_manifest.json"
 PROTOCOL = "THEORY-V1.1-HARNESS-CLEAN"
 MODEL = "deepseek-v4-flash"
 THINKING = "off"
@@ -269,7 +278,7 @@ class RequestGate:
         self.sem.release()
 
 
-async def _complete(backend: DeepSeekDirectBackend, task: dict[str, Any], gate: RequestGate, lock: asyncio.Lock, attempts: dict[str, int], spent: list[float], budget: dict[str, float]) -> dict[str, Any]:
+async def _complete(backend: DeepSeekDirectBackend, task: dict[str, Any], gate: RequestGate, lock: asyncio.Lock, attempts: dict[str, int], spent: list[float], budget: dict[str, float], events_path: Path) -> dict[str, Any]:
     logical_id = task["logical_id"]
     # ``spent`` and ``reserved`` are shared only for accounting; scientific
     # task state is entirely contained in the frozen task record.
@@ -300,7 +309,7 @@ async def _complete(backend: DeepSeekDirectBackend, task: dict[str, Any], gate: 
         terminal = decisions is not None or category == "out_of_domain"
         event = {"protocol": PROTOCOL, "event": "completion", "logical_id": logical_id, "attempt": attempt, "task": task, "decisions": decisions, "expected": task["probe"]["y"], "correct": bool(decisions is not None and decisions == task["probe"]["y"]), "error": response.error or parse_category, "error_category": category, "terminal": terminal, "raw_model_response": response.raw_response, "latency_s": response.latency_s, "token_usage": response.token_usage, "provider_metadata": provider, "attempt_cost_usd": cost, "finished_at_utc": now()}
         async with lock:
-            append_jsonl(EVENTS_PATH, event)
+            append_jsonl(events_path, event)
         if terminal:
             return event
         if category not in RETRYABLE:
@@ -331,7 +340,7 @@ async def run_stage_a(*, confirm_real: bool = False, concurrency: int = CONCURRE
     gate = RequestGate(concurrency); lock = asyncio.Lock(); spent = [sum(float(e.get("attempt_cost_usd") or 0) for e in existing)]
     budget = {"reserved": 0.0}
     try:
-        results = await asyncio.gather(*[_complete(backend, task, gate, lock, attempts, spent, budget) for task in tasks])
+        results = await asyncio.gather(*[_complete(backend, task, gate, lock, attempts, spent, budget, EVENTS_PATH) for task in tasks])
         terminal.update(event["logical_id"] for event in results)
         all_events = [json.loads(line) for line in EVENTS_PATH.read_text(encoding="utf-8").splitlines() if line.strip()]
         status = {"protocol": PROTOCOL, "status": "completed" if len(terminal) == manifest["logical_calls"] else "incomplete", "logical_calls": len(terminal), "expected_logical_calls": manifest["logical_calls"], "physical_attempts": len(all_events), "retries": sum(max(0, int(e.get("attempt", 0))) for e in all_events), "observed_cost_usd": sum(float(e.get("attempt_cost_usd") or 0) for e in all_events), "max_active_requests": gate.max_active, "global_request_limit": gate.limit, "finished_at_utc": now()}
@@ -401,6 +410,120 @@ def stage_a_analysis(manifest: dict[str, Any] | None = None) -> dict[str, Any]:
     return analysis
 
 
+def build_micro_tasks() -> list[dict[str, Any]]:
+    """Build the unchanged 17-state microscopic design on fresh V1.1 seeds."""
+    tasks: list[dict[str, Any]] = []
+    for ecology in ECOLOGIES:
+        for seed in MICRO_SEEDS_V11[ecology]:
+            for k in K_VALUES:
+                states = _assignment_states(seed, k)
+                base_memory = _memory_for(ecology, seed, k, states[0][1])
+                memory_xs = {tuple(item["x"]) for item in base_memory}
+                for state_index, (state_name, assignment) in enumerate(states):
+                    memory = _memory_for(ecology, seed, k, assignment)
+                    for target in range(N_NICHES):
+                        for probe_index, x in enumerate(_probe_xs(ecology, seed, k, memory_xs, target)):
+                            probe = legacy_case(ecology, seed, target, x, role="probe", index=probe_index)
+                            probe["seed"] = seed
+                            task = {"protocol": PROTOCOL, "stage": "MICRO", "ecology": ecology, "seed": seed, "k": k, "state_index": state_index, "state": state_name, "target": target, "probe_index": probe_index, "probe": probe, "memory": memory}
+                            task["prompt_hash"] = stable_hash({"system": SYSTEM_PROMPT, "user": render_user(ecology, probe, memory)})
+                            task["logical_id"] = stable_hash(task)
+                            tasks.append(task)
+    expected = 2 * 6 * 3 * (MICRO_MEMORY_STATES * N_NICHES * PROBES_PER_NICHE)
+    if len(tasks) != expected:
+        raise RuntimeError(f"V1.1 MICRO count mismatch: {len(tasks)} != {expected}")
+    return tasks
+
+
+def build_micro_manifest() -> dict[str, Any]:
+    assert_no_concrete_answer_vectors()
+    tasks = build_micro_tasks()
+    payload = {"protocol": PROTOCOL, "stage": "MICRO", "created_at_utc": now(), "git_head": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(), "provider": "DeepSeek Direct", "model": MODEL, "thinking": THINKING, "max_tokens": MAX_TOKENS, "hard_cap_usd": HARD_CAP_USD, "ecologies": ECOLOGIES, "micro_seeds": MICRO_SEEDS_V11, "k_values": K_VALUES, "logical_calls": len(tasks), "tasks": tasks, "tasks_hash": stable_hash(tasks), "stage_a_status": json.loads((STAGE_A_ROOT / "harness_gate_results.json").read_text(encoding="utf-8"))["status"] if (STAGE_A_ROOT / "harness_gate_results.json").exists() else "UNKNOWN"}
+    payload["manifest_hash"] = stable_hash(payload)
+    if MICRO_MANIFEST_PATH.exists():
+        old = json.loads(MICRO_MANIFEST_PATH.read_text(encoding="utf-8"))
+        if old.get("manifest_hash") != stable_hash({k: v for k, v in old.items() if k != "manifest_hash"}) or old.get("tasks_hash") != payload["tasks_hash"]:
+            raise RuntimeError("existing V1.1 MICRO manifest differs or is invalid")
+        return old
+    atomic_json(MICRO_MANIFEST_PATH, payload)
+    return payload
+
+
+async def run_micro_v11(*, confirm_real: bool = False, concurrency: int = 32) -> dict[str, Any]:
+    if not confirm_real:
+        raise SystemExit("V1.1 MICRO execution requires --confirm-real")
+    stage_a = json.loads((STAGE_A_ROOT / "harness_gate_results.json").read_text(encoding="utf-8"))
+    if stage_a.get("status") != "PASS":
+        raise RuntimeError("V1.1 MICRO is locked until every Stage A harness gate passes")
+    manifest = build_micro_manifest()
+    existing = [json.loads(line) for line in MICRO_EVENTS_PATH.read_text(encoding="utf-8").splitlines() if line.strip()] if MICRO_EVENTS_PATH.exists() else []
+    terminal = {event["logical_id"] for event in existing if event.get("terminal")}
+    attempts = collections.Counter(event["logical_id"] for event in existing)
+    tasks = [task for task in manifest["tasks"] if task["logical_id"] not in terminal]
+    if not tasks and len(terminal) == manifest["logical_calls"]:
+        return analyze_micro_v11(manifest)
+    key = CredentialStore().get(source="keychain")
+    backend = DeepSeekDirectBackend(api_key=key, thinking=THINKING, max_tokens=MAX_TOKENS, max_connections=concurrency, max_keepalive_connections=concurrency)
+    gate = RequestGate(concurrency); lock = asyncio.Lock(); budget = {"reserved": 0.0}
+    prior_stage_cost = float(json.loads(STATUS_PATH.read_text(encoding="utf-8")).get("observed_cost_usd") or 0.0) if STATUS_PATH.exists() else 0.0
+    spent = [prior_stage_cost + sum(float(event.get("attempt_cost_usd") or 0.0) for event in existing)]
+    try:
+        for offset in range(0, len(tasks), concurrency * 4):
+            await asyncio.gather(*[_complete(backend, task, gate, lock, attempts, spent, budget, MICRO_EVENTS_PATH) for task in tasks[offset:offset + concurrency * 4]])
+        all_events = [json.loads(line) for line in MICRO_EVENTS_PATH.read_text(encoding="utf-8").splitlines() if line.strip()]
+        final_terminal = {event["logical_id"] for event in all_events if event.get("terminal")}
+        status = {"protocol": PROTOCOL, "stage": "MICRO", "status": "completed" if len(final_terminal) == manifest["logical_calls"] else "incomplete", "logical_calls": len(final_terminal), "expected_logical_calls": manifest["logical_calls"], "physical_attempts": len(all_events), "retries": sum(int(event.get("attempt", 0)) for event in all_events), "observed_cost_usd": sum(float(event.get("attempt_cost_usd") or 0.0) for event in all_events), "global_request_limit": gate.limit, "max_active_requests": gate.max_active, "finished_at_utc": now()}
+        atomic_json(MICRO_STATUS_PATH, status)
+        if status["status"] != "completed":
+            raise RuntimeError("V1.1 MICRO incomplete")
+    finally:
+        await backend.close()
+    return analyze_micro_v11(manifest)
+
+
+def analyze_micro_v11(manifest: dict[str, Any] | None = None) -> dict[str, Any]:
+    manifest = manifest or json.loads(MICRO_MANIFEST_PATH.read_text(encoding="utf-8"))
+    events = [json.loads(line) for line in MICRO_EVENTS_PATH.read_text(encoding="utf-8").splitlines() if line.strip()]
+    terminal = {event["logical_id"]: event for event in events if event.get("terminal")}
+    if len(terminal) != manifest["logical_calls"]:
+        raise RuntimeError(f"V1.1 MICRO coverage {len(terminal)}/{manifest['logical_calls']}")
+    grouped: dict[tuple[str, int, int, int], list[dict[str, Any]]] = collections.defaultdict(list)
+    for event in terminal.values():
+        task = event["task"]
+        grouped[(task["ecology"], int(task["seed"]), int(task["k"]), int(task["state_index"]))].append(event)
+    pooled: dict[str, dict[str, list[list[float]]]] = {ecology: {} for ecology in ECOLOGIES}
+    diagnostics: list[dict[str, Any]] = []
+    seed_level: list[dict[str, Any]] = []
+    for ecology in ECOLOGIES:
+        for k in K_VALUES:
+            per_seed: list[Any] = []
+            for seed in MICRO_SEEDS_V11[ecology]:
+                base = np.asarray([statistics.mean(int(e["correct"]) for e in grouped[(ecology, seed, k, 0)] if int(e["task"]["target"]) == target) for target in range(N_NICHES)])
+                responses = []; swaps = []
+                singles = single_swaps(seed, k)
+                for index, swap in enumerate(singles):
+                    value = np.asarray([statistics.mean(int(e["correct"]) for e in grouped[(ecology, seed, k, index + 1)] if int(e["task"]["target"]) == target) for target in range(N_NICHES)])
+                    responses.append(value - base)
+                    delta = np.zeros(N_NICHES); delta[int(swap["target"])] += 1; delta[int(swap["source"])] -= 1; swaps.append(delta)
+                explicit = estimate_k_explicit(swaps, responses); pairwise = estimate_k_pairwise(swaps, responses)
+                observed = []; predicted = []
+                for index, pair in enumerate(double_swaps(seed, k)):
+                    actual = np.asarray([statistics.mean(int(e["correct"]) for e in grouped[(ecology, seed, k, 13 + index)] if int(e["task"]["target"]) == target) for target in range(N_NICHES)]) - base
+                    observed.append(actual); predicted.append(responses[singles.index(pair[0])] + responses[singles.index(pair[1])])
+                diag = superposition_diagnostics(observed, predicted); diag.update({"ecology": ecology, "seed": seed, "k": k, "mean_absolute_error": float(np.mean(np.abs(np.asarray(observed) - np.asarray(predicted))))})
+                diagnostics.append(diag); seed_level.append({"ecology": ecology, "seed": seed, "k": k, "K": explicit.tolist(), "pairwise_K": pairwise.tolist(), "max_estimator_diff": float(np.max(np.abs(explicit - pairwise))), **diag})
+                per_seed.append(explicit)
+            pooled_matrix = np.mean(np.asarray(per_seed), axis=0)
+            pooled[ecology][str(k)] = pooled_matrix.tolist()
+    MICRO_ROOT.mkdir(parents=True, exist_ok=True)
+    atomic_json(MICRO_ROOT / "k_reconstruction.json", {"primary": "pooled_six_fresh_seeds", "pooled": pooled, "seed_level": seed_level, "estimator_max_diff": max(row["max_estimator_diff"] for row in seed_level)})
+    with (MICRO_ROOT / "linearity_diagnostics.csv").open("w", encoding="utf-8") as handle:
+        fields = ["ecology", "seed", "k", "r2", "cosine", "normalized_superposition_error", "mean_absolute_error"]
+        handle.write(",".join(fields) + "\n")
+        for row in diagnostics: handle.write(",".join(str(row.get(field, "")) for field in fields) + "\n")
+    return {"status": "COMPLETE", "logical_calls": len(terminal), "pooled": pooled, "diagnostics": diagnostics, "seed_level": seed_level}
+
+
 def forecast() -> dict[str, Any]:
     historical = []
     for path in (ROOT / "data/auto-research/theory-v1/micro_status.json", ROOT / "data/auto-research/theory-v1/macro/macro_status.json"):
@@ -420,6 +543,8 @@ def main(argv: Iterable[str] | None = None) -> None:
     parser.add_argument("--plan", action="store_true")
     parser.add_argument("--forecast", action="store_true")
     parser.add_argument("--stage-a", action="store_true")
+    parser.add_argument("--micro", action="store_true")
+    parser.add_argument("--analyze-micro", action="store_true")
     parser.add_argument("--analyze-stage-a", action="store_true")
     parser.add_argument("--confirm-real", action="store_true")
     args = parser.parse_args(list(argv) if argv is not None else None)
@@ -431,6 +556,10 @@ def main(argv: Iterable[str] | None = None) -> None:
         print(json.dumps(stage_a_analysis(), indent=2))
     if args.stage_a:
         print(json.dumps(asyncio.run(run_stage_a(confirm_real=args.confirm_real)), indent=2))
+    if args.analyze_micro:
+        print(json.dumps(analyze_micro_v11(), indent=2))
+    if args.micro:
+        print(json.dumps(asyncio.run(run_micro_v11(confirm_real=args.confirm_real)), indent=2))
 
 
 if __name__ == "__main__":

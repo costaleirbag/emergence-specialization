@@ -16,6 +16,7 @@ from emergent_specialization.theory_v1_1 import (
     STAGE_A_CONDITIONS,
     VALIDATION_SEEDS,
     build_stage_a_tasks,
+    build_micro_tasks,
     render_user,
     _novel_seed_audit,
 )
@@ -71,6 +72,11 @@ class TheoryV11HarnessTests(unittest.TestCase):
             (8, 12.0, .10, 0.0), (8, 20.0, .10, 0.0), (8, 16.0, .55, 0.0),
             (8, 12.0, .10, .5), (8, 12.0, .10, 1.0),
         })
+
+    def test_micro_exact_count_and_fresh_seed_grid(self):
+        tasks = build_micro_tasks()
+        self.assertEqual(len(tasks), 19584)
+        self.assertEqual({task["k"] for task in tasks}, {4, 8, 12})
 
     def test_historical_sensitivity_cannot_overwrite_primary_scorecard(self):
         source = inspect.getsource(forensic_repair.sensitivity_scorecards)
