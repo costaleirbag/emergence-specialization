@@ -406,7 +406,7 @@ async def _evaluate_checkpoint(*, backend: DeepSeekDirectBackend, ecology: str, 
         async with append_lock:
             append_jsonl(checkpoint_path, {
                 "protocol": PROTOCOL, "event": "checkpoint_observation", "logical_id": lid,
-                "ecology": ecology, "seed": seed, "cell_id": int(cell["cell_id"]),
+                "ecology": ecology, "seed": seed, "cell_id": str(cell["cell_id"]),
                 "checkpoint": checkpoint, "agent": agent, "niche": task["niche"],
                 "probe_index": task["probe_index"], "memory_hash": stable_hash(memory),
                 "memory_hash_after": stable_hash(state.memories[agent]),
@@ -448,7 +448,7 @@ async def _run_trajectory(*, backend: DeepSeekDirectBackend, ecology: str, seed:
         recipients = state.add_feedback(selected, task, bool(chosen.get("correct")), t, spec["sharing_u"][t - 1])
         step_event = {
             "protocol": PROTOCOL, "event": "online_step", "logical_id": step_id,
-            "ecology": ecology, "seed": seed, "cell_id": int(cell["cell_id"]),
+            "ecology": ecology, "seed": seed, "cell_id": str(cell["cell_id"]),
             "t": t, "task": task, "selected_agent": selected, "mu_before": mu,
             "routing_u": spec["routing_u"][t - 1], "sharing_u": spec["sharing_u"][t - 1],
             "recipients": recipients, "decisions": chosen.get("decisions"),
@@ -494,7 +494,7 @@ async def run_macro(*, confirm_real: bool = False, concurrency: int = CONCURRENC
         step_events = learner._load_events(MACRO_ROOT / "macro_steps.jsonl")
     steps_by_trajectory: dict[tuple[str, int, int], dict[int, dict[str, Any]]] = collections.defaultdict(dict)
     for e in step_events:
-        key = (e["ecology"], int(e["seed"]), int(e["cell_id"]))
+        key = (e["ecology"], int(e["seed"]), str(e["cell_id"]))
         t = int(e["t"])
         if t in steps_by_trajectory[key]:
             raise RuntimeError("duplicate persisted MACRO online step")
@@ -535,7 +535,7 @@ async def run_macro(*, confirm_real: bool = False, concurrency: int = CONCURRENC
             for ecology in ECOLOGIES:
                 for seed in manifest["social_seeds"][ecology]:
                     spec = manifest["seed_specs"][f"{ecology}:{seed}"]
-                    key = (ecology, int(seed), int(cell["cell_id"]))
+                    key = (ecology, int(seed), str(cell["cell_id"]))
                     state = State(ecology, int(seed), cell)
                     trajectory_jobs.append(_run_trajectory(
                         backend=backend, ecology=ecology, seed=int(seed), cell=cell,
