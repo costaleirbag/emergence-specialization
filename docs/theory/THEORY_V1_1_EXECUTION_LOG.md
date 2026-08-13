@@ -48,3 +48,19 @@ task construction, or subsequent conditional protocol.
 - MICRO seed collisions: `0`
 - MICRO paid execution: started only after full suite `275 OK` and compileall OK.
 - MICRO raw namespace: `data/auto-research/theory-v1-1/micro_events.jsonl`
+
+## MICRO closure and MACRO stop
+
+- MICRO status: `completed`, `19,584 / 19,584` logical calls
+- MICRO physical attempts: `19,588`
+- MICRO technical retries: `4`
+- MICRO observed cost: US$1.1331386304
+- Stage A + MICRO observed cost: US$1.1687350640
+- Prediction rows sealed: `16` (8 cells × 2 ecologies)
+- Prediction seal tag: `theory-v1-1-predictions-sealed-20260813`
+- Post-MICRO projected MACRO cost: US$2.7389706913
+- Projected total without margin: US$3.8721093217
+- Projected total with frozen 30% remaining safety margin: US$4.6938005292
+- Hard ceiling: US$4.00
+- MACRO status: `BLOCKED BEFORE MACRO` by the explicit budget guard
+- MACRO logical calls executed: `0`
