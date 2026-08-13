@@ -84,11 +84,13 @@ class TheoryV11HarnessTests(unittest.TestCase):
         self.assertIn("write_artifacts=False", source)
 
     def test_v11_macro_manifest_is_exact_target_grid(self):
+        legacy_cells_before = macro_runner.macro_cells()
         manifest = theory_v1_1_macro.build_manifest()
         self.assertEqual(manifest["protocol"], "THEORY-V1.1")
         self.assertEqual(manifest["logical_calls"], 62976)
         self.assertEqual(len(manifest["cells"]), 8)
         self.assertEqual(manifest["social_seeds"], {k: list(v) for k, v in theory_v1_1_macro.SOCIAL_SEEDS_V11.items()})
+        self.assertEqual(macro_runner.macro_cells(), legacy_cells_before)
 
 
 if __name__ == "__main__":

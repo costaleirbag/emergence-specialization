@@ -10,6 +10,7 @@ router equations, memory semantics, or prompt rendering.
 from __future__ import annotations
 
 import json
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -52,9 +53,25 @@ def _bind_legacy() -> None:
     legacy.macro_cells = lambda: [dict(cell) for cell in MACRO_CELLS_V11]
 
 
-def build_manifest() -> dict[str, Any]:
+@contextmanager
+def _bound_legacy():
+    names = (
+        "PROTOCOL", "ECOLOGIES", "SOCIAL_SEEDS", "MACRO_CHECKPOINTS",
+        "MACRO_ROUNDS", "MACRO_ROOT", "DATA_ROOT", "REPORT_ROOT",
+        "MACRO_REPORT", "HARD_CAP_USD", "MODEL", "THINKING", "macro_cells",
+    )
+    previous = {name: getattr(legacy, name) for name in names}
     _bind_legacy()
-    manifest = legacy.build_manifest()
+    try:
+        yield
+    finally:
+        for name, value in previous.items():
+            setattr(legacy, name, value)
+
+
+def build_manifest() -> dict[str, Any]:
+    with _bound_legacy():
+        manifest = legacy.build_manifest()
     if manifest.get("protocol") != PROTOCOL:
         raise RuntimeError("V1.1 MACRO manifest protocol mismatch")
     if manifest.get("logical_calls") != 62976:
@@ -67,9 +84,9 @@ def build_manifest() -> dict[str, Any]:
 
 
 def preflight() -> dict[str, Any]:
-    _bind_legacy()
-    manifest = build_manifest()
-    result = legacy.preflight()
+    with _bound_legacy():
+        manifest = legacy.build_manifest()
+        result = legacy.preflight()
     # Keep the preflight visibly in the V1.1 report namespace even though the
     # frozen state-machine implementation writes its legacy-compatible file.
     V11_REPORT_ROOT.mkdir(parents=True, exist_ok=True)
@@ -82,7 +99,6 @@ def preflight() -> dict[str, Any]:
 
 
 async def run_macro(*, confirm_real: bool = False, concurrency: int = 32) -> dict[str, Any]:
-    _bind_legacy()
     # The legacy runner checks this root-level path.  The canonical sealed
     # artifact remains under reports/theory-v1-1/predictions/; the byte-for-
     # byte copy is a compatibility input only and is hash-checked below.
@@ -95,7 +111,8 @@ async def run_macro(*, confirm_real: bool = False, concurrency: int = 32) -> dic
         raise RuntimeError("root V1.1 prediction compatibility copy differs")
     if not root_prediction.exists():
         root_prediction.write_bytes(payload)
-    result = await legacy.run_macro(confirm_real=confirm_real, concurrency=concurrency)
+    with _bound_legacy():
+        result = await legacy.run_macro(confirm_real=confirm_real, concurrency=concurrency)
     result["protocol"] = PROTOCOL
     result["run_id"] = "theory-v1-1-macro-confirmatory-20260813"
     status_path = V11_MACRO_ROOT / "macro_status.json"
@@ -106,8 +123,7 @@ async def run_macro(*, confirm_real: bool = False, concurrency: int = 32) -> dic
 
 
 def health() -> dict[str, Any]:
-    _bind_legacy()
-    result = legacy.health()
+    with _bound_legacy():
+        result = legacy.health()
     result["protocol"] = PROTOCOL
     return result
-
