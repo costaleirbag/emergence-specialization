@@ -518,7 +518,17 @@ def evidence(interval_rows: Sequence[Mapping[str,Any]], belief_oof_rows: Sequenc
         ("H7","Competence updates may churn rather than reinforce existing roles", "INCONCLUSIVE", "see reinforcement/innovation/cos_role_update", "finite checkpoint resolution"),
         ("H8","Several moderate transmission losses may jointly block closure", "MODERATE", "multiple links are reported separately", "not a fitted causal decomposition"),
     ]:
-        evidence_rows.append({"hypothesis":h,"claim":claim,"classification":classification,"supporting_evidence":support,"contradicting_or_limit":contradiction,"uncertainty_unit":"ecology x social seed","causal_status":"developmental descriptive"})
+        metadata = {
+            "H1": ("OOF MAE gain is modest", "low A reliability; 6 seeds/ecology", "recency improves modestly in both", "recency improves modestly in both", "no", "yes"),
+            "H2": ("regret rises from 0 at beta=0 to ~0.04", "associational trajectory units", "beta-sensitive exposure/regret", "beta-sensitive exposure/regret", "no", "no"),
+            "H3": ("C4 exposure-memory cosine ~0.6--0.9", "no randomized adaptive exposure", "transmission visible", "transmission visible", "C0 only", "no"),
+            "H4": ("M1--M4 do not improve OOF over M0", "held-out social-seed OOF", "no robust representation gain", "no robust representation gain", "no", "yes"),
+            "H5": ("within-radius-2 fraction .55 V31/.81 AFFINE at t128", "distance residual not monotone", "partial local support", "partial local support", "no", "yes"),
+            "H6": ("q changes age/span/overlap", "q is not randomized", "same timescale shift", "same timescale shift", "no", "no"),
+            "H7": ("reinforcement negative; innovation positive", "competence split-half modest", "negative role-update alignment", "negative role-update alignment", "no", "no"),
+            "H8": ("multiple edge diagnostics are weak/moderate", "descriptive synthesis only", "several losses", "several losses", "no", "yes"),
+        }[h]
+        evidence_rows.append({"hypothesis":h,"claim":claim,"classification":classification,"effect_size":metadata[0],"uncertainty":metadata[1],"ecology_a":metadata[2],"ecology_b":metadata[3],"randomized_evidence_available":metadata[4],"heldout_predictive_evidence_available":metadata[5],"supporting_evidence":support,"contradicting_or_limit":contradiction,"uncertainty_unit":"ecology x social seed","causal_status":"developmental descriptive"})
     write_csv(OUT/"mechanism_evidence_table.csv", evidence_rows); return evidence_rows
 
 
