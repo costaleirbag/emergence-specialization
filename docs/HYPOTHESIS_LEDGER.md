@@ -271,3 +271,27 @@ level; it never means universal truth.
   estimate the full randomized single-agent `L_cd(h)` matrix before any society.
 - **Status:** OPEN.
 - **Last update:** 2026-08-08 ecology-priority steer.
+
+## H14 — post-V1 feedback-loop closure failure
+
+- **Statement:** In the clean harness, niche-specific exposure and FIFO memory
+  can increase behavioral/competence differentiation without reinforcing a
+  persistent task-role direction; the missing closure may be downstream of
+  exposure rather than absence of routing signal.
+- **Mechanism candidates:** router belief can be stale relative to current
+  held-out competence; sharing changes memory age/provenance as well as overlap;
+  competence updates can be innovation/churn orthogonal or opposite to the
+  current centered role state.
+- **Evidence:** offline reconstruction of all clean V1.1 trajectories found
+  exact `Delta Psi = reinforcement + innovation`, negative mean reinforcement
+  with positive innovation in both ecologies, strong exposure-to-memory
+  transmission, and sharply different FIFO age/overlap under q=0/.5/1. The
+  clean six-seed-per-ecology unit is clustered and competence split-half
+  reliability is low, so no edge is claimed as causal.
+- **Contradicting/limiting evidence:** held-out belief estimators and memory
+  representation ladder do not identify a robust improvement; MICRO-to-MACRO
+  distance residuals are not monotone. The decomposition is descriptive, not a
+  randomized intervention.
+- **Status:** OPEN / MECHANISM-DISCOVERY ONLY. Theory V1 is closed; Theory V2 is
+  not defined.
+- **Last update:** 2026-08-13 post-V1 mechanism decomposition.

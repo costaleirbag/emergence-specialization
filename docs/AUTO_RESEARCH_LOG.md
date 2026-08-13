@@ -231,3 +231,27 @@ tests, and a cost-ledger check.
 - Independent raw validation reproduced counts, accuracy, agreement, usage,
   cost, latency, provider identity, and ledger reconciliation without reading
   `report.json` as authority.
+
+## 2026-08-13 — post-V1 mechanism decomposition (offline, zero calls)
+
+- Registered the mechanism plan and analysis registry before inspecting derived
+  mechanism results (`c74294f`). Primary inputs were only the clean Theory V1.1
+  Stage A, MICRO, and canonical MACRO raws; historical harness-confounded V1
+  data were excluded from primary inference.
+- Reconstructed a complete state panel for 2 ecologies × 6 social seeds × 8
+  cells, including t=0 and t=1..128 router posterior, expected routing,
+  routing/sharing draws, online correctness, FIFO memory cases with timestamps
+  and provenance, and held-out checkpoint competence. Raw event hashes were
+  identical before and after analysis.
+- Computed the chain `A -> mu -> p -> E -> M -> A'`, reliability, OOF belief and
+  memory-model diagnostics, exposure/memory timescale, MICRO-to-MACRO transport,
+  and the exact double-centered Delta-Psi reinforcement/innovation identity.
+- Descriptive result: exposure and memory transmit, but competence movement is
+  often anti-aligned with the current centered role direction; sharing changes
+  FIFO age and overlap; router staleness, memory representation, and local-K
+  transport remain inconclusive under low reliability and six clustered seeds.
+  H6 sharing-timescale and H8 multiple-bottleneck synthesis are moderate
+  descriptive evidence; no causal mechanism or Theory V2 was defined.
+- Outputs are under `reports/post-v1-mechanisms/`; final validation and package
+  creation remain part of this offline closure. External calls: **0**; cost:
+  **US$0.00**.

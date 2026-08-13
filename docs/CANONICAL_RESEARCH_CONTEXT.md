@@ -355,3 +355,26 @@ thresholds were not revised; the repaired implementation was not prospectively
 sealed, so this is explicitly a forensic evaluation after the MACRO run. Theory
 V1 is **CLOSED**. Theory V2 is not defined and no further Theory V1 calls are
 authorized.
+
+## 2026-08-13 post-V1 mechanism decomposition
+
+The clean Theory V1.1 Stage A, MICRO, and canonical MACRO raws were reanalyzed
+offline under the registered plan in
+`docs/mechanisms/POST_V1_MECHANISM_ANALYSIS_PLAN.md`. Historical harness-
+confounded Theory V1 data were excluded from primary mechanism claims; no model
+calls, probes, or raw-data edits occurred. The reconstructed state panel expands
+the loop `A -> mu -> p -> E -> M -> A'`, including router state, routing draws,
+FIFO memory provenance/age, checkpoint competence, and the exact
+`Delta Psi = reinforcement + innovation` identity.
+
+The principal descriptive result is not a repaired positive-feedback theory:
+exposure and FIFO state transmit, but competence updates are noisy and often
+anti-aligned with the current role direction. Negative reinforcement with
+positive innovation is consistent with differentiation churn. Belief recency,
+memory representation, and MICRO-to-MACRO transport remain inconclusive under
+low split-half competence reliability and six seed-clustered units per ecology.
+Sharing clearly changes memory timescale and overlap. H6 (sharing-timescale) and
+H8 (multiple-bottleneck descriptive synthesis) are moderate; H1-H5 and H7 are
+not identified as causal mechanisms. The resulting requirements are constraints
+for future theory work, not Theory V2 equations. Theory V2 remains undefined;
+the next action is principal-researcher review.
