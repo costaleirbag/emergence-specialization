@@ -58,6 +58,16 @@ These are hypotheses for a separately approved society protocol:
 
 None of these predictions licenses a society run in the present protocol.
 
+## Theory V1 closure (2026-08-13)
+
+The frozen Theory V1 challenge is closed after a raw-data forensic repair. The
+repaired evaluation confirms that `K`, `T_k`, and `J` are useful analysis
+objects, but the frozen linear reduction did not meet its prospective T1–T9
+predictive criteria. The repaired `T(L)`-like spectra remain model-dependent
+mathematical diagnostics, not an observed LLM-society Jacobian. MICRO and MACRO
+data are consumed and may only inform a separately approved future theory; no
+Theory V2 equations or new experiment are defined here.
+
 ## Theory V1 prospective challenge (2026-08-12)
 
 The project now separates old DEVELOPMENT observations from a future

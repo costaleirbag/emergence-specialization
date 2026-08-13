@@ -12,6 +12,7 @@ from emergent_specialization.theory_v1.dynamics import (
     psi_spec,
     retention,
     spectral_summary,
+    spectral_summary_centered,
     transfer_operator,
 )
 from emergent_specialization.theory_v1.ecologies import AffineBooleanV1, V31Fresh, fresh_training_state
@@ -99,11 +100,21 @@ class TheoryV1Tests(unittest.TestCase):
 
     def test_prediction_and_regime_fixtures(self):
         rows = predictions_for_k(np.eye(4), 8)
-        self.assertEqual(len(rows), 18)
+        self.assertEqual(len(rows), 8)
+        self.assertTrue(all(int(row["k"]) == 8 for row in rows))
         self.assertEqual(rows[0]["regime"], "SUBCRITICAL")
         self.assertIn(classify_regime(1.1), {"SUPERCRITICAL"})
         self.assertIsNone(critical_beta(np.eye(4), 8, 1.0, .1))
         self.assertIn("dominant_mode", spectral_summary(transfer_operator(np.eye(4))))
+
+    def test_centered_spectrum_excludes_uniform_mode(self):
+        # The full-space uniform mode is deliberately dominant here; it is not
+        # a specialization mode and must not enter R_spec.
+        operator = np.diag([3.0, 1.0, 1.0, 1.0])
+        full = spectral_summary(operator)["spectral_radius"]
+        centered = spectral_summary_centered(operator)["spectral_radius"]
+        self.assertNotEqual(full, centered)
+        self.assertAlmostEqual(centered, 2.5)
 
     def test_rank_score_helpers(self):
         self.assertAlmostEqual(spearman([1, 2, 3], [2, 4, 6]), 1.0)

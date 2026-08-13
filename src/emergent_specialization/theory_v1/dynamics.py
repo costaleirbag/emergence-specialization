@@ -92,6 +92,38 @@ def spectral_summary(operator: Sequence[Sequence[float]], tolerance: float = 1e-
     }
 
 
+def spectral_summary_centered(operator: Sequence[Sequence[float]], tolerance: float = 1e-10) -> dict[str, Any]:
+    """Spectrum restricted to the niche-centered subspace ``1^perp``.
+
+    Theory V1's specialization dynamics exclude the uniform niche mode.  This
+    helper is intentionally separate from the historical ``spectral_summary``
+    API so old derived artifacts remain reproducible while repaired prediction
+    generation cannot accidentally score the full-space uniform eigenvalue.
+    """
+    values = np.asarray(operator, dtype=float)
+    if values.ndim != 2 or values.shape[0] != values.shape[1] or values.shape[0] < 2:
+        raise ValueError("operator must be a square matrix with at least 2 dimensions")
+    basis = np.linalg.svd(centered_projector(values.shape[0]))[0][:, : values.shape[0] - 1]
+    restricted = basis.T @ values @ basis
+    eigenvalues, eigenvectors = np.linalg.eig(restricted)
+    magnitudes = np.abs(eigenvalues)
+    order = np.argsort(magnitudes)[::-1]
+    radius = float(magnitudes[order[0]]) if len(order) else 0.0
+    second = float(magnitudes[order[1]]) if len(order) > 1 else 0.0
+    mode = basis @ np.real(eigenvectors[:, order[0]]) if len(order) else np.zeros(values.shape[0])
+    mode /= np.linalg.norm(mode) or 1.0
+    return {
+        "eigenvalues_real": [float(v.real) for v in eigenvalues],
+        "eigenvalues_imag": [float(v.imag) for v in eigenvalues],
+        "spectral_radius": radius,
+        "lambda_spec": math.log(radius) if radius > 0 else float("-inf"),
+        "dominant_mode": mode.tolist(),
+        "relative_spectral_gap": (radius - second) / radius if radius > tolerance else 0.0,
+        "non_normal_numerical_abscissa": float(np.max(np.linalg.eigvalsh((restricted + restricted.T) / 2.0))),
+        "restricted_operator": restricted.tolist(),
+    }
+
+
 def critical_beta(k_matrix: Sequence[Sequence[float]], k: int, q_share: float, epsilon: float, n_agents: int = 4, rho: Sequence[float] | None = None) -> float | None:
     """Scalar beta_c when the relevant real eigenvalue is positive.
 
@@ -114,4 +146,3 @@ def classify_regime(spectral_radius: float) -> str:
     if spectral_radius < 1.02:
         return "TRANSITIONAL"
     return "SUPERCRITICAL"
-

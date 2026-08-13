@@ -1,3 +1,13 @@
+# SUPERSEDED DERIVED ANALYSIS
+
+The prospective MICRO and MACRO raw experiments remain valid and immutable. The
+original derived prediction/scorecard layer was later found to contain
+implementation defects (including K-to-cell assignment and full-space spectral
+scoring). It is historical provenance only and must not be used as the
+canonical Theory V1 evaluation. See
+`THEORY_V1_FORENSIC_ANALYSIS_REPAIR_REPORT.md` and
+`reports/theory-v1/repair/` for the deterministic forensic reconstruction.
+
 # Theory V1 prospective challenge report
 
 ## Executive verdict

@@ -341,3 +341,17 @@ Boolean ecology. No paid Theory V1 call has been made. A final cost preflight is
 required before any provider execution; if the fixed design plus safety margin
 exceeds its US$6.25 ceiling, the challenge remains blocked without shrinking or
 retrofitting the protocol.
+
+## 2026-08-13 Theory V1 forensic closure
+
+Theory V1 MICRO and the canonical restarted MACRO were executed and are now
+**CONSUMED / DEVELOPMENT-FOR-FUTURE-THEORY**. No raw event was changed. A
+post-MACRO forensic audit repaired deterministic analysis defects: 31 auxiliary
+checkpoint rows were reconstructed from canonical raw completions, K-to-cell
+assignment was enforced, and `R_spec` was restricted to the niche-centered
+subspace. The repaired scorecard is **NOT SUPPORTED IN CURRENT FORM** under the
+frozen T1–T9 criteria (T2 passes; T9 is non-identifiable). The equations and
+thresholds were not revised; the repaired implementation was not prospectively
+sealed, so this is explicitly a forensic evaluation after the MACRO run. Theory
+V1 is **CLOSED**. Theory V2 is not defined and no further Theory V1 calls are
+authorized.
