@@ -20,6 +20,8 @@ experiment.
 - Provider: DeepSeek Direct; model `deepseek-v4-flash`; thinking off.
 - Prediction seal: `theory-v1-1-predictions-sealed-20260813`.
 - Prediction SHA-256: `ee88d43e3e47e11bf068510e37411832c95010a3012b9b9a491981e839062adb`.
+- Completion commit: `a5cc68399c5dc08e3cb2a67b42248db55d0cbbe1`.
+- Completion tag: `theory-v1-1-macro-complete-20260813`.
 - MACRO manifest: `reports/theory-v1-1/macro_manifest.json`.
 - MACRO logical calls: 62,976 exactly (two ecologies × six seeds × eight cells).
 - Scientific cells and seeds were not changed after sealing.
@@ -115,3 +117,12 @@ paid calls, prompt tuning, model change, or society run is authorized by this
 result.
 
 **NEXT ACTION: PRINCIPAL RESEARCHER REVIEW.**
+
+## Package
+
+The reproducible handoff archive is
+`theory-v1-1-harness-clean-replication-package.tar.gz` (SHA-256
+`cc76d6f141dc4c4693fbc913d1b40da3a886abd63b4114d9f3c088cce5bb6146`). It
+contains the frozen protocol/manifests, Stage A and MICRO provenance, canonical
+MACRO raw logs, reconstructed analysis, tests, and reports; it excludes `.git`,
+`.venv`, secrets, and lock files.
