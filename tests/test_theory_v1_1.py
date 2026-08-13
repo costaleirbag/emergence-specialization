@@ -21,6 +21,7 @@ from emergent_specialization.theory_v1_1 import (
     _novel_seed_audit,
 )
 from emergent_specialization.theory_v1 import forensic_repair
+from emergent_specialization import theory_v1_1_macro
 
 
 class TheoryV11HarnessTests(unittest.TestCase):
@@ -81,6 +82,13 @@ class TheoryV11HarnessTests(unittest.TestCase):
     def test_historical_sensitivity_cannot_overwrite_primary_scorecard(self):
         source = inspect.getsource(forensic_repair.sensitivity_scorecards)
         self.assertIn("write_artifacts=False", source)
+
+    def test_v11_macro_manifest_is_exact_target_grid(self):
+        manifest = theory_v1_1_macro.build_manifest()
+        self.assertEqual(manifest["protocol"], "THEORY-V1.1")
+        self.assertEqual(manifest["logical_calls"], 62976)
+        self.assertEqual(len(manifest["cells"]), 8)
+        self.assertEqual(manifest["social_seeds"], {k: list(v) for k, v in theory_v1_1_macro.SOCIAL_SEEDS_V11.items()})
 
 
 if __name__ == "__main__":
