@@ -93,12 +93,13 @@ def preflight() -> dict[str, Any]:
     (V11_REPORT_ROOT / "macro_preflight.json").write_text(
         json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    if result.get("decision") != "PROCEED_TO_MACRO":
-        raise RuntimeError("V1.1 MACRO cost preflight failed")
     return result
 
 
 async def run_macro(*, confirm_real: bool = False, concurrency: int = 32) -> dict[str, Any]:
+    forecast = preflight()
+    if forecast.get("decision") != "PROCEED_TO_MACRO":
+        raise RuntimeError("V1.1 MACRO blocked by hard cost preflight")
     # The legacy runner checks this root-level path.  The canonical sealed
     # artifact remains under reports/theory-v1-1/predictions/; the byte-for-
     # byte copy is a compatibility input only and is hash-checked below.
