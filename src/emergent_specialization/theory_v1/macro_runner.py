@@ -43,6 +43,7 @@ NUM_AGENTS = 4
 MEMORY_MIN = 1
 CONCURRENCY = 32
 MAX_ATTEMPTS = 2
+REQUEST_TIMEOUT_S = 120.0
 RESERVATION_USD = 0.00050
 RETRYABLE = {"parse_error", "empty_content", "transient_transport", "transport", "rate_limit", "server_error", "overloaded"}
 
@@ -323,7 +324,10 @@ async def _completion(backend: DeepSeekDirectBackend, *, task: dict[str, Any], e
             _budget_change(reserve=RESERVATION_USD)
             reserved = True
             try:
-                response = await backend.complete(system_prompt=SYSTEM_PROMPT, user_prompt=prompt, model=MODEL, model_parameters={"thinking": THINKING, "max_tokens": MAX_TOKENS})
+                response = await asyncio.wait_for(
+                    backend.complete(system_prompt=SYSTEM_PROMPT, user_prompt=prompt, model=MODEL, model_parameters={"thinking": THINKING, "max_tokens": MAX_TOKENS}),
+                    timeout=REQUEST_TIMEOUT_S,
+                )
             except Exception as exc:
                 if reserved:
                     # A transport exception may still be billable. Charge the
