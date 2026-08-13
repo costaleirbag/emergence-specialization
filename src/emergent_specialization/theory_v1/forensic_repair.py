@@ -466,7 +466,7 @@ def _aggregate_observed(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any
     return out
 
 
-def scorecard(predictions: Sequence[Mapping[str, Any]], observed_rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+def scorecard(predictions: Sequence[Mapping[str, Any]], observed_rows: Sequence[Mapping[str, Any]], *, write_artifacts: bool = True) -> dict[str, Any]:
     observed = _aggregate_observed(observed_rows)
     key = lambda r: (r["ecology"], int(r["k"]), float(r["beta"]), float(r["epsilon"]), float(r["q_share"]))
     pmap = {key(r): r for r in predictions}; omap = {key(r): r for r in observed}
@@ -530,11 +530,12 @@ def scorecard(predictions: Sequence[Mapping[str, Any]], observed_rows: Sequence[
     elif result["tests"]["T1"]["status"] == "FAIL": overall = "NOT SUPPORTED IN CURRENT FORM"
     else: overall = "GLOBAL LABEL AMBIGUOUS UNDER FROZEN RULES"
     result["global_verdict"] = overall
-    write_json(REPAIR_ROOT / "theory_v1_scorecard_repaired.json", result)
-    flat = []
-    for name, value in result["tests"].items():
-        flat.append({"test": name, "status": value.get("status"), "statistic": value.get("pooled_spearman", value.get("accuracy", value.get("mean_difference"))), "units": value.get("eligible", value.get("panels_passing"))})
-    write_csv(REPAIR_ROOT / "theory_v1_scorecard_repaired.csv", flat)
+    if write_artifacts:
+        write_json(REPAIR_ROOT / "theory_v1_scorecard_repaired.json", result)
+        flat = []
+        for name, value in result["tests"].items():
+            flat.append({"test": name, "status": value.get("status"), "statistic": value.get("pooled_spearman", value.get("accuracy", value.get("mean_difference"))), "units": value.get("eligible", value.get("panels_passing"))})
+        write_csv(REPAIR_ROOT / "theory_v1_scorecard_repaired.csv", flat)
     return result
 
 
@@ -558,7 +559,7 @@ def sensitivity_scorecards(k_data: Mapping[str, Any], observed_rows: Sequence[Ma
     interpretations["prediction_per_micro_seed_then_mean"] = averaged
     outputs = {}
     for name, predictions in interpretations.items():
-        result = scorecard(predictions, observed_rows)
+        result = scorecard(predictions, observed_rows, write_artifacts=False)
         outputs[name] = {"global_verdict": result["global_verdict"], "tests": result["tests"]}
     write_json(REPAIR_ROOT / "sensitivity_scorecards.json", {"primary_interpretation": "pooled_K", "interpretations": outputs, "selection_rule": "literal frozen specification; no post-MACRO performance selection"})
     return outputs
