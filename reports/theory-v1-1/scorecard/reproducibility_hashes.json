@@ -1,0 +1,11 @@
+{
+  "macro/checkpoint_reconstruction.csv": "04b67b4e34e1c3a2787fa575c4616af63e5d9a344bd38c27778854ce98aa516b",
+  "macro/checkpoint_reconstruction_audit.json": "501bf11e8f53f09db18f444ae96a394cc03d68095c0d4f1af66cd74a19e475d5",
+  "macro/competence_matrices.csv": "4266ad82c91a9b2051d092145cc60b5a2b82b7be7c896dd46006a1c3feb80320",
+  "macro/component_accuracy.csv": "64b993050a7e752ae75c7c9d43ba9b1c3bedca7fad38ceebbf1d493c6fa5a193",
+  "macro/growth_by_seed.csv": "05b2eb403172f8bccfad37182a7feece7eb67becda0adcda9c8d7a06f9238372",
+  "macro/response_level.csv": "7dda075b40f862068f7dc9b9891bcb0014211a23f9a0f4343e6b90d46d227752",
+  "scorecard/technical_health.json": "a551affd073225d5f7aaa4da576767a5562d6317cd8f59876423bdfa479eec64",
+  "scorecard/v11_scorecard.csv": "e3c44d8f65a6076416c65fcc890a0afae84f461d3c0bf3ba20e726d84c53c5ea",
+  "scorecard/v11_scorecard.json": "60a8660f9df5f2e733798de396548bf527bbfb7bfc15ac85710643958b7ccfcd"
+}

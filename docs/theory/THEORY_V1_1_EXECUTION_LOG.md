@@ -64,3 +64,28 @@ task construction, or subsequent conditional protocol.
 - Hard ceiling: US$4.00
 - MACRO status: `BLOCKED BEFORE MACRO` by the explicit budget guard
 - MACRO logical calls executed: `0`
+
+## Budget amendment and MACRO closure
+
+- Amendment: principal-authorized budget-only increase from US$4.00 to US$5.00.
+- Amendment commit: `14c4f21`; tag: `theory-v1-1-budget-amended-20260813`.
+- Scientific observations available at amendment: `0`.
+- Prediction seal SHA-256 before MACRO: `ee88d43e3e47e11bf068510e37411832c95010a3012b9b9a491981e839062adb`.
+- MACRO logical completions: `62,976 / 62,976`.
+- MACRO physical attempts: `62,995`; technical retries: `19`.
+- Retry categories: transient transport `12`, parse `5`, empty content `2`.
+- Semantic out-of-domain observations: `8`; no scientific retry was applied.
+- MACRO observed cost: US$2.0676535464.
+- Stage A + MICRO + MACRO observed cost: US$3.2363886104.
+- Model/backend: DeepSeek Direct / `deepseek-v4-flash`; one provider fingerprint.
+- MACRO raw SHA-256: `582ca0ad1c3d603061c515901f3674a51afcc64cfe365e1967fbbb65c710fe0a`.
+- Checkpoint auxiliary raw SHA-256: `2a78d117ddbdb0a8bc98ebd0c7bdf8c54583316c3aa8b335572730486ce570d2`.
+- Checkpoint journal: `48,573` present of `49,152` expected; `579` reconstructed exactly from canonical raw completions.
+- Raw terminal IDs: unique, complete, no duplicates.
+- Technical anomaly: a late `ValueError` on string cell ID `C0` occurred after raw coverage was complete; it did not change logical observations and is not a scientific result.
+- V11-A: FAIL (pooled Spearman `0.036585`; V31 `-0.300000`; AFFINE `-0.800000`).
+- V11-B: FAIL (mean C2−C5 V31 `+0.007791`; AFFINE `+0.005642`; tolerance `.002`).
+- V11-C: FAIL (private>full-sharing V31 `3/6`, AFFINE `1/6`; ordering absent in both).
+- V11-D: FAIL (C3−C0 V31 mean `+0.000636`, `4/6`; AFFINE mean `-0.012025`, `0/6`).
+- Final verdict: **CORE THEORY V1 MECHANISM NOT SUPPORTED UNDER CLEAN HARNESS**.
+- No Theory V2, no additional paid experiment, and no society run.
