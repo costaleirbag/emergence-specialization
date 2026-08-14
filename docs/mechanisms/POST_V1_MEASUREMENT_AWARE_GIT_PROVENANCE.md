@@ -3,6 +3,7 @@
 - Starting registered analysis commit: `ef58ccb`
 - Final analysis/repair commit: `e81ab3e`
 - Final provenance/documentation commit: `9f7c231`
+- Final diagnostics/report commit: `77686cc`
 - Analysis protocol: `docs/mechanisms/POST_V1_MEASUREMENT_AWARE_ANALYSIS_PLAN.md`
 - Registry: `reports/post-v1-measurement-aware/analysis_registry.json`
 - External model calls: `0`
