@@ -322,7 +322,8 @@ def micro_k_audit() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
                         responses.append(values - base); delta = np.zeros(K); delta[int(swap["target"])] += 1; delta[int(swap["source"])] -= 1; swaps.append(delta)
                     halves[parity] = (estimate_k_explicit(swaps, responses), responses, base)
                 ka, kb = halves[1][0], halves[0][0]
-                stability.append({"ecology": ec, "seed": seed, "k": k, "K_half_A": json.dumps(ka.tolist()), "K_half_B": json.dumps(kb.tolist()), "cosine": cosine(ka, kb), "matrix_pearson": corr(ka.ravel(), kb.ravel()), "max_abs_difference": float(np.max(abs(ka - kb)))})
+                eig_a = np.linalg.eigvals(ka); eig_b = np.linalg.eigvals(kb)
+                stability.append({"ecology": ec, "seed": seed, "k": k, "K_half_A": json.dumps(ka.tolist()), "K_half_B": json.dumps(kb.tolist()), "cosine": cosine(ka, kb), "matrix_pearson": corr(ka.ravel(), kb.ravel()), "max_abs_difference": float(np.max(abs(ka - kb))), "max_real_eigenvalue_A": float(np.max(np.real(eig_a))), "max_real_eigenvalue_B": float(np.max(np.real(eig_b))), "eigenvalue_real_part_distance": float(np.linalg.norm(np.sort(np.real(eig_a)) - np.sort(np.real(eig_b))))})
                 # Probe-noise sensitivity: fixed observed state probabilities,
                 # no fitted trajectory; 200 deterministic Bernoulli draws.
                 observed_r2 = []
@@ -397,6 +398,51 @@ def noise_subtracted_psi(matrices: Mapping[tuple[str, int, str, int], Mapping[st
         p = np.clip(full, 0, 1); variance_term = float(np.mean(p * (1 - p) / 12.0))
         rows.append({"ecology": ec, "seed": seed, "cell_id": cid, "checkpoint": t, "psi_bit_naive": naive, "psi_bit_cross": cross, "psi_bit_noise_subtracted_sensitivity": naive - variance_term, "sampling_noise_term": variance_term})
     write_csv(OUT / "psi_measurement_aware.csv", rows); return rows
+
+
+def psi_measurement_summary(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    """Seed-clustered summary of naive, cross-half, and sensitivity Psi."""
+    out = []
+    for ec in ECOLOGIES:
+        for cid in [str(c["cell_id"]) for c in MACRO_CELLS_V11]:
+            for t in CHECKPOINTS_T:
+                sub = [r for r in rows if r["ecology"] == ec and r["cell_id"] == cid and int(r["checkpoint"]) == t]
+                if not sub:
+                    continue
+                for metric in ("psi_bit_naive", "psi_bit_cross", "psi_bit_noise_subtracted_sensitivity"):
+                    values = [float(r[metric]) for r in sub]
+                    out.append({"ecology": ec, "cell_id": cid, "checkpoint": t, "metric": metric, "mean": float(np.mean(values)), "median": float(np.median(values)), "min": float(np.min(values)), "max": float(np.max(values)), "seed_count": len(values), "seed_values": json.dumps(values)})
+    write_csv(OUT / "psi_measurement_summary.csv", out)
+    return out
+
+
+def joint_bit_relationship(matrices: Mapping[tuple[str, int, str, int], Mapping[str, np.ndarray]]) -> list[dict[str, Any]]:
+    """Describe A_joint versus A_bit without imposing an independence law."""
+    rows = []
+    for (ec, seed, cid, t), m in sorted(matrices.items()):
+        joint, bit = m["joint"], m["bit"]
+        flat_joint, flat_bit = joint.ravel(), bit.ravel()
+        cube_resid = flat_joint - flat_bit ** 3
+        rows.append({"ecology": ec, "seed": seed, "cell_id": cid, "checkpoint": t, "pearson": corr(flat_joint, flat_bit), "spearman": corr(flat_joint, flat_bit, "spearman"), "mean_joint": float(np.mean(flat_joint)), "mean_bit": float(np.mean(flat_bit)), "mae_vs_bit_cube": float(np.mean(np.abs(cube_resid))), "rmse_vs_bit_cube": float(np.sqrt(np.mean(cube_resid ** 2))), "note": "descriptive; no bit-independence assumption"})
+    write_csv(OUT / "joint_bit_relationship.csv", rows)
+    return rows
+
+
+def router_calibration_curves(snapshots: Mapping[tuple[str, int, str, int], Mapping[str, Any]], matrices: Mapping[tuple[str, int, str, int], Mapping[str, np.ndarray]]) -> list[dict[str, Any]]:
+    """Fixed-bin mu -> A_joint calibration table, separated by regime."""
+    rows = []
+    edges = np.asarray([0.0, .2, .4, .6, .8, 1.0000001])
+    for (ec, seed, cid, t), snap in sorted(snapshots.items()):
+        target = matrices[(ec, seed, cid, t)]["joint"]
+        mu = np.asarray(snap["mu"], dtype=float)
+        for i in range(len(edges) - 1):
+            mask = (mu >= edges[i]) & (mu < edges[i + 1])
+            if not np.any(mask):
+                continue
+            y = target[mask]
+            rows.append({"ecology": ec, "seed": seed, "cell_id": cid, "checkpoint": t, "beta": next(float(c["beta"]) for c in MACRO_CELLS_V11 if str(c["cell_id"]) == cid), "q_share": next(float(c["q_share"]) for c in MACRO_CELLS_V11 if str(c["cell_id"]) == cid), "bin_lo": edges[i], "bin_hi": edges[i + 1], "n": int(np.sum(mask)), "mean_mu": float(np.mean(mu[mask])), "mean_A_joint": float(np.mean(y)), "mae": float(np.mean(np.abs(mu[mask] - y)))})
+    write_csv(OUT / "router_calibration_curves.csv", rows)
+    return rows
 
 
 def measurement_noise_null() -> list[dict[str, Any]]:
@@ -474,6 +520,12 @@ def make_figures(reliability: Sequence[Mapping[str, Any]], cross_rows: Sequence[
 
 
 def write_report(summary: Mapping[str, Any]) -> None:
+    # The narrative report is a reviewed, provenance-bearing artifact.  Once
+    # present, rerunning the deterministic numeric analysis must not silently
+    # overwrite that reviewed text with a boilerplate rendering.
+    report_path = ROOT / "docs/mechanisms/POST_V1_MEASUREMENT_AWARE_MECHANISM_REPORT.md"
+    if report_path.exists():
+        return
     report = f'''# Post-V1 measurement-aware mechanism repair
 
 ## Executive answer
@@ -585,7 +637,7 @@ role reliability justify it. **NEXT ACTION: PRINCIPAL RESEARCHER REVIEW.**
 
 Summary JSON: `reports/post-v1-measurement-aware/summary.json`.
 '''
-    (ROOT / "docs/mechanisms/POST_V1_MEASUREMENT_AWARE_MECHANISM_REPORT.md").write_text(report, encoding="utf-8")
+    report_path.write_text(report, encoding="utf-8")
 
 
 def run() -> dict[str, Any]:
@@ -593,10 +645,10 @@ def run() -> dict[str, Any]:
     before = {str(path.relative_to(ROOT)): sha256(path) for path in raw_paths}
     terminal, health = load_terminal_minimal(); full, split = reconstruct_split_matrices(terminal); steps = load_jsonl(MACRO_STEPS); _, memory_rows, _, snapshots = reconstruct_trajectories(terminal, steps, full)
     rel = reliability_rows(full); reliability_summary(rel); cf = crossfit_dynamics(split, full); crossfit_summary(cf)
-    align, regret = construct_alignment(full, snapshots); joint_belief_oof(snapshots, full); random_obs, random_sum = random_private_crossfit(snapshots, full); memory_models = memory_models_crossfit(snapshots, full); k_stability, k_noise = micro_k_audit(); attach_memory_overlap(memory_rows, snapshots); sharing = sharing_timescale(memory_rows); adequacy = measurement_adequacy(full); psi_rows = noise_subtracted_psi(full); null_rows = measurement_noise_null(); evidence = revised_evidence(cf, rel, align, memory_models); make_figures(rel, cf, align, adequacy, evidence)
+    align, regret = construct_alignment(full, snapshots); joint_belief_oof(snapshots, full); router_calibration_curves(snapshots, full); joint_bit_relationship(full); random_obs, random_sum = random_private_crossfit(snapshots, full); memory_models = memory_models_crossfit(snapshots, full); k_stability, k_noise = micro_k_audit(); attach_memory_overlap(memory_rows, snapshots); sharing = sharing_timescale(memory_rows); adequacy = measurement_adequacy(full); psi_rows = noise_subtracted_psi(full); psi_measurement_summary(psi_rows); null_rows = measurement_noise_null(); evidence = revised_evidence(cf, rel, align, memory_models); make_figures(rel, cf, align, adequacy, evidence)
     after = {str(path.relative_to(ROOT)): sha256(path) for path in raw_paths}
     if before != after: raise AssertionError("measurement-aware analysis changed raw data")
-    summary = {"protocol": "POST-V1-MEASUREMENT-AWARE-MECHANISM-REPAIR", "external_model_calls": 0, "new_cost_usd": 0.0, "raw_hashes_before": before, "raw_hashes_after": after, "raw_hash_changes": 0, "macro_health": health, "reliability_rows": len(rel), "crossfit_rows": len(cf), "router_alignment_rows": len(align), "router_regret_rows": len(regret), "random_private_rows": len(random_obs), "memory_model_rows": len(memory_models), "micro_k_stability_rows": len(k_stability), "sharing_rows": len(sharing), "measurement_adequacy_rows": len(adequacy), "noise_null_rows": len(null_rows), "evidence": evidence, "theory_v1_verdict_changed": False, "theory_v2_defined": False}
+    summary = {"protocol": "POST-V1-MEASUREMENT-AWARE-MECHANISM-REPAIR", "external_model_calls": 0, "new_cost_usd": 0.0, "raw_hashes_before": before, "raw_hashes_after": after, "raw_hash_changes": 0, "macro_health": health, "reliability_rows": len(rel), "crossfit_rows": len(cf), "router_alignment_rows": len(align), "router_regret_rows": len(regret), "random_private_rows": len(random_obs), "memory_model_rows": len(memory_models), "micro_k_stability_rows": len(k_stability), "sharing_rows": len(sharing), "measurement_adequacy_rows": len(adequacy), "psi_rows": len(psi_rows), "noise_null_rows": len(null_rows), "evidence": evidence, "theory_v1_verdict_changed": False, "theory_v2_defined": False}
     write_json(OUT / "summary.json", summary); write_json(OUT / "raw_hash_manifest.json", {"protocol": summary["protocol"], "files": [{"path": k, "sha256": v} for k, v in before.items()], "before_after_equal": True, "external_model_calls": 0}); write_report(summary)
     return summary
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import csv
 import json
 import unittest
 from pathlib import Path
@@ -74,6 +75,20 @@ class PostV1MeasurementAwareTests(unittest.TestCase):
     def test_macro_cell_registry_has_frozen_eight_cells(self) -> None:
         self.assertEqual([str(row["cell_id"]) for row in MACRO_CELLS_V11],
                          ["C0", "C1", "C2", "C3", "C4", "C5", "C6", "C7"])
+
+    def test_construct_and_psi_secondary_outputs_are_materialized(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        out = root / "reports/post-v1-measurement-aware"
+        expected = (
+            "joint_bit_relationship.csv",
+            "router_calibration_curves.csv",
+            "psi_measurement_summary.csv",
+        )
+        if not all((out / name).exists() for name in expected):
+            self.skipTest("generated offline report not present in a source-only checkout")
+        for name in expected:
+            with (out / name).open(encoding="utf-8") as handle:
+                self.assertGreaterEqual(sum(1 for _ in csv.DictReader(handle)), 1)
 
 
 if __name__ == "__main__":
