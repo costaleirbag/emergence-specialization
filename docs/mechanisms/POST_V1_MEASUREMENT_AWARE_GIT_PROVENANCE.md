@@ -1,6 +1,7 @@
 # Post-V1 measurement-aware analysis provenance
 
 - Starting registered analysis commit: `ef58ccb`
+- Final analysis/repair commit: `e81ab3e`
 - Analysis protocol: `docs/mechanisms/POST_V1_MEASUREMENT_AWARE_ANALYSIS_PLAN.md`
 - Registry: `reports/post-v1-measurement-aware/analysis_registry.json`
 - External model calls: `0`
