@@ -295,3 +295,17 @@ level; it never means universal truth.
 - **Status:** OPEN / MECHANISM-DISCOVERY ONLY. Theory V1 is closed; Theory V2 is
   not defined.
 - **Last update:** 2026-08-13 post-V1 mechanism decomposition.
+
+## H15 — measurement-limited specialization dynamics
+
+- **Statement:** observed naive reinforcement/innovation can be substantially
+  explained by probe measurement error, so directional differentiation/churn is
+  not identifiable at the current probe support.
+- **Evidence:** independent odd/even split-half reliability is modest for
+  `A_bit` and weak for `A_joint`; the deterministic measurement null reproduces
+  negative naive reinforcement and positive naive innovation while cross-fitted
+  means are near zero; cross-fitted AB/BA direction is unstable.
+- **Limitation:** six clustered social seeds per ecology and finite held-out
+  probes; this is a measurement diagnosis, not a causal mechanism test.
+- **Status:** MODERATE diagnostic / H7 NON-IDENTIFIABLE.
+- **Last update:** 2026-08-13 measurement-aware reanalysis.

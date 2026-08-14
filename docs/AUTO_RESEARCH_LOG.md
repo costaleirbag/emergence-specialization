@@ -255,3 +255,20 @@ tests, and a cost-ledger check.
 - Outputs are under `reports/post-v1-mechanisms/`; final validation and package
   creation remain part of this offline closure. External calls: **0**; cost:
   **US$0.00**.
+
+## 2026-08-13 — post-V1 measurement-aware mechanism repair (offline, zero calls)
+
+- Registered a separate measurement-aware analysis before computation. The
+  canonical raw SHA-256 values were unchanged before/after; historical and
+  quarantined V1 data remained excluded.
+- Reconstructed individual held-out probes and fixed odd/even split halves.
+  `A_bit` is primary for specialization/Psi; `A_joint` is primary for router
+  calibration because `mu` updates on exact joint correctness.
+- Cross-fitted Delta-Psi terms, AB/BA stability, construct-aligned router OOF
+  diagnostics, C0 cross-half exposure, fixed M0–M4 ladder, MICRO half
+  stability, sharing timescale, adequacy curves, and deterministic measurement
+  nulls were generated under `reports/post-v1-measurement-aware/`.
+- The old churn interpretation is downgraded: H7 is **NON-IDENTIFIABLE**;
+  H0 measurement-limited dynamics is a moderate diagnostic; H6 sharing
+  timescale remains moderate but mechanically implied. Theory V1/V1.1 remain
+  closed; Theory V2 is undefined. External calls: **0**; cost: **US$0.00**.

@@ -1,5 +1,33 @@
 # Requirements exposed by the post-V1 decomposition
 
+## Measurement-aware correction (2026-08-13)
+
+These additions constrain interpretation of the existing requirements; they do
+not define replacement equations or Theory V2.
+
+1. `A_bit` and `A_joint` must be treated as distinct observables. Use `A_bit`
+   for specialization/Psi and `A_joint` for calibration of a router updated by
+   exact joint correctness.
+2. Any directional specialization-growth decomposition must use independent
+   probe halves or an explicitly calibrated measurement-error model. The naive
+   same-measurement terms are validation quantities, not latent mechanisms.
+3. Reliability, role-direction cosine, AB/BA disagreement, and seed-clustered
+   uncertainty must be reported before assigning a persistent-role or churn
+   interpretation. Undefined cross-half energies remain undefined.
+4. Probe-count adequacy is part of construct validity. The current eight-probe
+   regime is marginal; hypothetical adequacy curves are design diagnostics,
+   not imputed evidence.
+5. Sharing must be represented as both overlap/provenance and update-rate/FIFO
+   timescale. The arithmetic timescale effect is not, by itself, a competence
+   mechanism.
+6. Router staleness and memory-state insufficiency remain descriptive
+   hypotheses until construct-correct, held-out, seed-clustered prediction or
+   intervention identifies them.
+
+The previous requirements below remain historical constraints. The new
+measurement-aware analysis downgrades the old churn interpretation and does not
+replace any Theory V1/V1.1 equation.
+
 This is not Theory V2 and contains no replacement equations. It is a constraint
 list for any future formalization, if the principal researcher decides one is
 warranted.

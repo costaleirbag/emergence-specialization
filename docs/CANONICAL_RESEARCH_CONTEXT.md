@@ -378,3 +378,19 @@ H8 (multiple-bottleneck descriptive synthesis) are moderate; H1-H5 and H7 are
 not identified as causal mechanisms. The resulting requirements are constraints
 for future theory work, not Theory V2 equations. Theory V2 remains undefined;
 the next action is principal-researcher review.
+
+## 2026-08-13 measurement-aware mechanism repair
+
+The prior mechanism decomposition is preserved as a pre-measurement-error
+artifact. A zero-call reanalysis used independent odd/even held-out probe
+halves, with `A_bit` primary for specialization/Psi and `A_joint` primary for
+router calibration. The naive negative-reinforcement/positive-innovation
+identity remains algebraically exact, but its latent interpretation is
+measurement-biased. Cross-fitted terms move toward zero and have unstable
+finite-seed direction; the measurement-noise null reproduces the naive sign
+pattern without latent dynamics. H7 differentiation churn is therefore
+NON-IDENTIFIABLE, H0 measurement-limited dynamics is MODERATE diagnostic, and
+H6 sharing-timescale remains MODERATE but mechanically implied. No Theory V2,
+new experiment, external call, or raw-data edit was made. See
+`docs/mechanisms/POST_V1_MEASUREMENT_AWARE_MECHANISM_REPORT.md` and the separate
+`reports/post-v1-measurement-aware/` outputs.
