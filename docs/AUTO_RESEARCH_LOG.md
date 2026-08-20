@@ -252,8 +252,8 @@ tests, and a cost-ledger check.
   transport remain inconclusive under low reliability and six clustered seeds.
   H6 sharing-timescale and H8 multiple-bottleneck synthesis are moderate
   descriptive evidence; no causal mechanism or Theory V2 was defined.
-- Outputs are under `reports/post-v1-mechanisms/`; final validation and package
-  creation remain part of this offline closure. External calls: **0**; cost:
+- Outputs are under `reports/post-v1-mechanisms/`; final validation and report
+  generation remain part of this offline closure. External calls: **0**; cost:
   **US$0.00**.
 
 ## 2026-08-13 — post-V1 measurement-aware mechanism repair (offline, zero calls)

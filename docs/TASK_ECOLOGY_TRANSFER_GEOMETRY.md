@@ -7,9 +7,9 @@ been executed or authorized by this document.
 
 All four current worlds instantiate the same operation class:
 
-$$
+```math
 z=ax+by+c\pmod 7.
-$$
+```
 
 They differ in coefficients, not in the kind of procedure. This is an excellent
 mechanistic setting for exact algebra, rank, controlled feedback, and behavioral
@@ -57,12 +57,12 @@ functional ecology. Neither conclusion substitutes for the other.
 Let `c` be the exposure family and `d` the evaluation family. With matched
 initial agent copies, forced exposure, and a no-feedback/placebo control, define
 
-$$
+```math
 L_{cd}(h)=
 \mathbb E\left[A_d^{post}(h)-A_d^{pre}\mid E_c\right]
 -
 \mathbb E\left[A_d^{post}(h)-A_d^{pre}\mid E_0\right].
-$$
+```
 
 `h` is the delay after exposure. It distinguishes transient prompt priming from
 retained procedural competence. A simpler post-minus-baseline estimator is
@@ -71,21 +71,21 @@ controlled.
 
 Useful summaries, reported only alongside the full directed matrix, include:
 
-$$
+```math
 D=\frac1K\sum_cL_{cc}
-$$
+```
 
 (diagonal learnability),
 
-$$
+```math
 Q=\frac1K\sum_c\left(L_{cc}-\frac1{K-1}\sum_{d\ne c}L_{cd}\right)
-$$
+```
 
 (within-source locality/comparative advantage), and
 
-$$
+```math
 S=\frac{1}{K(K-1)}\sum_{c\ne d}|L_{cd}-L_{dc}|
-$$
+```
 
 (directed transfer asymmetry). Negative off-diagonal entries measure
 interference/forgetting. Block-diagonal structure may be more meaningful than a
@@ -228,9 +228,9 @@ once. A two-family screen with source exposure `{none,c1,c2}`, two independent
 context seeds, both target families, four untouched probes, and one response per
 prompt costs:
 
-$$
+```math
 3\times2\times2\times4=48
-$$
+```
 
 logical calls. This is only a coarse screening matrix: it can reject a candidate
 with no diagonal learning or obviously flat transfer, but cannot establish a
@@ -240,9 +240,9 @@ replicates. For example, a gross three-family follow-up with source exposure
 `{none,c1,c2,c3}`, two context seeds, all targets, four probes, and two
 replicates costs:
 
-$$
+```math
 4\times2\times3\times4\times2=192
-$$
+```
 
 logical calls in total. Even that would be descriptive rather than powered
 inference. A cost cap must be based on finalized prompt sizes. Neither stage is

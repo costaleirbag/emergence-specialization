@@ -16,5 +16,5 @@ The authoritative task and prompt hashes are in
 `reports/task-ecology/observable-learner-calibration-v2/manifest.json`. The
 append-only response journal is in
 `data/auto-research/observable-learner-calibration-v2/events.jsonl`. No secrets,
-Keychain data, `.git`, virtual environments, or previous package archives are
-part of the V2 package.
+Keychain data, `.git`, virtual environments, or previous generated outputs are
+part of the V2 record.

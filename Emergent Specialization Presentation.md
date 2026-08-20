@@ -1391,7 +1391,7 @@ $
 Então:
 
 $
-\operatorname{HSE}
+\mathrm{HSE}
 =
 \int H(h)\,dh.
 $
@@ -1399,15 +1399,15 @@ $
 Normalização usada:
 
 $
-\operatorname{HSE}_{norm}
+\mathrm{HSE}_{norm}
 =
-\frac{\operatorname{HSE}}{\log_2N}.
+\frac{\mathrm{HSE}}{\log_2N}.
 $
 
 Para esta run:
 
 $
-\operatorname{HSE}_{norm}
+\mathrm{HSE}_{norm}
 =
 0.6661.
 $

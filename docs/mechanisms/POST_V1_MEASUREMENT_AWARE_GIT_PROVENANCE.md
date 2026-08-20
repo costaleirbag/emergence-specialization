@@ -17,6 +17,5 @@
 
 The analysis source and tests are added after the registration commit. Any
 generated CSV/JSON/figure is a deterministic derivative of the five hashed raw
-inputs. The final repair commits are recorded above; the archive SHA-256 is
-stored in the adjacent `post-v1-measurement-aware-mechanism-package.tar.gz.sha256`
-file and verified before handoff.
+inputs. The final repair commits and input hashes are recorded above and are
+verified before handoff.

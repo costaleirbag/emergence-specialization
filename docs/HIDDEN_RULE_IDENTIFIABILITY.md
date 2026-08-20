@@ -4,20 +4,20 @@
 
 Each world has
 
-$$
+```math
 z=ax+by+c\pmod 7.
-$$
+```
 
 For observed examples, define the design matrix over the finite field GF(7):
 
-$$
+```math
 M=
 \begin{bmatrix}
 x_1\bmod7 & y_1\bmod7 & 1\\
 \vdots & \vdots & \vdots\\
 x_k\bmod7 & y_k\bmod7 & 1
 \end{bmatrix}.
-$$
+```
 
 The coefficient triple is uniquely identifiable exactly when the labels are
 consistent and `rank_GF(7)(M)=3`. Three observations are the minimum in

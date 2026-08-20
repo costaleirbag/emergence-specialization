@@ -10,5 +10,5 @@
   of the primary analysis.
 
 Generated report tables are intentionally ignored by the repository's
-`reports/*` rule and are distributed in the offline package rather than
-committed as giant derived artifacts.
+`reports/*` rule when they are giant derived outputs; the canonical compact
+tables and manifests remain versioned under `reports/`.

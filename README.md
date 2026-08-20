@@ -29,11 +29,28 @@ under `src/emergent_specialization/theory_v1/` and `docs/theory/`. The fixed
 design plans 212,480 logical completions; the preflight currently blocks paid
 execution because the required safety-margin forecast exceeds its US$6.25 cap.
 
-For navigation, see the [documentation map](docs/README.md), the
-[experiment registry](docs/EXPERIMENT_REGISTRY.md), and the
-[artifact index](docs/ARTIFACT_INDEX.md). Large handoff packages are preserved
-locally under `.artifacts/packages/` and are indexed by SHA-256 rather than
-tracked in Git.
+For navigation, start with the [documentation map](docs/README.md), then use
+the [experiment registry](docs/EXPERIMENT_REGISTRY.md) to identify each phase,
+the [hypothesis ledger](docs/HYPOTHESIS_LEDGER.md) to follow decisions, and
+the [reproducibility policy](docs/REPRODUCIBILITY_AND_ARTIFACT_POLICY.md) to
+understand what counts as evidence.
+
+## Where to start
+
+1. Read this page for setup, safety boundaries, and the current scientific
+   status.
+2. Read [Emergent LLM Societies](Emergent%20LLM%20Societies.md) for the living
+   research narrative and chronology.
+3. Use the [documentation map](docs/README.md) to choose the relevant report,
+   protocol, or execution log.
+4. Read the canonical report named by the registry before consulting historical
+   or superseded analyses.
+5. Treat `src/`, `configs/`, `tests/`, and `reports/` as the reproducible
+   implementation, design, validation, and derived-evidence layers.
+
+The repository distinguishes conclusions, frozen protocols, operational logs,
+and exploratory notes. A document marked `SUPERSEDED` remains useful for
+chronology, but it is not the current scientific conclusion.
 
 ```mermaid
 flowchart TD
@@ -104,6 +121,10 @@ Run the automated test suite (it never contacts DeepSeek):
 ```bash
 uv run python -m unittest discover -s tests -v
 ```
+
+Checks that depend on local historical run journals or generated report tables
+are explicitly skipped when those local inputs are absent from a clean clone;
+the implementation and protocol tests remain runnable offline.
 
 Run the complete loop with the deterministic fake backend, without any model
 calls:
@@ -258,7 +279,7 @@ Each generated `reports/<report-id>/` contains:
 - `report.html`: clean standalone report with code inputs hidden;
 - `figures/`: SVG and PNG exports;
 - `tables/`: CSV analysis tables;
-- `report-manifest.json`: input/output hashes and package versions.
+- `report-manifest.json`: input/output hashes and dependency versions.
 
 The single-run report covers metric trajectories, competence and routing
 heatmaps, controlled-memory growth, round dynamics, confidence diagnostics,

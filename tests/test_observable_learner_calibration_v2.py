@@ -8,6 +8,10 @@ from emergent_specialization import observable_learner_calibration_v2 as v2
 class ObservableLearnerCalibrationV2Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        if not __import__("pathlib").Path(__file__).resolve().parents[1].joinpath(
+            "reports/task-ecology/ecological-information-v31/observable_Lstar_natural.csv"
+        ).exists():
+            raise unittest.SkipTest("requires the local V3.1 observable baseline")
         cls.tasks = v2.build_tasks()
 
     def test_static_instructions_have_no_complete_vector(self):

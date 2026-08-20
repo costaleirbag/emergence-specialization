@@ -78,7 +78,7 @@ process lock, and terminal fail-closed states. Fourteen focused and 162 full
 tests passed before launch.
 
 The sandboxed first launch could not read Keychain and stopped at 0 attempts,
-0 cost. Its terminal manifest was archived separately. A status-only check
+0 cost. Its terminal manifest was preserved separately. A status-only check
 outside the sandbox confirmed the expected macOS Keyring without exposing the
 secret; the clean launch then ran outside that boundary.
 
@@ -163,4 +163,3 @@ microscopic ecology gate, while a corrected 2D GF(7) execution test would refine
 a secondary bottleneck but not solve construct validity. The next milestone is
 human review of an offline procedural-ecology specification, followed—only if
 its generators/verifiers pass—by a preregistered 48-call transfer screen.
-

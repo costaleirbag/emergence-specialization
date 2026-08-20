@@ -17,5 +17,5 @@ No historical raw run or V3 report is rewritten. The V3.1 outputs live under
 
 Final offline verification: 190 tests passed; compileall passed. V3.1 primary
 tables use 2,000 nested draws per cell; representative convergence checks use
-500, 1,000, 2,000, and 5,000 draws. Package SHA-256 is recorded in
-`.artifacts/packages/observable-ecological-information-v31-package.tar.gz.sha256`.
+500, 1,000, 2,000, and 5,000 draws. The report and manifest are the canonical
+provenance record.

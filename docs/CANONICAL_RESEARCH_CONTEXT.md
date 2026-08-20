@@ -317,7 +317,7 @@ Therefore social amplification is supported under the frozen engineering gates,
 while functional organization is only partial and emergent functional
 specialization is **not yet supported**. The independent scientific units remain
 the eight environment seeds, not the 47,104 API calls. Corrected outputs and the
-superseded analysis archive are recorded in
+superseded analysis are recorded in
 `reports/society/minimal-developmental-society-v1-analysis-repair/` and
 `reports/society/minimal-developmental-society-v1/original-analysis-invalid/`.
 No new model calls were made during the repair. The next action is principal

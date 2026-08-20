@@ -248,7 +248,7 @@ No society was executed in this phase.
 - report directory: `reports/task-ecology/local-plasticity-curve-v1/`;
 - raw journal: `data/auto-research/local-plasticity-curve-v1/events.jsonl`;
 - frozen manifest: `reports/task-ecology/local-plasticity-curve-v1/manifest.json`;
-- package: `.artifacts/packages/local-plasticity-curve-v1-package.tar.gz`;
-- package SHA-256: `bf6f02bb0d25049e230e20350443a36f330f44c714cdb1d72e9567e4d793bfb2`;
+- provenance is captured by the report directory, raw journal, and frozen
+  manifest listed above;
 - final validation: 226 tests passed; `compileall` passed;
 - no paid inference occurred after this campaign and no push was performed.

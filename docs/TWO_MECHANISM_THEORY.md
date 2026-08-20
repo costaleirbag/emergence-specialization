@@ -21,11 +21,11 @@ The minimal state description must therefore distinguish:
 
 One qualitative response model is
 
-$$
+```math
 P(Y_i=l\mid c,M_i)
 =(1-\lambda_i)P_F(l\mid c,x_i)
 +\lambda_i\big[(1-\rho_i)q_{i,l}+\rho_i\,\mathbb{1}(l=L_i^{last})\big],
-$$
+```
 
 where `P_F` is the competence-mediated response distribution and the second
 term captures modal/frequency and last-item anchoring. This is a decomposition,
@@ -35,10 +35,10 @@ not an identified estimator.
 
 Experience in world `c` updates target competence:
 
-$$
+```math
 x_{i,c}(t+1)=x_{i,c}(t)+\eta\,u_{i,c}(t)
 \big(1-x_{i,c}(t)\big),
-$$
+```
 
 where `u` indicates informative exposure. A competence-correlated allocator
 then creates a reinforcing loop. Its characteristic observables are:
@@ -59,9 +59,9 @@ some allocation signal must correlate with it.
 Set competence learning to zero (`eta=0`). Memory feedback updates only an
 answer-label distribution:
 
-$$
+```math
 q_i(t+1)=(1-\alpha)q_i(t)+\alpha e_{z_t}
-$$
+```
 
 for each recipient, with optional extra weight on the latest item. Under shared
 feedback, all agents receive the same update and their `q_i` states contract or

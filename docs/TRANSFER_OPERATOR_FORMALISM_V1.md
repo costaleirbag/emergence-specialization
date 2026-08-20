@@ -39,7 +39,7 @@ the first four experiences nest inside the eight-experience stream.
 ## Centered operator
 
 $$P_K=I_K-\frac1K\mathbf1\mathbf1^T,\qquad
-D_\rho=\operatorname{diag}(\rho),$$
+D_\rho=\mathrm{diag}(\rho),$$
 
 and, for uniform $\rho_c=1/K$,
 
@@ -68,7 +68,7 @@ $$\dot{\delta a_i}=\left[\frac{\eta\beta}{N}P_KL^TD_\rho P_K-\gamma I\right]\del
 so
 
 $$J_{specialization}=\frac{\eta\beta}{N}T(L)-\gamma I,\qquad
-\chi(L)=\max\operatorname{Re}\operatorname{eig}(T(L)).$$
+\chi(L)=\max\mathrm{Re}\mathrm{eig}(T(L)).$$
 
 Within this model, a growing contrast mode requires
 $\chi(L)>N\gamma/(\eta\beta)$. This is not a theorem about an LLM.
@@ -92,9 +92,9 @@ $T$-eigenvalues.
 
 ## Descriptors
 
-$$D=\operatorname{mean}_cL_{cc},\quad O=\operatorname{mean}_{c\ne d}L_{cd},\quad Q=D-O,$$
+$$D=\mathrm{mean}_cL_{cc},\quad O=\mathrm{mean}_{c\ne d}L_{cd},\quad Q=D-O,$$
 
-$E_T=\|T\|_F$, $\chi=\max\operatorname{Re}\operatorname{eig}(T)$, and
+$E_T=\|T\|_F$, $\chi=\max\mathrm{Re}\mathrm{eig}(T)$, and
 
 $$r_{eff}=\frac{(\sum_j\sigma_j)^2}{\sum_j\sigma_j^2},\qquad
 A_{dir}=\frac{\|T-T^T\|_F}{\|T+T^T\|_F}.$$

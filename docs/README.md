@@ -11,9 +11,8 @@ current scientific state and reproducibility rules.
 - [Canonical research context](CANONICAL_RESEARCH_CONTEXT.md) — compact state
   handoff for future sessions.
 - [Hypothesis ledger](HYPOTHESIS_LEDGER.md) — hypotheses, decisions, and status.
-- [Artifact index](ARTIFACT_INDEX.md) — immutable package inventory and hashes.
 - [Reproducibility and artifact policy](REPRODUCIBILITY_AND_ARTIFACT_POLICY.md)
-  — what is tracked, ignored, archived, and required for a claim.
+  — what is versioned, what remains local, and what is required for a claim.
 
 ## Current scientific checkpoints
 
@@ -33,7 +32,8 @@ current scientific state and reproducibility rules.
 The `*_PREREGISTRATION.md`, `*_LOG.md`, `*_EXECUTION_LOG.md`, and
 `*_PREFLIGHT.md` files are frozen or operational records. They are not
 automatically scientific conclusions. The corresponding report is the place to
-read the result; the raw run or package is the place to audit provenance.
+read the result; the recorded run, manifest, and source commit are the places
+to audit provenance.
 
 ## Frozen Theory V1
 

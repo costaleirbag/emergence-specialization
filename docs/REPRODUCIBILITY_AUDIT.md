@@ -19,7 +19,7 @@
 - Probe memory mutation: **false by construction and preflight assertion**.
 - Hidden-rule leakage: **false by preflight assertion**.
 
-The convenient `uv run` command may attempt an unavailable package-index lookup
+The convenient `uv run` command may attempt an unavailable dependency-index lookup
 in a network-isolated environment; the validated fallback is
 `PYTHONPATH=src .venv/bin/python`.
 
@@ -35,6 +35,5 @@ in a network-isolated environment; the validated fallback is
 ## Provenance caveat
 
 User-owned untracked files (`Emergent LLM Societies.md`, presentation draft,
-`.DS_Store`, and an existing package archive) were preserved and not silently
-modified. Calibration raw data are intentionally untracked/generated artifacts;
-they are included in the overnight package, not committed as source.
+and `.DS_Store`) were preserved and not silently modified. Calibration raw data
+are intentionally untracked/generated outputs and are not committed as source.

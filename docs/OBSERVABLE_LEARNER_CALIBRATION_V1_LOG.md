@@ -36,7 +36,7 @@ consume the bounded second attempt.
 
 After execution, append the final run status, physical attempts, retries by
 category, semantic OOD count, provider model/fingerprint, usage coverage,
-latency, observed cost, analysis paths, and package SHA-256. No society result is
+latency, observed cost, analysis paths, and manifest hash. No society result is
 to be inferred from this gate.
 
 ## Final execution record (2026-08-09)
@@ -48,7 +48,5 @@ to be inferred from this gate.
 - Learner qualification: **PARTIAL**. A–H results and raw-derived matrices are
   in `docs/OBSERVABLE_LEARNER_CALIBRATION_V1_REPORT.md` and
   `reports/task-ecology/observable-learner-calibration-v1/`.
-- Package: `.artifacts/packages/observable-learner-calibration-v1-package.tar.gz` (SHA-256 is stored
-  in the adjacent `.sha256` file).
 - External inference is stopped. No society, Gate 2, tuning, model switch, or
   follow-up paid call was executed.

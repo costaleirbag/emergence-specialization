@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 
 from emergent_specialization.theory_v1.dynamics import centered_projector
+from emergent_specialization.theory_v1 import forensic_repair
 from emergent_specialization.theory_v1.forensic_repair import (
     QUARANTINE_ID,
     assert_scientific_run_allowed,
@@ -29,6 +30,15 @@ class TheoryV1ForensicTests(unittest.TestCase):
         self.assertAlmostEqual(float(np.sum(summary["dominant_mode"])), 0.0, places=10)
 
     def test_live_inventory_reconstructs_exactly_31_auxiliary_rows(self):
+        required = (
+            forensic_repair.MICRO_MANIFEST,
+            forensic_repair.MACRO_MANIFEST,
+            forensic_repair.MICRO_RAW,
+            forensic_repair.MACRO_RAW,
+            forensic_repair.MACRO_CHECKPOINTS_RAW,
+        )
+        if not all(path.exists() for path in required):
+            self.skipTest("requires local Theory V1 raw run manifests and journals")
         inv = inventory()
         self.assertEqual(inv["macro_terminal_completions"], 186368)
         self.assertEqual(inv["checkpoint_missing_auxiliary"], 31)

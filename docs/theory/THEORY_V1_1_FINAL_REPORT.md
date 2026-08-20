@@ -118,11 +118,8 @@ result.
 
 **NEXT ACTION: PRINCIPAL RESEARCHER REVIEW.**
 
-## Package
+## Reproducible handoff
 
-The reproducible handoff archive is
-`theory-v1-1-harness-clean-replication-package.tar.gz`. Its SHA-256 is reported
-in the terminal handoff and should be checked after transfer. It contains the
-frozen protocol/manifests, Stage A and MICRO provenance, canonical MACRO raw
+The frozen protocol/manifests, Stage A and MICRO provenance, canonical MACRO raw
 logs, reconstructed analysis, tests, and reports; it excludes `.git`, `.venv`,
 secrets, and lock files.

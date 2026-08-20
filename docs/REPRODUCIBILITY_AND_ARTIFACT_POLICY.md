@@ -19,12 +19,8 @@ conclusion.
 - Raw paid run journals, generated figures, local campaign ledgers, caches, and
   machine-local calibration data stay local unless a protocol explicitly says
   otherwise. Existing raw data are never deleted during maintenance.
-- Handoff packages and sidecar checksums live under `.artifacts/packages/`.
-  The directory is intentionally ignored so large bundles do not silently enter
-  source history. Their names, sizes, SHA-256 values, status, and canonical
-  reports are indexed in [ARTIFACT_INDEX.md](ARTIFACT_INDEX.md).
 - Secrets, Keychain material, Bitwarden state, `.env` files, and credentials
-  never belong in the repository or an artifact package.
+  never belong in the repository or a handoff.
 
 ## Minimum provenance for a new run
 
@@ -49,4 +45,4 @@ raw observations or silently change a preregistered threshold.
 3. Validate provider/model identity and credentials without printing secrets.
 4. Run health accounting before interpreting scientific metrics.
 5. Generate derived tables/figures from the preserved raw artifacts.
-6. Archive the exact report, manifest, and checksum used for handoff.
+6. Preserve the exact report, manifest, and commit used for handoff.

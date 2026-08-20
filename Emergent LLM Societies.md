@@ -5,7 +5,7 @@
 > **Data desta versão:** 7 de agosto de 2026 — revisão pós-campanha staged  
 > **Objetivo:** preservar, em um único arquivo, a motivação científica, a matemática, o desenho experimental, os resultados exploratórios, as hipóteses, as ideias de modelagem e as perguntas críticas que surgiram até aqui.
 >
-> Este documento foi escrito para ser legível no VS Code, Obsidian e renderizadores Markdown com suporte a MathJax/KaTeX. Fórmulas inline usam `$...$` e fórmulas em bloco usam `$$...$$`.
+> Este documento foi escrito para ser legível no VS Code, Obsidian e renderizadores Markdown com suporte a MathJax/KaTeX. Fórmulas inline usam `$...$` e fórmulas em bloco usam cercas `math`.
 
 ---
 
@@ -52,9 +52,9 @@ O paper **When is Routing Meaningful? Diversity and Robustness in Language Model
 
 A extensão central deste projeto é:
 
-$$
+```math
 \boxed{B \longrightarrow B(t)}
-$$
+```
 
 Ou seja:
 
@@ -62,12 +62,12 @@ Ou seja:
 
 A pergunta mais ambiciosa é:
 
-$$
+```math
 \boxed{
 \text{quando uma sociedade inicialmente simétrica desenvolve estrutura funcional,
 e que estrutura é essa?}
 }
-$$
+```
 
 ---
 
@@ -132,21 +132,21 @@ Uma formulação que resume a intuição é:
 
 Considere uma sociedade com atores
 
-$$
+```math
 \mathcal R = \{r_1,\ldots,r_N\}.
-$$
+```
 
 Um router é uma função
 
-$$
+```math
 \pi : \mathcal Q \to \mathcal R,
-$$
+```
 
 que recebe uma query $q$ e escolhe um ator:
 
-$$
+```math
 \pi(q)=r_i.
-$$
+```
 
 Se todos os atores respondem da mesma maneira, então escolher entre eles não acrescenta muito.
 
@@ -170,13 +170,13 @@ Isso é importante porque uma sociedade pode conter:
 
 Em vez disso, todos são avaliados em um conjunto comum:
 
-$$
+```math
 \mathcal E = \{e_1,\ldots,e_L\}.
-$$
+```
 
 Para o ator $r_i$, define-se:
 
-$$
+```math
 b_i =
 \left(
 s(r_i,e_1),
@@ -185,35 +185,35 @@ s(r_i,e_2),
 s(r_i,e_L)
 \right)
 \in \mathbb R^L,
-$$
+```
 
 onde:
 
-$$
+```math
 s(r_i,e_\ell)\in[0,1]
-$$
+```
 
 é o score do ator $i$ no item $\ell$.
 
 No caso binário:
 
-$$
+```math
 s(r_i,e_\ell)\in\{0,1\}.
-$$
+```
 
 Exemplo:
 
-$$
+```math
 b_1=(1,1,0,0,1),
-$$
+```
 
-$$
+```math
 b_2=(1,1,0,0,1),
-$$
+```
 
-$$
+```math
 b_3=(0,0,1,1,0).
-$$
+```
 
 Os atores 1 e 2 têm o mesmo perfil de sucesso e erro. O ator 3 é comportamentalmente diferente.
 
@@ -223,7 +223,7 @@ Os atores 1 e 2 têm o mesmo perfil de sucesso e erro. O ator 3 é comportamenta
 
 Empilhando os vetores:
 
-$$
+```math
 B =
 \begin{bmatrix}
 b_1^\top\\
@@ -232,7 +232,7 @@ b_2^\top\\
 b_N^\top
 \end{bmatrix}
 \in\mathbb R^{N\times L}.
-$$
+```
 
 Esse é o **behavioral matrix**.
 
@@ -250,7 +250,7 @@ Isso também permite aplicar a mesma análise a atores que compartilham exatamen
 
 O paper usa cosine distance:
 
-$$
+```math
 d(r_i,r_j)
 =
 1-
@@ -259,7 +259,7 @@ b_i^\top b_j
 }{
 \|b_i\|_2\|b_j\|_2
 }.
-$$
+```
 
 A intenção é comparar o **perfil** de acertos e erros, e não simplesmente accuracy absoluta.
 
@@ -269,23 +269,23 @@ Esses dois casos são estruturalmente diferentes:
 
 ### Caso 1 — redundância
 
-$$
+```math
 b_1=(1,1,0,0),
-$$
+```
 
-$$
+```math
 b_2=(1,1,0,0).
-$$
+```
 
 ### Caso 2 — complementaridade
 
-$$
+```math
 b_1=(1,1,0,0),
-$$
+```
 
-$$
+```math
 b_2=(0,0,1,1).
-$$
+```
 
 No segundo caso, existe muito mais estrutura potencial para routing.
 
@@ -297,35 +297,35 @@ O paper define distância máxima quando um dos vetores tem norma zero, isto é,
 
 Suponha que uma partição comportamental da sociedade tenha clusters
 
-$$
+```math
 \mathcal C=\{c_1,\ldots,c_M\}.
-$$
+```
 
 Se:
 
-$$
+```math
 p_k = \frac{|c_k|}{N},
-$$
+```
 
 então a simple social entropy é:
 
-$$
+```math
 H(\mathcal R)
 =
 -\sum_{k=1}^M p_k\log_2p_k.
-$$
+```
 
 Se todo mundo está no mesmo grupo:
 
-$$
+```math
 H=0.
-$$
+```
 
 Se existem $N$ grupos de tamanho igual:
 
-$$
+```math
 H=\log_2N.
-$$
+```
 
 O problema é que isso considera somente:
 
@@ -345,13 +345,13 @@ Considere uma sociedade com:
 
 A partição $3+1$ produz:
 
-$$
+```math
 H
 =
 -\frac34\log_2\frac34
 -\frac14\log_2\frac14
 \approx0.811.
-$$
+```
 
 Isso vale tanto se o outlier estiver muito próximo quanto muito distante.
 
@@ -381,18 +381,18 @@ Usando single-linkage, um threshold $h$ determina quando clusters se fundem.
 
 Para cada $h$, obtemos uma partição:
 
-$$
+```math
 \mathcal C(h).
-$$
+```
 
 E calculamos:
 
-$$
+```math
 H(\mathcal R,h)
 =
 -\sum_{c\in\mathcal C(h)}
 p_c(h)\log_2p_c(h).
-$$
+```
 
 Quando $h$ é muito pequeno, atores diferentes ficam separados.
 
@@ -400,11 +400,11 @@ Conforme $h$ aumenta, clusters semelhantes são fundidos.
 
 No limite:
 
-$$
+```math
 h\to\infty
 \quad\Rightarrow\quad
 H(\mathcal R,h)\to0.
-$$
+```
 
 ---
 
@@ -412,13 +412,13 @@ $$
 
 A definição é:
 
-$$
+```math
 \boxed{
-\operatorname{HSE}(\mathcal R)
+\mathrm{HSE}(\mathcal R)
 =
 \int_0^\infty H(\mathcal R,h)\,dh
 }
-$$
+```
 
 Como a partição muda somente nos merge heights do dendrograma, na implementação essa integral pode ser computada como uma soma finita.
 
@@ -442,33 +442,33 @@ Suponha que o outlier esteja a distância $d$ do cluster principal.
 
 Até $h<d$:
 
-$$
+```math
 H(h)=0.811.
-$$
+```
 
 Depois que $h\ge d$, todos viram um único cluster:
 
-$$
+```math
 H(h)=0.
-$$
+```
 
 Então:
 
-$$
-\operatorname{HSE}
+```math
+\mathrm{HSE}
 =
 \int_0^d0.811\,dh
 =
 0.811d.
-$$
+```
 
 Essa conta resume bem a ideia:
 
-$$
+```math
 \boxed{
 \text{HSE combina diversidade de grupos com separação comportamental}
 }
-$$
+```
 
 ---
 
@@ -476,45 +476,45 @@ $$
 
 Considere:
 
-$$
+```math
 b_1=(1,0,0),
-$$
+```
 
-$$
+```math
 b_2=(0,1,0),
-$$
+```
 
-$$
+```math
 b_3=(0,0,1).
-$$
+```
 
 As cosine distances são máximas:
 
-$$
+```math
 d_{ij}=1.
-$$
+```
 
 Para $0\le h<1$, temos três clusters unitários:
 
-$$
+```math
 H(h)=\log_2 3.
-$$
+```
 
 Portanto:
 
-$$
-\operatorname{HSE}=\log_2 3\approx1.585.
-$$
+```math
+\mathrm{HSE}=\log_2 3\approx1.585.
+```
 
 No paper, a HSE normalizada desse caso é $1$.
 
 No setup atual, com distâncias máximas em $1$, uma normalização natural é:
 
-$$
-\operatorname{HSE}_{\mathrm{norm}}
+```math
+\mathrm{HSE}_{\mathrm{norm}}
 =
-\frac{\operatorname{HSE}}{\log_2N}.
-$$
+\frac{\mathrm{HSE}}{\log_2N}.
+```
 
 A implementação deve sempre ser conferida contra os sanity checks do paper.
 
@@ -526,19 +526,19 @@ A segunda quantidade principal do paper é a robustez do routing.
 
 Para uma query $q_i$:
 
-$$
+```math
 a_i=\pi(q_i).
-$$
+```
 
 Geramos perturbações semanticamente equivalentes:
 
-$$
+```math
 \tilde q_i^{(1)},\ldots,\tilde q_i^{(p)}.
-$$
+```
 
 A robustez por query é:
 
-$$
+```math
 \rho_i
 =
 \frac1p
@@ -547,15 +547,15 @@ $$
 \left[
 \pi(\tilde q_i^{(j)})=a_i
 \right].
-$$
+```
 
 A robustez total:
 
-$$
+```math
 \rho
 =
 \frac1n\sum_{i=1}^n\rho_i.
-$$
+```
 
 A interpretação é:
 
@@ -567,28 +567,28 @@ A interpretação é:
 
 Considere um router degenerado:
 
-$$
+```math
 \pi(q)=r_1
 \qquad\forall q.
-$$
+```
 
 Ele sempre escolhe o mesmo ator.
 
 Então:
 
-$$
+```math
 \rho=1.
-$$
+```
 
 Logo:
 
-$$
+```math
 \boxed{
 \text{routing robustness}
 \neq
 \text{boa divisão de trabalho}
 }
-$$
+```
 
 Robustez mede estabilidade, não utilidade.
 
@@ -608,11 +608,11 @@ Essa é uma pergunta que provavelmente surgirá numa conversa com o orientador.
 
 A contribuição do paper não é:
 
-$$
-\operatorname{HSE}\uparrow
+```math
+\mathrm{HSE}\uparrow
 \quad\Rightarrow\quad
-\operatorname{accuracy}\uparrow.
-$$
+\mathrm{accuracy}\uparrow.
+```
 
 Os autores tratam HSE e robustness como propriedades estruturais **ortogonais** à task accuracy.
 
@@ -630,11 +630,11 @@ Em alguns experimentos:
 
 Ou seja:
 
-$$
+```math
 \text{clean accuracy}
 \quad\text{e}\quad
 \text{meaningfulness/robustness}
-$$
+```
 
 podem divergir.
 
@@ -653,11 +653,11 @@ Quando accuracy entra no critério de seleção, performance melhora, embora com
 
 Portanto:
 
-$$
+```math
 \boxed{
 \text{mais diversidade, sozinha, não é garantia de melhor performance}
 }
-$$
+```
 
 Essa distinção é central para o nosso projeto.
 
@@ -686,21 +686,21 @@ Nosso projeto é inspirado justamente nesse espaço, mas não é uma reproduçã
 
 No paper:
 
-$$
+```math
 B
-$$
+```
 
 é um snapshot de uma sociedade.
 
 Nós queremos observar:
 
-$$
+```math
 B(0),B(1),\ldots,B(T).
-$$
+```
 
 Para o agente $i$ no tempo $t$:
 
-$$
+```math
 b_i(t)
 =
 \left(
@@ -708,11 +708,11 @@ s(r_i(t),e_1),
 \ldots,
 s(r_i(t),e_L)
 \right).
-$$
+```
 
 E:
 
-$$
+```math
 \boxed{
 B(t)
 =
@@ -722,7 +722,7 @@ b_1(t)^\top\\
 b_N(t)^\top
 \end{bmatrix}
 }
-$$
+```
 
 A variável científica passa a ser a **trajetória no espaço comportamental**.
 
@@ -747,17 +747,17 @@ Por causa do stochastic decoding, dois agentes podem produzir respostas diferent
 
 Então:
 
-$$
+```math
 b_i(0)\neq b_j(0)
-$$
+```
 
 pode ocorrer por ruído.
 
 A simetria importante é de distribuição:
 
-$$
+```math
 r_i(0)\overset{d}=r_j(0).
-$$
+```
 
 ---
 
@@ -767,43 +767,43 @@ Por stochasticity.
 
 Mesmo sem diferença de experiência:
 
-$$
+```math
 b_i(0)
-$$
+```
 
 e
 
-$$
+```math
 b_j(0)
-$$
+```
 
 podem conter acertos e erros diferentes.
 
 Então:
 
-$$
-\operatorname{HSE}(0)>0
-$$
+```math
+\mathrm{HSE}(0)>0
+```
 
 não implica nenhuma especialização.
 
 Por isso uma quantidade melhor é:
 
-$$
-\Delta\operatorname{HSE}(t)
+```math
+\Delta\mathrm{HSE}(t)
 =
-\operatorname{HSE}(t)-\operatorname{HSE}(0),
-$$
+\mathrm{HSE}(t)-\mathrm{HSE}(0),
+```
 
 e principalmente o contraste pareado:
 
-$$
+```math
 D_s(t)
 =
-\Delta\operatorname{HSE}_{\mathrm{private},s}(t)
+\Delta\mathrm{HSE}_{\mathrm{private},s}(t)
 -
-\Delta\operatorname{HSE}_{\mathrm{shared},s}(t).
-$$
+\Delta\mathrm{HSE}_{\mathrm{shared},s}(t).
+```
 
 ---
 
@@ -811,47 +811,47 @@ $$
 
 A sociedade tem:
 
-$$
+```math
 N=4
-$$
+```
 
 agentes e quatro hidden worlds.
 
 Cada mundo implementa uma regra modular:
 
-$$
+```math
 f_c(x,y)
 =
 (a_cx+b_cy+c_c)\bmod7.
-$$
+```
 
 As regras usadas no experimento devem ser verificadas diretamente no código congelado antes de qualquer novo batch.
 
 A versão atual pretendida é:
 
-$$
+```math
 f_{\mathrm{ALPHA}}(x,y)
 =
 (2x+y+1)\bmod7,
-$$
+```
 
-$$
+```math
 f_{\mathrm{BETA}}(x,y)
 =
 (x+3y+2)\bmod7,
-$$
+```
 
-$$
+```math
 f_{\mathrm{GAMMA}}(x,y)
 =
 (4x+2y+3)\bmod7,
-$$
+```
 
-$$
+```math
 f_{\mathrm{DELTA}}(x,y)
 =
 (3x+5y+4)\bmod7.
-$$
+```
 
 > **Nota de provenance:** uma versão inicial da documentação omitiu o termo `+3` de GAMMA. Para resultados futuros, o código/version hash deve ser a fonte final da verdade.
 
@@ -882,11 +882,11 @@ No round $t$:
 
 O baseline de routing é:
 
-$$
+```math
 R_t
 =
 \arg\max_iQ_{it},
-$$
+```
 
 com desempate aleatório controlado.
 
@@ -904,15 +904,15 @@ Somente o agente selecionado recebe a experiência/feedback.
 
 Então:
 
-$$
+```math
 M_i(t)\neq M_j(t)
-$$
+```
 
 pode aparecer rapidamente.
 
 O loop candidato é:
 
-$$
+```math
 \text{experiência}
 \to
 \text{competência}
@@ -922,7 +922,7 @@ $$
 \text{seleção}
 \to
 \text{mais experiência}.
-$$
+```
 
 ## 20.2 Shared
 
@@ -953,25 +953,25 @@ Os probes:
 
 Isso produz:
 
-$$
+```math
 B(t).
-$$
+```
 
 Para estudar competência por mundo, também construímos:
 
-$$
+```math
 A(t)\in[0,1]^{N\times K},
-$$
+```
 
 onde:
 
-$$
+```math
 \boxed{
 A_{ic}(t)
 =
 P(\text{agente }i\text{ acerta}\mid C=c,t)
 }
-$$
+```
 
 estimado por probes.
 
@@ -983,9 +983,9 @@ Essa expressão precisa ser operacionalizada.
 
 Não basta:
 
-$$
-\operatorname{HSE}\uparrow.
-$$
+```math
+\mathrm{HSE}\uparrow.
+```
 
 Propomos separar vários níveis.
 
@@ -1013,30 +1013,30 @@ O domínio da tarefa informa qual agente é selecionado?
 
 Defina:
 
-$$
+```math
 C=\text{tipo/mundo da tarefa},
-$$
+```
 
-$$
+```math
 R=\text{agente selecionado}.
-$$
+```
 
 Então:
 
-$$
+```math
 I(C;R)
 =
 \sum_{c,r}
 p(c,r)
 \log_2
 \frac{p(c,r)}{p(c)p(r)}.
-$$
+```
 
 Se:
 
-$$
+```math
 I(C;R)>0,
-$$
+```
 
 existe associação entre task type e selected agent.
 
@@ -1048,13 +1048,13 @@ Os agentes ficaram bons em coisas diferentes?
 
 Isso aparece em:
 
-$$
+```math
 A_{ic}(t).
-$$
+```
 
 Um padrão idealizado, depois de permutar labels, seria:
 
-$$
+```math
 A(t)
 \approx
 \begin{bmatrix}
@@ -1063,7 +1063,7 @@ A(t)
 0&0&1&0\\
 0&0&0&1
 \end{bmatrix}.
-$$
+```
 
 Mas perfis reais serão mais suaves e sobrepostos.
 
@@ -1071,9 +1071,9 @@ Mas perfis reais serão mais suaves e sobrepostos.
 
 É possível ter:
 
-$$
+```math
 I(C;R)>0
-$$
+```
 
 e ainda encaminhar cada mundo para o agente errado.
 
@@ -1083,13 +1083,13 @@ Então precisamos perguntar:
 
 Defina:
 
-$$
+```math
 P_t(R=i\mid C=c).
-$$
+```
 
 A utilidade estrutural esperada do routing é:
 
-$$
+```math
 \boxed{
 U_{\mathrm{route}}(t)
 =
@@ -1097,35 +1097,35 @@ U_{\mathrm{route}}(t)
 \sum_i
 P_t(R=i\mid C=c)A_{ic}(t)
 }
-$$
+```
 
 Um baseline uniforme é:
 
-$$
+```math
 U_{\mathrm{rand}}(t)
 =
 \sum_c p(c)\bar A_c(t),
-$$
+```
 
 onde:
 
-$$
+```math
 \bar A_c(t)
 =
 \frac1N\sum_iA_{ic}(t).
-$$
+```
 
 O melhor routing por domínio seria:
 
-$$
+```math
 U_{\mathrm{oracle-domain}}(t)
 =
 \sum_c p(c)\max_iA_{ic}(t).
-$$
+```
 
 Quando o denominador é positivo, podemos definir:
 
-$$
+```math
 \boxed{
 \eta_{\mathrm{route}}(t)
 =
@@ -1135,7 +1135,7 @@ U_{\mathrm{route}}(t)-U_{\mathrm{rand}}(t)
 U_{\mathrm{oracle-domain}}(t)-U_{\mathrm{rand}}(t)
 }
 }
-$$
+```
 
 Interpretação:
 
@@ -1147,17 +1147,17 @@ Interpretação:
 
 Melhor indivíduo:
 
-$$
+```math
 A_{\mathrm{best}}
 =
 \max_i
 \frac1L
 \sum_{\ell=1}^Ls_{i\ell}.
-$$
+```
 
 Oracle por item:
 
-$$
+```math
 A_{\mathrm{oracle}}
 =
 \frac1L
@@ -1166,17 +1166,17 @@ A_{\mathrm{oracle}}
 \left[
 \exists i:s_{i\ell}=1
 \right].
-$$
+```
 
 Oracle gain:
 
-$$
+```math
 \boxed{
 \Delta_{\mathrm{comp}}
 =
 A_{\mathrm{oracle}}-A_{\mathrm{best}}
 }
-$$
+```
 
 Isso mede potencial coletivo, não performance real do router.
 
@@ -1200,7 +1200,7 @@ Finalmente:
 
 A accuracy real do sistema é:
 
-$$
+```math
 \boxed{
 A_{\mathrm{team}}
 =
@@ -1211,7 +1211,7 @@ A_{\mathrm{team}}
 Y_{R_t,t}=Y_t^\star
 \right]
 }
-$$
+```
 
 Essa é uma quantidade diferente de HSE, MI e oracle gain.
 
@@ -1234,27 +1234,27 @@ Operacionalmente, uma evidência forte envolveria conjuntamente:
 
 Em símbolos, queremos distinguir:
 
-$$
+```math
 \text{diferenciação}
-$$
+```
 
 de:
 
-$$
+```math
 \text{especialização}
-$$
+```
 
 de:
 
-$$
+```math
 \text{especialização útil}
-$$
+```
 
 de:
 
-$$
+```math
 \text{coordenação eficiente}.
-$$
+```
 
 ---
 
@@ -1266,7 +1266,7 @@ Considere o grupo de permutações $S_N$.
 
 Defina:
 
-$$
+```math
 \boxed{
 U_{\mathrm{match}}(t)
 =
@@ -1275,26 +1275,26 @@ U_{\mathrm{match}}(t)
 \sum_{c=1}^K
 A_{\sigma(c),c}(t)
 }
-$$
+```
 
 Isso pode ser computado como um assignment problem/Hungarian matching.
 
 Compare com o melhor agente generalista:
 
-$$
+```math
 U_{\mathrm{single}}
 =
 \max_i
 \frac1K\sum_cA_{ic}.
-$$
+```
 
 Então:
 
-$$
+```math
 \Delta_{\mathrm{match}}
 =
 U_{\mathrm{match}}-U_{\mathrm{single}}.
-$$
+```
 
 Interpretação:
 
@@ -1325,7 +1325,7 @@ Isso testa se a experiência adquirida generaliza dentro de cada regra.
 
 O sistema realmente executado é:
 
-$$
+```math
 q
 \to
 \text{todos produzem confidence/answer}
@@ -1333,7 +1333,7 @@ q
 R
 \to
 \text{resposta selecionada}.
-$$
+```
 
 Então a performance coletiva relevante é a accuracy da **resposta roteada**.
 
@@ -1371,9 +1371,9 @@ Uma segunda etapa mais forte pode usar tarefas que exigem múltiplas subcompetê
 
 Exemplo:
 
-$$
+```math
 q=(q_A,q_B,q_C),
-$$
+```
 
 onde diferentes subtarefas dependem de regras/skills diferentes.
 
@@ -1393,44 +1393,44 @@ Aí a pergunta vira:
 
 Defina o estado experimental:
 
-$$
+```math
 S_t
 =
 \left(
 M_1(t),\ldots,M_N(t)
 \right).
-$$
+```
 
 A tarefa no tempo $t$ é:
 
-$$
+```math
 Z_t=(C_t,X_t).
-$$
+```
 
 Cada agente produz:
 
-$$
+```math
 (Y_{it},Q_{it})
 \sim
 P_\theta
 \left(
 \cdot\mid Z_t,M_i(t)
 \right).
-$$
+```
 
 O router escolhe:
 
-$$
+```math
 R_t
 =
 g(Q_{1t},\ldots,Q_{Nt}).
-$$
+```
 
 Depois o estado muda.
 
 Podemos representar isso abstratamente como:
 
-$$
+```math
 \boxed{
 S_{t+1}
 \sim
@@ -1439,7 +1439,7 @@ K_\lambda(
 S_t,Z_t
 )
 }
-$$
+```
 
 onde $\lambda$ codifica a localidade/privacidade do feedback.
 
@@ -1453,39 +1453,39 @@ Se $\sigma\in S_N$ é uma permutação dos agentes, queremos que o sistema seja 
 
 Inicialmente:
 
-$$
+```math
 P_\sigma S_0
 \overset d=
 S_0.
-$$
+```
 
 Idealmente, a dinâmica é permutation-equivariant:
 
-$$
+```math
 K(P_\sigma S'\mid P_\sigma S)
 =
 K(S'\mid S).
-$$
+```
 
 Então a distribuição do ensemble preserva a simetria:
 
-$$
+```math
 S_t
 \overset d=
 P_\sigma S_t.
-$$
+```
 
 Mas uma trajetória particular pode ficar fortemente assimétrica.
 
 Essa é a assinatura conceitual:
 
-$$
+```math
 \boxed{
 \text{ensemble symmetry}
 +
 \text{within-run asymmetry}
 }
-$$
+```
 
 ---
 
@@ -1495,9 +1495,9 @@ Com $N=4$, devemos ser cuidadosos.
 
 Não estamos automaticamente falando de spontaneous symmetry breaking no sentido termodinâmico de:
 
-$$
+```math
 N\to\infty.
-$$
+```
 
 Uma linguagem mais defensável inicialmente é:
 
@@ -1518,11 +1518,11 @@ Dentro da run há assimetria.
 
 No ensemble:
 
-$$
+```math
 P(\text{label }i\text{ ocupa role }c)
 \approx
 \frac1N.
-$$
+```
 
 ---
 
@@ -1532,52 +1532,52 @@ HSE conecta diretamente ao paper, mas podemos definir uma quantidade mais analí
 
 A competência média da sociedade no mundo $c$ é:
 
-$$
+```math
 \bar A_c(t)
 =
 \frac1N\sum_iA_{ic}(t).
-$$
+```
 
 Defina:
 
-$$
+```math
 X_{ic}(t)
 =
 A_{ic}(t)-\bar A_c(t).
-$$
+```
 
 Então:
 
-$$
+```math
 \boxed{
 \Phi(t)
 =
 \frac1{NK}
 \|X(t)\|_F^2
 }
-$$
+```
 
 ou equivalentemente:
 
-$$
+```math
 \Phi(t)
 =
 \frac1K
 \sum_c
-\operatorname{Var}_i[A_{ic}(t)].
-$$
+\mathrm{Var}_i[A_{ic}(t)].
+```
 
 Se todos têm o mesmo perfil:
 
-$$
+```math
 \Phi=0.
-$$
+```
 
 Se competências divergem:
 
-$$
+```math
 \Phi>0.
-$$
+```
 
 Propriedades desejáveis:
 
@@ -1594,43 +1594,43 @@ Mas $\Phi>0$ ainda não implica utilidade.
 
 A matriz centralizada é:
 
-$$
+```math
 X
 =
 A-\mathbf 1\bar A^\top.
-$$
+```
 
 Podemos construir:
 
-$$
+```math
 Q
 =
 \frac1KXX^\top,
-$$
+```
 
 uma matriz de overlap/covariância entre agentes.
 
 Ou:
 
-$$
+```math
 C
 =
 \frac1NX^\top X,
-$$
+```
 
 no espaço de nichos.
 
 Os autovalores:
 
-$$
+```math
 \lambda_1,\lambda_2,\ldots
-$$
+```
 
 mostram quantos modos independentes de diferenciação existem.
 
 Um participation ratio natural é:
 
-$$
+```math
 \boxed{
 d_{\mathrm{eff}}
 =
@@ -1640,7 +1640,7 @@ d_{\mathrm{eff}}
 \sum_j\lambda_j^2
 }
 }
-$$
+```
 
 Intuição:
 
@@ -1655,19 +1655,19 @@ Isso pode ajudar a distinguir winner-take-all de multidimensional division of la
 
 Defina utilization entropy:
 
-$$
+```math
 H(R)
 =
 -\sum_iP(R=i)\log_2P(R=i).
-$$
+```
 
 Normalização:
 
-$$
+```math
 H_{\mathrm{util}}
 =
 \frac{H(R)}{\log_2N}.
-$$
+```
 
 Combine com $I(C;R)$.
 
@@ -1686,9 +1686,9 @@ Esse plano pode se tornar uma representação de regimes de alocação.
 
 Com:
 
-$$
+```math
 T=20
-$$
+```
 
 e uma tabela $4\times4$, o plug-in estimator de MI tem viés positivo.
 
@@ -1701,13 +1701,13 @@ A análise preparada inclui:
 - permutation percentile/p-value diagnóstico;
 - excess MI:
 
-$$
+```math
 I_{\mathrm{excess}}
 =
 I_{\mathrm{obs}}
 -
 E[I_{\mathrm{perm}}].
-$$
+```
 
 O ideal também é aumentar o número de decisões.
 
@@ -1719,41 +1719,41 @@ Suponha $K$ niches/worlds.
 
 Defina para cada agente:
 
-$$
+```math
 x_i(t)
 =
 (x_{i1},\ldots,x_{iK}),
-$$
+```
 
 onde $x_{ic}$ representa a fração da memória/capacidade do agente dedicada ao mundo $c$.
 
 Como a memória é finita:
 
-$$
+```math
 x_{ic}\ge0,
-$$
+```
 
 e:
 
-$$
+```math
 \sum_cx_{ic}=1.
-$$
+```
 
 Logo:
 
-$$
+```math
 \boxed{
 x_i(t)\in\Delta^{K-1}
 }
-$$
+```
 
 A sociedade inteira vive em:
 
-$$
+```math
 \boxed{
 (\Delta^{K-1})^N.
 }
-$$
+```
 
 ---
 
@@ -1761,9 +1761,9 @@ $$
 
 Se o agente dedica mais capacidade a ALPHA:
 
-$$
+```math
 x_{i,\mathrm{ALPHA}}\uparrow,
-$$
+```
 
 a soma precisa continuar em $1$.
 
@@ -1785,11 +1785,11 @@ Sem um trade-off, reinforcement puro pode simplesmente criar um agente globalmen
 
 Uma aproximação suave de uma recent-memory/FIFO pode ser:
 
-$$
+```math
 x_i(t+1)
 =
 (1-\alpha)x_i(t)+\alpha e_c
-$$
+```
 
 quando o agente $i$ recebe uma experiência do mundo $c$.
 
@@ -1805,15 +1805,15 @@ Isso não é a dinâmica exata do LLM.
 
 Suponha que competência/confidence no niche $c$ dependa de:
 
-$$
+```math
 g(x_{ic}),
-$$
+```
 
 com $g$ crescente.
 
 Uma política probabilística simples:
 
-$$
+```math
 p_i(c)
 =
 P(R=i\mid C=c)
@@ -1823,11 +1823,11 @@ P(R=i\mid C=c)
 }{
 \sum_j\exp[\beta g(x_{jc})]
 }.
-$$
+```
 
 Então aparece o loop:
 
-$$
+```math
 x_{ic}\uparrow
 \Rightarrow
 g(x_{ic})\uparrow
@@ -1837,7 +1837,7 @@ p_i(c)\uparrow
 \text{mais tarefas }c
 \Rightarrow
 x_{ic}\uparrow.
-$$
+```
 
 ---
 
@@ -1845,7 +1845,7 @@ $$
 
 Se os worlds aparecem com probabilidades $\rho_c$, uma dinâmica mean-field possível é:
 
-$$
+```math
 \boxed{
 \dot x_{ic}
 =
@@ -1857,7 +1857,7 @@ x_{ic}
 \sum_d\rho_dp_i(d)
 \right]
 }
-$$
+```
 
 O primeiro termo representa entrada de experiência no niche $c$.
 
@@ -1871,19 +1871,19 @@ Isso produz uma dinâmica não linear acoplada.
 
 No limite em que todos recebem todas as experiências, uma aproximação simples é:
 
-$$
+```math
 \dot x_{ic}
 =
 \eta(\rho_c-x_{ic}).
-$$
+```
 
 O fixed point é:
 
-$$
+```math
 \boxed{
 x_{ic}^\star=\rho_c\qquad\forall i.
 }
-$$
+```
 
 Todos convergem para a mesma composição.
 
@@ -1897,16 +1897,16 @@ Considere um único score $s_i$ por agente.
 
 Routing:
 
-$$
+```math
 p_i
 =
 \frac{e^{\beta s_i}}
 {\sum_je^{\beta s_j}}.
-$$
+```
 
 Uma dinâmica simplificada:
 
-$$
+```math
 s_i(t+1)
 =
 s_i(t)
@@ -1917,7 +1917,7 @@ s_i(t)
 +
 \lambda\mathbf1(R_t=i)
 \right].
-$$
+```
 
 Aqui:
 
@@ -1926,50 +1926,50 @@ Aqui:
 
 Em média:
 
-$$
+```math
 E[\Delta s_i]
 =
 \eta
 \left[
 (1-\lambda)+\lambda p_i
 \right].
-$$
+```
 
 Perto do estado simétrico:
 
-$$
+```math
 s_i=s+\delta_i,
-$$
+```
 
 com:
 
-$$
+```math
 \sum_i\delta_i=0.
-$$
+```
 
 A expansão do softmax dá:
 
-$$
+```math
 p_i
 \approx
 \frac1N+\frac{\beta}{N}\delta_i.
-$$
+```
 
 Então:
 
-$$
+```math
 \delta_i(t+1)
 \approx
 \left(
 1+\frac{\eta\lambda\beta}{N}
 \right)\delta_i(t).
-$$
+```
 
 Nesse toy model extremamente simples, se:
 
-$$
+```math
 \eta\lambda\beta>0,
-$$
+```
 
 pequenas assimetrias são amplificadas.
 
@@ -2011,11 +2011,11 @@ Essa ponte deve ser tratada como inspiração/modeling language, não como ident
 
 O mecanismo:
 
-$$
+```math
 \text{ser selecionado}
 \to
 \text{aumentar chance de futura seleção}
-$$
+```
 
 é parente de reinforced urn / Pólya-like processes.
 
@@ -2034,25 +2034,25 @@ Não devemos afirmar que o experimento é literalmente uma Pólya urn sem deriva
 
 O objetivo da teoria mínima seria estudar possíveis regimes:
 
-$$
+```math
 \text{symmetric state},
-$$
+```
 
-$$
+```math
 \text{winner-take-all},
-$$
+```
 
-$$
+```math
 \text{division-of-labor},
-$$
+```
 
-$$
+```math
 \text{metastable / switching},
-$$
+```
 
-$$
+```math
 \text{weak differentiation}.
-$$
+```
 
 A pergunta deixa de ser simplesmente:
 
@@ -2060,11 +2060,11 @@ A pergunta deixa de ser simplesmente:
 
 E vira:
 
-$$
+```math
 \boxed{
 \text{qual é a estrutura dos estados estáveis/metastáveis do processo coletivo?}
 }
-$$
+```
 
 ---
 
@@ -2072,25 +2072,25 @@ $$
 
 Depois da replicação básica, podemos estudar:
 
-$$
+```math
 \lambda=\text{localidade do feedback},
-$$
+```
 
-$$
+```math
 \beta=\text{sensibilidade do routing},
-$$
+```
 
-$$
+```math
 K_m=\text{capacidade de memória},
-$$
+```
 
-$$
+```math
 N=\text{tamanho da população},
-$$
+```
 
-$$
+```math
 K=\text{número de niches}.
-$$
+```
 
 Somente se houver evidência de mudanças qualitativas robustas devemos falar em:
 
@@ -2106,7 +2106,7 @@ Antes disso, use **regime change**.
 
 Para $N=K=4$, um estado ideal de especialização é:
 
-$$
+```math
 A
 \approx
 \begin{bmatrix}
@@ -2115,15 +2115,15 @@ A
 0&0&1&0\\
 0&0&0&1
 \end{bmatrix}.
-$$
+```
 
 Mas qualquer permutação das linhas é cientificamente equivalente.
 
 Existem:
 
-$$
+```math
 4!=24
-$$
+```
 
 assignments symmetry-related.
 
@@ -2141,7 +2141,7 @@ Mas ela deve ficar **do lado do observador**, não participar do routing/feedbac
 
 A cadeia conceitual seria:
 
-$$
+```math
 \boxed{
 \text{microstate/history}
 \to
@@ -2149,7 +2149,7 @@ A_i(t)
 \to
 z_i(t)
 }
-$$
+```
 
 onde:
 
@@ -2163,9 +2163,9 @@ onde:
 
 Se $K=4$, então:
 
-$$
+```math
 A_i(t)\in\mathbb R^4.
-$$
+```
 
 Um Transformer sobre quatro números provavelmente é desnecessário.
 
@@ -2173,13 +2173,13 @@ PCA/SVD e métricas analíticas são mais transparentes.
 
 Um encoder temporal faz mais sentido sobre:
 
-$$
+```math
 A_i(t-w),\ldots,A_i(t).
-$$
+```
 
 Ou sobre um vetor comportamental rico:
 
-$$
+```math
 x_i(t)
 =
 [
@@ -2190,7 +2190,7 @@ x_i(t)
 \text{memory composition},
 \ldots
 ].
-$$
+```
 
 ---
 
@@ -2198,7 +2198,7 @@ $$
 
 Podemos definir:
 
-$$
+```math
 z_i(t)
 =
 f_\phi
@@ -2206,15 +2206,15 @@ f_\phi
 x_i(t-w:t)
 \right)
 \in\mathbb R^d.
-$$
+```
 
 A sociedade vira um conjunto de pontos móveis:
 
-$$
+```math
 \mathcal Z(t)
 =
 \{z_1(t),\ldots,z_N(t)\}.
-$$
+```
 
 Podemos estudar:
 
@@ -2232,47 +2232,47 @@ Não devemos treinar $f_\phi$ para separar private/shared ou agent IDs e depois 
 
 Também não devemos otimizar diretamente:
 
-$$
+```math
 \max_\phi \text{agent separation}.
-$$
+```
 
 Melhores objetivos:
 
 ### Autoencoding
 
-$$
+```math
 z_i=f_\phi(x_i),
-$$
+```
 
-$$
+```math
 \hat x_i=g_\psi(z_i),
-$$
+```
 
 com:
 
-$$
+```math
 \mathcal L
 =
 \|x_i-\hat x_i\|^2.
-$$
+```
 
 ### Predictive representation
 
-$$
+```math
 z_i(t)=f_\phi(x_i(t-w:t)),
-$$
+```
 
-$$
+```math
 \hat A_i(t+\Delta)=g_\psi(z_i(t)).
-$$
+```
 
 Treinar:
 
-$$
+```math
 \mathcal L
 =
 \|A_i(t+\Delta)-\hat A_i(t+\Delta)\|^2.
-$$
+```
 
 Nesse caso, $z_i$ representa informação dinamicamente relevante para o futuro.
 
@@ -2282,23 +2282,23 @@ Nesse caso, $z_i$ representa informação dinamicamente relevante para o futuro.
 
 Queremos perguntar se:
 
-$$
+```math
 P(
 B_i(t+\Delta)
 \mid
 \text{história inteira}
 )
-$$
+```
 
 pode ser aproximado por:
 
-$$
+```math
 P(
 B_i(t+\Delta)
 \mid
 z_i(t)
 ).
-$$
+```
 
 Se um $z_i(t)$ de baixa dimensão retém boa capacidade preditiva, ele se comporta como uma variável macroscópica/coarse-grained state.
 
@@ -2310,15 +2310,15 @@ Uma role pode ser relacional.
 
 ### Individual phenotype
 
-$$
+```math
 z_i^{\mathrm{ind}}(t)
 =
 f_\phi(x_i(t)).
-$$
+```
 
 ### Social role
 
-$$
+```math
 z_i^{\mathrm{soc}}(t)
 =
 g_\psi
@@ -2326,7 +2326,7 @@ g_\psi
 x_i(t),
 \{x_j(t)\}_{j\neq i}
 \right).
-$$
+```
 
 Para o segundo caso, arquiteturas permutation-equivariant são mais naturais:
 
@@ -2347,9 +2347,9 @@ Se roles aparecerem de maneira robusta, podemos testar causalidade diretamente.
 
 ## 51.1 Memory swap
 
-$$
+```math
 M_i\leftrightarrow M_j.
-$$
+```
 
 Pergunta:
 
@@ -2357,9 +2357,9 @@ Pergunta:
 
 ## 51.2 Memory erase
 
-$$
+```math
 M_i\to\varnothing.
-$$
+```
 
 Pergunta:
 
@@ -2367,9 +2367,9 @@ Pergunta:
 
 ## 51.3 Clone / transplant
 
-$$
+```math
 M_i\to M_j.
-$$
+```
 
 Pergunta:
 
@@ -2393,19 +2393,19 @@ Pergunta:
 
 ## 51.6 Reintroduction e hysteresis
 
-$$
+```math
 S_{\mathrm{antes}}
 \to
 S_{\mathrm{perturbado}}
 \to
 S_{\mathrm{restaurado}}.
-$$
+```
 
 Se o estado final depender do caminho:
 
-$$
+```math
 z_\uparrow(\lambda)\neq z_\downarrow(\lambda),
-$$
+```
 
 temos path dependence/hysteresis-like behavior.
 
@@ -2424,15 +2424,15 @@ Depois de ablation, possíveis perguntas:
 
 Isso separa:
 
-$$
+```math
 \text{role stability}
-$$
+```
 
 de:
 
-$$
+```math
 \text{occupant stability}.
-$$
+```
 
 ---
 
@@ -2500,29 +2500,29 @@ agent_3:  0 seleções
 
 Logo:
 
-$$
+```math
 P(R=\mathrm{agent}_1)=0.85.
-$$
+```
 
 Isso é winner-take-most.
 
 Ao mesmo tempo, a competence matrix final incluía:
 
-$$
+```math
 A_{\mathrm{agent_1,BETA}}=1.0.
-$$
+```
 
 Então apareceu uma competência localizada forte, mas o mesmo agente também recebia tarefas de domínios em que era ruim.
 
 Conclusão:
 
-$$
+```math
 \boxed{
 \text{behavioral differentiation}
 \neq
 \text{task-structured useful specialization}
 }
-$$
+```
 
 ---
 
@@ -2606,23 +2606,23 @@ O baseline private/shared foi considerado semanticamente preservado.
 
 O desenho inicialmente preparado é:
 
-$$
+```math
 \text{seeds}=\{1,2,3,4,5\},
-$$
+```
 
-$$
+```math
 \text{conditions}=\{\mathrm{private},\mathrm{shared}\},
-$$
+```
 
-$$
+```math
 T=20,
-$$
+```
 
 checkpoints:
 
-$$
+```math
 \{0,10,20\}.
-$$
+```
 
 Isso corresponde a:
 
@@ -2676,9 +2676,9 @@ Uma grande vantagem do backend local é usar seeds por logical call.
 
 Por exemplo:
 
-$$
+```math
 \xi_{s,t,i}=h(s,t,i),
-$$
+```
 
 onde:
 
@@ -2703,15 +2703,15 @@ O modelo deve estar num regime intermediário.
 
 Se for fraco demais:
 
-$$
+```math
 \text{experience}\not\to\text{learning}.
-$$
+```
 
 Se for forte demais:
 
-$$
+```math
 \text{hidden rule}
-$$
+```
 
 é inferida imediatamente e a memória deixa de importar.
 
@@ -2756,11 +2756,11 @@ O primeiro downstream evaluation é o próprio hidden-world environment em exemp
 
 Mediremos:
 
-$$
+```math
 A_{\mathrm{team}}
 =
 P(\text{selected answer is correct})
-$$
+```
 
 e compararemos com melhor single agent, random routing, shared control e oracle.
 
@@ -2800,11 +2800,11 @@ No appendix, selecionar apenas por HSE gera maior diversidade e menor task accur
 
 Portanto:
 
-$$
-\operatorname{HSE}\uparrow
+```math
+\mathrm{HSE}\uparrow
 \not\Rightarrow
-\operatorname{performance}\uparrow.
-$$
+\mathrm{performance}\uparrow.
+```
 
 ## Q6. “Então qual é a utilidade de HSE?”
 
@@ -2830,17 +2830,17 @@ O aprendizado é stateful/in-context, não parametric.
 
 O estado relevante é:
 
-$$
+```math
 M_i(t).
-$$
+```
 
 O effective agent é:
 
-$$
+```math
 r_i(t)
 =
 r_\theta(\cdot\mid M_i(t)).
-$$
+```
 
 Se quisermos reservar “learning” para atualização de parâmetros, podemos chamar isso de adaptation ou acquired competence through persistent context.
 
@@ -2959,11 +2959,11 @@ Com:
 
 Esperamos:
 
-$$
+```math
 P(\text{label }i\text{ ocupa determinada função})
 \approx
 \frac1N.
-$$
+```
 
 ## Q21. “Qual é a unidade estatística?”
 
@@ -2971,13 +2971,13 @@ A sociedade/run, não cada model completion.
 
 A comparação principal é paired por experimental seed:
 
-$$
+```math
 D_s(t)
 =
 \Delta HSE_{\mathrm{private},s}(t)
 -
 \Delta HSE_{\mathrm{shared},s}(t).
-$$
+```
 
 ## Q22. “MI não vai ser super enviesada com poucos rounds?”
 
@@ -3056,9 +3056,9 @@ Porque permite uma intervenção causal.
 
 Se depois de:
 
-$$
+```math
 M_A\leftrightarrow M_B
-$$
+```
 
 as competências/roles também trocam, temos evidência de que a identidade funcional está carregada pela experiência individual.
 
@@ -3181,9 +3181,9 @@ Essas claims dependem dos dados futuros.
 
 Objetivo:
 
-$$
+```math
 B\to B(t)
-$$
+```
 
 com muitas seeds.
 
@@ -3200,37 +3200,37 @@ Perguntas:
 
 Adicionar formalmente:
 
-$$
+```math
 A_{\mathrm{team}},
-$$
+```
 
-$$
+```math
 U_{\mathrm{route}},
-$$
+```
 
-$$
+```math
 U_{\mathrm{rand}},
-$$
+```
 
-$$
+```math
 U_{\mathrm{oracle-domain}},
-$$
+```
 
-$$
+```math
 \eta_{\mathrm{route}},
-$$
+```
 
-$$
+```math
 U_{\mathrm{match}}.
-$$
+```
 
 ## Fase C — localidade da informação como parâmetro
 
 Generalizar:
 
-$$
+```math
 \lambda\in[0,1].
-$$
+```
 
 Perguntar se $z_\infty(\lambda)$ muda qualitativamente.
 
@@ -3252,9 +3252,9 @@ Pergunta central:
 
 Desenvolver a dinâmica em:
 
-$$
+```math
 (\Delta^{K-1})^N.
-$$
+```
 
 Estudar symmetric/asymmetric fixed points, stability, reinforcement, capacity constraints e coexistence/fixation.
 
@@ -3418,9 +3418,9 @@ Uso operacional: uma realização inicialmente exchangeable desenvolve assimetri
 
 ### Competence matrix $A$
 
-$$
+```math
 A_{ic}=P(\text{correct}\mid i,c).
-$$
+```
 
 ### Utilization entropy
 
@@ -3448,7 +3448,7 @@ Mapeamento de um microstate complexo para poucas variáveis macroscópicas relev
 
 Behavioral matrix:
 
-$$
+```math
 B(t)
 =
 \begin{bmatrix}
@@ -3456,75 +3456,75 @@ b_1(t)^\top\\
 \vdots\\
 b_N(t)^\top
 \end{bmatrix}.
-$$
+```
 
 Cosine behavioral distance:
 
-$$
+```math
 d_{ij}
 =
 1-
 \frac{b_i^\top b_j}
 {\|b_i\|\|b_j\|}.
-$$
+```
 
 Social entropy:
 
-$$
+```math
 H(h)
 =
 -\sum_cp_c(h)\log_2p_c(h).
-$$
+```
 
 HSE:
 
-$$
-\operatorname{HSE}
+```math
+\mathrm{HSE}
 =
 \int_0^\infty H(h)\,dh.
-$$
+```
 
 Competence matrix:
 
-$$
+```math
 A_{ic}(t)
 =
 P(\text{correct}\mid i,c,t).
-$$
+```
 
 Differentiation order parameter:
 
-$$
+```math
 \Phi(t)
 =
 \frac1{NK}
 \left\|
 A(t)-\mathbf1\bar A(t)^\top
 \right\|_F^2.
-$$
+```
 
 Utilization entropy:
 
-$$
+```math
 H(R)
 =
 -\sum_iP(R=i)\log_2P(R=i).
-$$
+```
 
 Task-agent MI:
 
-$$
+```math
 I(C;R)
 =
 \sum_{c,r}
 p(c,r)
 \log_2
 \frac{p(c,r)}{p(c)p(r)}.
-$$
+```
 
 Actual team accuracy:
 
-$$
+```math
 A_{\mathrm{team}}
 =
 \frac1T
@@ -3532,36 +3532,36 @@ A_{\mathrm{team}}
 \mathbf1[
 Y_{R_t,t}=Y_t^\star
 ].
-$$
+```
 
 Structural routed utility:
 
-$$
+```math
 U_{\mathrm{route}}
 =
 \sum_cp(c)
 \sum_iP(R=i\mid C=c)A_{ic}.
-$$
+```
 
 Random-routing baseline:
 
-$$
+```math
 U_{\mathrm{rand}}
 =
 \sum_cp(c)\bar A_c.
-$$
+```
 
 Domain oracle:
 
-$$
+```math
 U_{\mathrm{oracle-domain}}
 =
 \sum_cp(c)\max_iA_{ic}.
-$$
+```
 
 Routing capture efficiency:
 
-$$
+```math
 \eta_{\mathrm{route}}
 =
 \frac{
@@ -3569,35 +3569,35 @@ U_{\mathrm{route}}-U_{\mathrm{rand}}
 }{
 U_{\mathrm{oracle-domain}}-U_{\mathrm{rand}}
 }.
-$$
+```
 
 Best one-to-one role assignment:
 
-$$
+```math
 U_{\mathrm{match}}
 =
 \max_{\sigma\in S_N}
 \frac1K
 \sum_cA_{\sigma(c),c}.
-$$
+```
 
 Oracle complementarity:
 
-$$
+```math
 \Delta_{\mathrm{comp}}
 =
 A_{\mathrm{oracle}}-A_{\mathrm{best}}.
-$$
+```
 
 Memory simplex:
 
-$$
+```math
 x_i\in\Delta^{K-1}.
-$$
+```
 
 Softmax assignment:
 
-$$
+```math
 p_i(c)
 =
 \frac{
@@ -3605,11 +3605,11 @@ e^{\beta g(x_{ic})}
 }{
 \sum_je^{\beta g(x_{jc})}
 }.
-$$
+```
 
 Private mean-field proposal:
 
-$$
+```math
 \dot x_{ic}
 =
 \eta
@@ -3618,15 +3618,15 @@ $$
 -
 x_{ic}\sum_d\rho_dp_i(d)
 \right].
-$$
+```
 
 Shared mean-field proposal:
 
-$$
+```math
 \dot x_{ic}
 =
 \eta(\rho_c-x_{ic}).
-$$
+```
 
 ---
 
@@ -3676,21 +3676,21 @@ Ao usar este documento como contexto:
 1. Trate o paper de Huot et al. como a referência conceitual principal.
 2. Preserve a distinção:
 
-$$
+```math
 \text{diversity}
 \neq
 \text{specialization}
 \neq
 \text{useful division of labor}.
-$$
+```
 
 3. Não diga que o piloto demonstrou emergent specialization.
 4. Não transforme o projeto automaticamente em “routing collapse optimization”.
 5. O eixo principal é:
 
-$$
+```math
 B\to B(t).
-$$
+```
 
 6. A matemática em simplex, $\Phi$, $\eta_{\mathrm{route}}$, $U_{\mathrm{match}}$ e learned embeddings são **propostas de desenvolvimento**, não resultados do paper original.
 7. Pergunte sempre:
@@ -3710,7 +3710,7 @@ $$
 
 A história intelectual do projeto é:
 
-$$
+```math
 \text{routing meaningful}
 \to
 \text{behavioral diversity}
@@ -3726,7 +3726,7 @@ B(t)
 \text{causal role formation}
 \to
 \text{theory of adaptive societies}.
-$$
+```
 
 O paper original fornece uma forma de medir uma sociedade.
 
@@ -3738,20 +3738,20 @@ A pergunta mais importante não é:
 
 É:
 
-$$
+```math
 \boxed{
 \text{quando diferenças microscópicas se tornam organização funcional macroscópica?}
 }
-$$
+```
 
 E a pergunta downstream que impede o projeto de virar apenas uma história de HSE é:
 
-$$
+```math
 \boxed{
 \text{essa organização permite que a sociedade aloque e use competência melhor
 do que baselines sem estrutura?}
 }
-$$
+```
 
 Se conseguirmos conectar:
 
@@ -3784,11 +3784,11 @@ A ideia inicial era:
 
 A formulação mais forte passou a ser:
 
-$$
+```math
 \boxed{
 \text{Como sociedades de LLMs inicialmente exchangeable desenvolvem organização funcional?}
 }
-$$
+```
 
 E a sequência agora é:
 
@@ -3831,11 +3831,11 @@ Nosso projeto estuda a formação dessa sociedade.
 
 Em símbolos:
 
-$$
+```math
 \boxed{
 B \longrightarrow B(t)
 }
-$$
+```
 
 Em palavras:
 
@@ -3897,11 +3897,11 @@ individual + oracle + routed system
 
 A regra epistemológica é:
 
-$$
+```math
 \boxed{
 \text{uma métrica responde uma pergunta; nenhuma responde todas.}
 }
-$$
+```
 
 ---
 
@@ -3909,9 +3909,9 @@ $$
 
 ## Nível A — diferença comportamental
 
-$$
-\operatorname{HSE}(t)\text{ cresce}
-$$
+```math
+\mathrm{HSE}(t)\text{ cresce}
+```
 
 Claim permitida:
 
@@ -3925,9 +3925,9 @@ Claim proibida:
 
 ## Nível B — diferença de competência
 
-$$
+```math
 \Phi(t)\text{ cresce}
-$$
+```
 
 Claim permitida:
 
@@ -3939,9 +3939,9 @@ Ainda não prova niches úteis.
 
 ## Nível C — task-dependent allocation
 
-$$
+```math
 I(C;R)>\text{null}
-$$
+```
 
 Claim permitida:
 
@@ -3953,9 +3953,9 @@ Ainda não prova que o agente selecionado é o certo.
 
 ## Nível D — functional alignment
 
-$$
+```math
 \eta_{\mathrm{route}}>0
-$$
+```
 
 Claim permitida:
 
@@ -3965,9 +3965,9 @@ Claim permitida:
 
 ## Nível E — complementarity
 
-$$
+```math
 \Delta_{\mathrm{comp}}>0
-$$
+```
 
 Claim permitida:
 
@@ -3981,9 +3981,9 @@ Ainda não prova que o sistema consegue capturá-la.
 
 Precisamos de performance real/held-out:
 
-$$
+```math
 A_{\mathrm{team,heldout}}
-$$
+```
 
 comparada a baselines adequados.
 
@@ -3993,9 +3993,9 @@ comparada a baselines adequados.
 
 Intervenções como:
 
-$$
+```math
 M_A\leftrightarrow M_B
-$$
+```
 
 ou ablation/replacement.
 
@@ -4007,53 +4007,53 @@ Aqui começamos a falar sobre **onde** a role reside.
 
 Defina a matriz de competência:
 
-$$
+```math
 A(t)\in[0,1]^{N\times K},
-$$
+```
 
 com:
 
-$$
+```math
 A_{ic}(t)
 =
 P(\text{correct}\mid i,c,t).
-$$
+```
 
 Média da sociedade no niche $c$:
 
-$$
+```math
 \bar A_c(t)
 =
 \frac1N\sum_i A_{ic}(t).
-$$
+```
 
 Centralização:
 
-$$
+```math
 X_{ic}(t)
 =
 A_{ic}(t)-\bar A_c(t).
-$$
+```
 
 Parâmetro de diferenciação:
 
-$$
+```math
 \boxed{
 \Phi(t)
 =
 \frac{1}{NK}\|X(t)\|_F^2
 }
-$$
+```
 
 ou:
 
-$$
+```math
 \boxed{
 \Phi(t)
 =
-\frac1K\sum_c \operatorname{Var}_i[A_{ic}(t)]
+\frac1K\sum_c \mathrm{Var}_i[A_{ic}(t)]
 }
-$$
+```
 
 usando population variance.
 
@@ -4071,21 +4071,21 @@ Repita para todos os mundos e faça a média.
 
 Se todo mundo é igualmente competente:
 
-$$
+```math
 \Phi=0.
-$$
+```
 
 Se competências divergem:
 
-$$
+```math
 \Phi>0.
-$$
+```
 
 ### O que $\Phi$ não sabe
 
 Considere:
 
-$$
+```math
 A=
 \begin{bmatrix}
 .9&.9&.9&.9\\
@@ -4093,13 +4093,13 @@ A=
 .2&.2&.2&.2\\
 .2&.2&.2&.2
 \end{bmatrix}.
-$$
+```
 
 $\Phi$ é alta, mas isso é um global winner.
 
 Compare:
 
-$$
+```math
 A=
 \begin{bmatrix}
 .9&.2&.2&.2\\
@@ -4107,7 +4107,7 @@ A=
 .2&.2&.9&.2\\
 .2&.2&.2&.9
 \end{bmatrix}.
-$$
+```
 
 Também há grande $\Phi$, mas agora existe niche structure.
 
@@ -4119,32 +4119,32 @@ Por isso entra o espectro.
 
 Com:
 
-$$
+```math
 X=A-\mathbf 1\bar A^\top,
-$$
+```
 
 construa:
 
-$$
+```math
 Q=\frac1KXX^\top.
-$$
+```
 
 Seus autovalores são:
 
-$$
+```math
 \lambda_1,\ldots,\lambda_N\ge0.
-$$
+```
 
 Participation ratio:
 
-$$
+```math
 \boxed{
 d_{\mathrm{eff}}
 =
 \frac{\left(\sum_j\lambda_j\right)^2}
 {\sum_j\lambda_j^2}
 }
-$$
+```
 
 quando $X\neq0$.
 
@@ -4152,17 +4152,17 @@ quando $X\neq0$.
 
 Se:
 
-$$
+```math
 \lambda_1>0,
 \qquad
 \lambda_{j>1}=0,
-$$
+```
 
 então:
 
-$$
+```math
 d_{\mathrm{eff}}=1.
-$$
+```
 
 Leitura:
 
@@ -4176,15 +4176,15 @@ Exemplo típico candidato:
 
 Se:
 
-$$
+```math
 \lambda_1=\cdots=\lambda_m=\lambda,
-$$
+```
 
 então:
 
-$$
+```math
 d_{\mathrm{eff}}=m.
-$$
+```
 
 Leitura:
 
@@ -4192,17 +4192,17 @@ Leitura:
 
 ### Pareamento conceitual
 
-$$
+```math
 \boxed{
 \Phi=\text{quanto os agentes diferem em competência}
 }
-$$
+```
 
-$$
+```math
 \boxed{
 d_{\mathrm{eff}}=\text{quantas direções efetivas compõem essa diferença}
 }
-$$
+```
 
 ---
 
@@ -4210,31 +4210,31 @@ $$
 
 Se:
 
-$$
+```math
 p_i=P(R=i),
-$$
+```
 
 então:
 
-$$
+```math
 H(R)=-\sum_i p_i\log_2p_i.
-$$
+```
 
 Normalizada:
 
-$$
+```math
 H_{\mathrm{util}}
 =
 \frac{H(R)}{\log_2N}.
-$$
+```
 
 Podemos traduzir para número efetivo de agentes:
 
-$$
+```math
 \boxed{
 N_{\mathrm{eff}}=2^{H(R)}=N^{H_{\mathrm{util}}}
 }
-$$
+```
 
 Para $N=4$:
 
@@ -4250,20 +4250,20 @@ Isso torna o número muito mais intuitivo.
 
 Temos:
 
-$$
+```math
 I(C;R)
 =
 \sum_{c,r}p(c,r)
 \log_2\frac{p(c,r)}{p(c)p(r)}.
-$$
+```
 
 Com apenas 20 rounds, a tabela é pequena.
 
 Mesmo routing aleatório pode produzir:
 
-$$
+```math
 \hat I(C;R)>0
-$$
+```
 
 por finite-sample noise.
 
@@ -4277,19 +4277,19 @@ A pergunta é:
 
 Permutação:
 
-$$
+```math
 I^{(1)}_{\mathrm{perm}},\ldots,I^{(B)}_{\mathrm{perm}}.
-$$
+```
 
 E:
 
-$$
+```math
 I_{\mathrm{excess}}
 =
 I_{\mathrm{obs}}
 -
 \mathbb E[I_{\mathrm{perm}}].
-$$
+```
 
 Gate 1 deve interpretar principalmente isso, não plugin MI isolada.
 
@@ -4299,46 +4299,46 @@ Gate 1 deve interpretar principalmente isso, não plugin MI isolada.
 
 Mesmo que:
 
-$$
+```math
 I(C;R)\gg0,
-$$
+```
 
 o router pode estar sistematicamente escolhendo o agente errado.
 
 Por isso:
 
-$$
+```math
 U_{\mathrm{route}}
 =
 \sum_cp(c)\sum_iP(R=i\mid C=c)A_{ic}.
-$$
+```
 
 Baseline aleatório:
 
-$$
+```math
 U_{\mathrm{rand}}
 =
 \sum_cp(c)\bar A_c.
-$$
+```
 
 Oracle por domínio:
 
-$$
+```math
 U_{\mathrm{oracle-domain}}
 =
 \sum_cp(c)\max_iA_{ic}.
-$$
+```
 
 Eficiência de captura:
 
-$$
+```math
 \boxed{
 \eta_{\mathrm{route}}
 =
 \frac{U_{\mathrm{route}}-U_{\mathrm{rand}}}
 {U_{\mathrm{oracle-domain}}-U_{\mathrm{rand}}}
 }
-$$
+```
 
 ### Interpretação
 
@@ -4361,30 +4361,30 @@ Essa métrica é especialmente importante porque literatura recente de LLM teams
 
 Para $N=K$:
 
-$$
+```math
 U_{\mathrm{match}}
 =
 \max_{\sigma\in S_N}
 \frac1K\sum_cA_{\sigma(c),c}.
-$$
+```
 
 É um assignment problem.
 
 Compare:
 
-$$
+```math
 U_{\mathrm{single}}
 =
 \max_i\frac1K\sum_cA_{ic}.
-$$
+```
 
 Então:
 
-$$
+```math
 \Delta_{\mathrm{match}}
 =
 U_{\mathrm{match}}-U_{\mathrm{single}}.
-$$
+```
 
 Pergunta:
 
@@ -4398,27 +4398,27 @@ Isso mede **potencial**, não routing real.
 
 Ser especialista em ALPHA não é apenas:
 
-$$
+```math
 A_{i,\mathrm{ALPHA}}\text{ alto}.
-$$
+```
 
 Pode exigir:
 
-$$
+```math
 A_{i,\mathrm{ALPHA}}
 >
 A_{j,\mathrm{ALPHA}}
 \quad\forall j\neq i,
-$$
+```
 
 e talvez uma concentração relativa do próprio agente:
 
-$$
+```math
 A_{i,\mathrm{ALPHA}}
 >
 A_{i,c}
 \quad\text{para outros }c.
-$$
+```
 
 Portanto role tem componente:
 
@@ -4436,7 +4436,7 @@ A ideia de embedding continua válida, mas não deve substituir $A$, $\Phi$ ou H
 
 Camadas:
 
-$$
+```math
 \boxed{
 \text{microstate}
 \to
@@ -4444,25 +4444,25 @@ $$
 \to
 \text{learned macrostate }z_i(t)
 }
-$$
+```
 
 O objetivo mais defensável é predictive:
 
-$$
+```math
 z_i(t)=f_\phi(x_i(t-w:t)),
-$$
+```
 
-$$
+```math
 \hat A_i(t+\Delta)=g_\psi(z_i(t)).
-$$
+```
 
 Loss:
 
-$$
+```math
 \mathcal L
 =
 \|A_i(t+\Delta)-\hat A_i(t+\Delta)\|^2.
-$$
+```
 
 Assim o embedding é útil se comprime informação que realmente prediz a dinâmica futura.
 
@@ -4487,17 +4487,17 @@ sampling noise
 
 Macrostate candidato:
 
-$$
+```math
 z_i(t)\in\mathbb R^d.
-$$
+```
 
 A pergunta forte:
 
-$$
+```math
 P(B_i(t+\Delta)\mid\text{full history})
 \approx
 P(B_i(t+\Delta)\mid z_i(t))?
-$$
+```
 
 Se sim, $z_i$ é uma variável macroscópica preditiva.
 
@@ -4509,35 +4509,35 @@ Isso conecta naturalmente a coarse-graining e Information Bottleneck, mas é uma
 
 Estado coletivo:
 
-$$
+```math
 S_t=(M_1(t),\ldots,M_N(t)).
-$$
+```
 
 Transição:
 
-$$
+```math
 S_{t+1}
 \sim
 K_\lambda(\cdot\mid S_t,Z_t,\xi_t).
-$$
+```
 
 $\xi_t$ agrega stochastic decoding/tie randomness etc.
 
 Se $P_\sigma$ permuta labels:
 
-$$
+```math
 K(P_\sigma S'\mid P_\sigma S)
 =
 K(S'\mid S)
-$$
+```
 
 é a propriedade desejada de permutation equivariance.
 
 Uma realização pode quebrar simetria:
 
-$$
+```math
 S_t\neq P_\sigma S_t,
-$$
+```
 
 mesmo se a distribuição ensemble continuar simétrica.
 
@@ -4549,19 +4549,19 @@ Isso é a forma matematicamente mais interessante de falar de spontaneous differ
 
 Queremos simultaneamente:
 
-$$
+```math
 \boxed{
 \text{within-run asymmetry}
 }
-$$
+```
 
 e:
 
-$$
+```math
 \boxed{
 \text{ensemble label symmetry}
 }
-$$
+```
 
 Exemplo:
 
@@ -4604,15 +4604,15 @@ Se a memória de agent 0 tem:
 
 podemos representar a composição por:
 
-$$
+```math
 x_0=(5/8,2/8,1/8,0).
-$$
+```
 
 Como as frações somam 1:
 
-$$
+```math
 x_0\in\Delta^3.
-$$
+```
 
 Se entram mais cartões ALPHA e a memória é finita, algum cartão antigo precisa sair.
 
@@ -4628,7 +4628,7 @@ Private:
 
 Daí:
 
-$$
+```math
 \dot x_{ic}
 =
 \eta\left[
@@ -4636,7 +4636,7 @@ $$
 -
 x_{ic}\sum_d\rho_dp_i(d)
 \right].
-$$
+```
 
 Shared:
 
@@ -4644,17 +4644,17 @@ Shared:
 
 Então:
 
-$$
+```math
 \dot x_{ic}
 =
 \eta(\rho_c-x_{ic}),
-$$
+```
 
 com fixed point:
 
-$$
+```math
 x_{ic}^*=\rho_c
-$$
+```
 
 para todos os agentes.
 
@@ -4674,17 +4674,17 @@ state-dependent assignment → nonlinear feedback
 
 Perto do estado simétrico, com softmax:
 
-$$
+```math
 p_i\approx\frac1N+\frac{\beta}{N}\delta_i.
-$$
+```
 
 Uma dinâmica reinforcement simples pode gerar:
 
-$$
+```math
 \delta_i(t+1)
 \approx
 \left(1+\frac{\eta\lambda\beta}{N}\right)\delta_i(t).
-$$
+```
 
 Se o multiplicador é maior que 1, perturbações crescem.
 
@@ -4704,13 +4704,13 @@ Executar a tarefa reduz o threshold correspondente; não executá-la pode elevá
 
 Isso gera:
 
-$$
+```math
 \text{task performed}
 \to
 \text{higher future propensity}
 \to
 \text{task performed again}.
-$$
+```
 
 A partir de indivíduos inicialmente similares podem emergir specialists.
 
@@ -4724,11 +4724,11 @@ Isso faz ablation/regeneration deixar de ser uma ideia decorativa e virar uma po
 
 Jacobs et al. (1991):
 
-$$
+```math
 p(y\mid x)
 =
 \sum_r p(r\mid x)p(y\mid x,r).
-$$
+```
 
 O gate distribui responsabilidade de treinamento.
 
@@ -4736,7 +4736,7 @@ A responsabilidade ajuda a formar expertise.
 
 Nosso sistema não treina parâmetros do expert, mas existe analogia:
 
-$$
+```math
 \text{routing}
 \to
 \text{experience responsibility}
@@ -4744,7 +4744,7 @@ $$
 \text{state adaptation}
 \to
 \text{future routing signal}.
-$$
+```
 
 O ponto histórico importante:
 
@@ -4817,13 +4817,13 @@ Pappu et al. (2026) reportam um problema conceitualmente próximo:
 
 Isso reforça nossa decomposição:
 
-$$
+```math
 \boxed{
 \text{expertise exists}
 \neq
 \text{expertise is used}
 }
-$$
+```
 
 No nosso framework:
 
@@ -4904,17 +4904,17 @@ physical-attempt ceiling: 12,600
 
 Cada baseline run:
 
-$$
+```math
 560
-$$
+```
 
 logical completions:
 
-$$
+```math
 80\text{ interaction}
 +
 480\text{ probes}.
-$$
+```
 
 ---
 
@@ -4953,9 +4953,9 @@ LOCKED
 
 Meta:
 
-$$
+```math
 50\text{ paired seeds total}.
-$$
+```
 
 Incremental previsto no preflight:
 
@@ -5032,11 +5032,11 @@ faltam logical completions.
 
 Para paired inference principal:
 
-$$
+```math
 \text{private complete}
 \land
 \text{shared complete}.
-$$
+```
 
 Se uma metade é invalid, o pair é incomplete.
 
@@ -5215,21 +5215,21 @@ A resposta correta é:
 
 Primeiro:
 
-$$
+```math
 \text{Does structure emerge?}
-$$
+```
 
 Depois:
 
-$$
+```math
 \text{Is the structure useful?}
-$$
+```
 
 Performance real:
 
-$$
+```math
 A_{\mathrm{team,heldout}}
-$$
+```
 
 versus:
 
@@ -5256,15 +5256,15 @@ Isso tornaria difícil saber se a diferenciação veio do task-allocation feedba
 
 Primeiro estudar:
 
-$$
+```math
 \text{allocation society}.
-$$
+```
 
 Depois:
 
-$$
+```math
 \text{collaborative society}.
-$$
+```
 
 ---
 
@@ -5274,9 +5274,9 @@ O trabalho pode ser organizado em três atos.
 
 ## Act I — Development
 
-$$
+```math
 B\to B(t).
-$$
+```
 
 Pergunta:
 
@@ -5332,15 +5332,15 @@ Essa ordem transforma matemática em teoria preditiva.
 
 A direção mais rica é estudar uma dinâmica em:
 
-$$
+```math
 (\Delta^{K-1})^N
-$$
+```
 
 com symmetry group:
 
-$$
+```math
 S_N.
-$$
+```
 
 Questões:
 
@@ -5570,7 +5570,7 @@ Tente responder sem olhar:
 
 Domine:
 
-$$
+```math
 B,
 HSE,
 A,
@@ -5580,7 +5580,7 @@ H(R),
 I(C;R),
 \eta_{\mathrm{route}},
 \Delta_{\mathrm{comp}}.
-$$
+```
 
 Para cada uma saiba responder:
 
@@ -5592,9 +5592,9 @@ Para cada uma saiba responder:
 
 Domine:
 
-$$
+```math
 S_{t+1}\sim K_\lambda(\cdot\mid S_t,Z_t),
-$$
+```
 
 exchangeability, permutation symmetry, simplex e reinforcement.
 
@@ -5671,45 +5671,45 @@ Antes da reunião, saiba desenhar no quadro:
 
 ### 1.
 
-$$
+```math
 B\to B(t)
-$$
+```
 
 ### 2.
 
-$$
+```math
 S_{t+1}\sim K_\lambda(\cdot\mid S_t,Z_t)
-$$
+```
 
 ### 3.
 
-$$
+```math
 A(t)\to\Phi(t)
-$$
+```
 
 ### 4.
 
-$$
+```math
 Q=XX^\top/K\to d_{\mathrm{eff}}
-$$
+```
 
 ### 5.
 
-$$
+```math
 H(R),\quad I(C;R)
-$$
+```
 
 ### 6.
 
-$$
+```math
 \eta_{\mathrm{route}}
-$$
+```
 
 ### 7.
 
-$$
+```math
 x_i\in\Delta^{K-1}
-$$
+```
 
 E consiga explicar verbalmente:
 
@@ -5747,7 +5747,7 @@ E consiga explicar verbalmente:
 
 A história inteira pode ser comprimida em:
 
-$$
+```math
 \boxed{
 \text{static diversity}
 \to
@@ -5759,11 +5759,11 @@ $$
 \to
 \text{regeneration}
 }
-$$
+```
 
 Com as perguntas correspondentes:
 
-$$
+```math
 \boxed{
 B
 \to
@@ -5775,7 +5775,7 @@ A(t)
 \to
 \text{recovery}
 }
-$$
+```
 
 E com um princípio metodológico que deve permanecer do começo ao fim:
 
@@ -5785,17 +5785,17 @@ O objetivo não é maximizar HSE, nem fazer um router performar melhor a qualque
 
 O objetivo é entender:
 
-$$
+```math
 \boxed{
 \text{quando diferenças microscópicas se tornam organização funcional macroscópica,}
 }
-$$
+```
 
-$$
+```math
 \boxed{
 \text{onde essa organização vive e se ela pode sobreviver à perda de seus componentes.}
 }
-$$
+```
 
 Essa é, hoje, a versão mais completa da ideia do projeto.
 

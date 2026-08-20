@@ -44,7 +44,7 @@ V1/V1.1 or define Theory V2.
 11. Measurement adequacy curves for hypothetical probe counts and a draft-only
     future calibration design if needed.
 12. Revised H0--H8 evidence table, errata, requirements, report, figures,
-    reproducibility checks, and package.
+    reproducibility checks, and handoff record.
 
 ## Interpretation firewall
 

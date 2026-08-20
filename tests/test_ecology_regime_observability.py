@@ -70,6 +70,8 @@ class EcologyRegimeObservabilityTests(unittest.TestCase):
 
     def test_pooled_baseline_changes_margins_but_not_q(self):
         # This is a frozen-data regression check for the prompt-identity audit.
+        if not audit.REPORT_ROOT.joinpath("pooled_baseline_summary.json").exists():
+            self.skipTest("requires the local pooled-baseline summary")
         summary = __import__("json").loads((audit.REPORT_ROOT / "pooled_baseline_summary.json").read_text())
         for original, pooled in zip(summary["original"], summary["pooled"]):
             self.assertAlmostEqual(original["Q"], pooled["Q"])

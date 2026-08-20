@@ -16,6 +16,10 @@ from emergent_specialization.observable_learner_calibration import (
 class ObservableLearnerCalibrationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        if not __import__("pathlib").Path(__file__).resolve().parents[1].joinpath(
+            "reports/task-ecology/ecological-information-v31/observable_Lstar_natural.csv"
+        ).exists():
+            raise unittest.SkipTest("requires the local V3.1 observable baseline")
         cls.tasks = build_tasks()
 
     def test_frozen_call_count_and_breakdown(self):
