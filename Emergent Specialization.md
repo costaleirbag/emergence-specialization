@@ -561,7 +561,7 @@ H_t(h)
 Finally,
 
 ```math
-\operatorname{HSE}(t)
+\mathrm{HSE}(t)
 =
 \int H_t(h)\,dh.
 ```
@@ -571,9 +571,9 @@ Because the partition changes only at dendrogram merge distances, compute the in
 Useful normalization:
 
 ```math
-\operatorname{HSE}_{\mathrm{norm}}(t)
+\mathrm{HSE}_{\mathrm{norm}}(t)
 =
-\frac{\operatorname{HSE}(t)}{\log_2N}.
+\frac{\mathrm{HSE}(t)}{\log_2N}.
 ```
 
 Interpretation:
@@ -760,9 +760,9 @@ This is an extension for the dynamical setting, not a metric from the routing pa
 ### H1 — Behavioral differentiation
 
 ```math
-\operatorname{HSE}_{\mathrm{private}}(T)
+\mathrm{HSE}_{\mathrm{private}}(T)
 >
-\operatorname{HSE}_{\mathrm{shared}}(T).
+\mathrm{HSE}_{\mathrm{shared}}(T).
 ```
 
 ### H2 — Functional specialization
@@ -997,7 +997,7 @@ Unit tests:
 ```math
 b_1=b_2=\cdots=b_N
 \Rightarrow
-\operatorname{HSE}=0.
+\mathrm{HSE}=0.
 ```
 
 ### Maximally separated toy actors
@@ -1005,7 +1005,7 @@ b_1=b_2=\cdots=b_N
 For mutually orthogonal profiles over distance range $[0,1]$,
 
 ```math
-\operatorname{HSE}
+\mathrm{HSE}
 \approx
 \log_2N.
 ```
@@ -1480,7 +1480,7 @@ Measurement:
 \boxed{
 B(t)
 \rightarrow
-\operatorname{HSE}(t)
+\mathrm{HSE}(t)
 }
 ```
 
