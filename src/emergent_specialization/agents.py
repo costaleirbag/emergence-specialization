@@ -64,10 +64,12 @@ def stable_hash(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
-def assert_initial_symmetry(agents: Sequence[ExperimentalAgent], system_prompt: str) -> None:
+def assert_initial_symmetry(
+    agents: Sequence[ExperimentalAgent], system_prompt: str, *, require_empty_memory: bool = True
+) -> None:
     if not agents:
         raise ValueError("At least one agent is required")
-    if any(agent.memory for agent in agents):
+    if require_empty_memory and any(agent.memory for agent in agents):
         raise AssertionError("Experimental agents must begin with empty memory")
     if not system_prompt:
         raise AssertionError("All agents must share a non-empty base system prompt")

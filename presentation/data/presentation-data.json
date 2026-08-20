@@ -1,0 +1,549 @@
+{
+  "generated_from": "raw data/runs artifacts; no inference performed",
+  "notes": [
+    "Metrics are descriptive observables, not proof of specialization.",
+    "Private/shared comparison is withheld until shared completes."
+  ],
+  "private": {
+    "backend": {
+      "session_policy": "one fresh --mode rpc --no-session process per completion",
+      "version": "omp/17.2.10"
+    },
+    "checkpoints": [
+      {
+        "best_individual_accuracy": 0.15,
+        "checkpoint": 0,
+        "competence_matrix": {
+          "agent_0": {
+            "ALPHA": 0.3,
+            "BETA": 0.2,
+            "DELTA": 0.0,
+            "GAMMA": 0.0
+          },
+          "agent_1": {
+            "ALPHA": 0.1,
+            "BETA": 0.1,
+            "DELTA": 0.1,
+            "GAMMA": 0.2
+          },
+          "agent_2": {
+            "ALPHA": 0.1,
+            "BETA": 0.1,
+            "DELTA": 0.0,
+            "GAMMA": 0.4
+          },
+          "agent_3": {
+            "ALPHA": 0.1,
+            "BETA": 0.1,
+            "DELTA": 0.2,
+            "GAMMA": 0.2
+          }
+        },
+        "individual_accuracy": [
+          0.125,
+          0.125,
+          0.15,
+          0.15
+        ],
+        "normalized_hse": 0.5286332668466651,
+        "normalized_task_agent_mutual_information": 0.0,
+        "normalized_utilization_entropy": 0.0,
+        "oracle_gain": 0.19999999999999998,
+        "oracle_society_accuracy": 0.35,
+        "routing_counts_by_world_agent": {
+          "ALPHA": {
+            "agent_0": 0,
+            "agent_1": 0,
+            "agent_2": 0,
+            "agent_3": 0
+          },
+          "BETA": {
+            "agent_0": 0,
+            "agent_1": 0,
+            "agent_2": 0,
+            "agent_3": 0
+          },
+          "DELTA": {
+            "agent_0": 0,
+            "agent_1": 0,
+            "agent_2": 0,
+            "agent_3": 0
+          },
+          "GAMMA": {
+            "agent_0": 0,
+            "agent_1": 0,
+            "agent_2": 0,
+            "agent_3": 0
+          }
+        },
+        "temporal_role_stability": null
+      },
+      {
+        "best_individual_accuracy": 0.4,
+        "checkpoint": 20,
+        "competence_matrix": {
+          "agent_0": {
+            "ALPHA": 0.2,
+            "BETA": 0.1,
+            "DELTA": 0.2,
+            "GAMMA": 0.1
+          },
+          "agent_1": {
+            "ALPHA": 0.2,
+            "BETA": 1.0,
+            "DELTA": 0.1,
+            "GAMMA": 0.3
+          },
+          "agent_2": {
+            "ALPHA": 0.0,
+            "BETA": 0.0,
+            "DELTA": 0.0,
+            "GAMMA": 0.1
+          },
+          "agent_3": {
+            "ALPHA": 0.2,
+            "BETA": 0.2,
+            "DELTA": 0.2,
+            "GAMMA": 0.4
+          }
+        },
+        "individual_accuracy": [
+          0.15,
+          0.4,
+          0.025,
+          0.25
+        ],
+        "normalized_hse": 0.7564699641045424,
+        "normalized_task_agent_mutual_information": 0.1209007183328169,
+        "normalized_utilization_entropy": 0.37379233991228694,
+        "oracle_gain": 0.25,
+        "oracle_society_accuracy": 0.65,
+        "routing_counts_by_world_agent": {
+          "ALPHA": {
+            "agent_0": 0,
+            "agent_1": 5,
+            "agent_2": 0,
+            "agent_3": 0
+          },
+          "BETA": {
+            "agent_0": 0,
+            "agent_1": 3,
+            "agent_2": 1,
+            "agent_3": 0
+          },
+          "DELTA": {
+            "agent_0": 0,
+            "agent_1": 7,
+            "agent_2": 1,
+            "agent_3": 0
+          },
+          "GAMMA": {
+            "agent_0": 1,
+            "agent_1": 2,
+            "agent_2": 0,
+            "agent_3": 0
+          }
+        },
+        "temporal_role_stability": 0.175
+      }
+    ],
+    "condition": "private",
+    "config": {
+      "agents": 4,
+      "backend": "omp",
+      "checkpoints": [
+        0,
+        20
+      ],
+      "epsilon": 0.0,
+      "memory_k": 8,
+      "memory_mode": "private",
+      "memory_strategy": "recent_k",
+      "model": "deepseek/deepseek-v4-flash",
+      "probe_set_path": "data/probe_set.json",
+      "rounds": 20,
+      "router": "confidence",
+      "seed": 1,
+      "thinking": "off"
+    },
+    "directory": "data/runs/private-seed1-20260806T231032Z-ff928a0b",
+    "event_stats": {
+      "errors": 14,
+      "events": 436,
+      "inference_attempts": 412,
+      "interaction_attempts": 84,
+      "latency": {
+        "max_s": 120.32,
+        "mean_s": 15.51,
+        "min_s": 1.76,
+        "total_s": 6389.23
+      },
+      "parsing_errors": 0,
+      "probe_attempts": 328,
+      "retries": 12,
+      "timeouts": 13,
+      "usage": {
+        "cost_usd": 0.025938,
+        "coverage": 0.966,
+        "input_tokens": 71488,
+        "output_tokens": 43956,
+        "records": 398,
+        "total_tokens": 1409140
+      }
+    },
+    "final": {
+      "best_individual_accuracy": 0.4,
+      "competence_matrix": {
+        "agent_0": {
+          "ALPHA": 0.2,
+          "BETA": 0.1,
+          "DELTA": 0.2,
+          "GAMMA": 0.1
+        },
+        "agent_1": {
+          "ALPHA": 0.2,
+          "BETA": 1.0,
+          "DELTA": 0.1,
+          "GAMMA": 0.3
+        },
+        "agent_2": {
+          "ALPHA": 0.0,
+          "BETA": 0.0,
+          "DELTA": 0.0,
+          "GAMMA": 0.1
+        },
+        "agent_3": {
+          "ALPHA": 0.2,
+          "BETA": 0.2,
+          "DELTA": 0.2,
+          "GAMMA": 0.4
+        }
+      },
+      "individual_accuracy": [
+        0.15,
+        0.4,
+        0.025,
+        0.25
+      ],
+      "memory_counts": {
+        "agent_0": 1,
+        "agent_1": 17,
+        "agent_2": 2,
+        "agent_3": 0
+      },
+      "normalized_hse": 0.7564699641045424,
+      "normalized_task_agent_mutual_information": 0.1209007183328169,
+      "normalized_utilization_entropy": 0.37379233991228694,
+      "oracle_gain": 0.25,
+      "oracle_society_accuracy": 0.65,
+      "routing_counts": {
+        "agent_0": 1,
+        "agent_1": 17,
+        "agent_2": 2
+      },
+      "routing_counts_by_world_agent": {
+        "ALPHA": {
+          "agent_0": 0,
+          "agent_1": 5,
+          "agent_2": 0,
+          "agent_3": 0
+        },
+        "BETA": {
+          "agent_0": 0,
+          "agent_1": 3,
+          "agent_2": 1,
+          "agent_3": 0
+        },
+        "DELTA": {
+          "agent_0": 0,
+          "agent_1": 7,
+          "agent_2": 1,
+          "agent_3": 0
+        },
+        "GAMMA": {
+          "agent_0": 1,
+          "agent_1": 2,
+          "agent_2": 0,
+          "agent_3": 0
+        }
+      },
+      "temporal_role_stability": 0.175
+    },
+    "git_head": null,
+    "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
+    "run_id": "private-seed1-20260806T231032Z-ff928a0b",
+    "status": "completed"
+  },
+  "shared": {
+    "backend": {
+      "session_policy": "one fresh --mode rpc --no-session process per completion",
+      "version": "omp/17.2.10"
+    },
+    "checkpoints": [
+      {
+        "best_individual_accuracy": 0.2,
+        "checkpoint": 0,
+        "competence_matrix": {
+          "agent_0": {
+            "ALPHA": 0.2,
+            "BETA": 0.0,
+            "DELTA": 0.3,
+            "GAMMA": 0.2
+          },
+          "agent_1": {
+            "ALPHA": 0.1,
+            "BETA": 0.1,
+            "DELTA": 0.2,
+            "GAMMA": 0.4
+          },
+          "agent_2": {
+            "ALPHA": 0.1,
+            "BETA": 0.1,
+            "DELTA": 0.1,
+            "GAMMA": 0.2
+          },
+          "agent_3": {
+            "ALPHA": 0.2,
+            "BETA": 0.2,
+            "DELTA": 0.2,
+            "GAMMA": 0.2
+          }
+        },
+        "individual_accuracy": [
+          0.175,
+          0.2,
+          0.125,
+          0.2
+        ],
+        "normalized_hse": 0.4409942541229445,
+        "normalized_task_agent_mutual_information": 0.0,
+        "normalized_utilization_entropy": 0.0,
+        "oracle_gain": 0.175,
+        "oracle_society_accuracy": 0.375,
+        "routing_counts_by_world_agent": {
+          "ALPHA": {
+            "agent_0": 0,
+            "agent_1": 0,
+            "agent_2": 0,
+            "agent_3": 0
+          },
+          "BETA": {
+            "agent_0": 0,
+            "agent_1": 0,
+            "agent_2": 0,
+            "agent_3": 0
+          },
+          "DELTA": {
+            "agent_0": 0,
+            "agent_1": 0,
+            "agent_2": 0,
+            "agent_3": 0
+          },
+          "GAMMA": {
+            "agent_0": 0,
+            "agent_1": 0,
+            "agent_2": 0,
+            "agent_3": 0
+          }
+        },
+        "temporal_role_stability": null
+      },
+      {
+        "best_individual_accuracy": 0.3,
+        "checkpoint": 20,
+        "competence_matrix": {
+          "agent_0": {
+            "ALPHA": 0.3,
+            "BETA": 0.3,
+            "DELTA": 0.3,
+            "GAMMA": 0.3
+          },
+          "agent_1": {
+            "ALPHA": 0.0,
+            "BETA": 0.3,
+            "DELTA": 0.2,
+            "GAMMA": 0.1
+          },
+          "agent_2": {
+            "ALPHA": 0.1,
+            "BETA": 0.2,
+            "DELTA": 0.3,
+            "GAMMA": 0.3
+          },
+          "agent_3": {
+            "ALPHA": 0.1,
+            "BETA": 0.4,
+            "DELTA": 0.2,
+            "GAMMA": 0.5
+          }
+        },
+        "individual_accuracy": [
+          0.3,
+          0.15,
+          0.225,
+          0.3
+        ],
+        "normalized_hse": 0.358918409152648,
+        "normalized_task_agent_mutual_information": 0.27746623692932265,
+        "normalized_utilization_entropy": 0.9854752972273343,
+        "oracle_gain": 0.175,
+        "oracle_society_accuracy": 0.475,
+        "routing_counts_by_world_agent": {
+          "ALPHA": {
+            "agent_0": 2,
+            "agent_1": 0,
+            "agent_2": 1,
+            "agent_3": 2
+          },
+          "BETA": {
+            "agent_0": 0,
+            "agent_1": 0,
+            "agent_2": 3,
+            "agent_3": 1
+          },
+          "DELTA": {
+            "agent_0": 2,
+            "agent_1": 3,
+            "agent_2": 2,
+            "agent_3": 1
+          },
+          "GAMMA": {
+            "agent_0": 2,
+            "agent_1": 1,
+            "agent_2": 0,
+            "agent_3": 0
+          }
+        },
+        "temporal_role_stability": 0.225
+      }
+    ],
+    "condition": "shared",
+    "config": {
+      "agents": 4,
+      "backend": "omp",
+      "checkpoints": [
+        0,
+        20
+      ],
+      "epsilon": 0.0,
+      "memory_k": 8,
+      "memory_mode": "shared",
+      "memory_strategy": "recent_k",
+      "model": "deepseek/deepseek-v4-flash",
+      "probe_set_path": "data/probe_set.json",
+      "rounds": 20,
+      "router": "confidence",
+      "seed": 1,
+      "thinking": "off"
+    },
+    "directory": "data/runs/shared-seed1-20260807T002355Z-557768c8",
+    "event_stats": {
+      "errors": 65,
+      "events": 475,
+      "inference_attempts": 451,
+      "interaction_attempts": 86,
+      "latency": {
+        "max_s": 120.18,
+        "mean_s": 42.72,
+        "min_s": 1.8,
+        "total_s": 19265.39
+      },
+      "parsing_errors": 2,
+      "probe_attempts": 365,
+      "retries": 51,
+      "timeouts": 49,
+      "usage": {
+        "cost_usd": 0.06142,
+        "coverage": 0.8603,
+        "input_tokens": 140943,
+        "output_tokens": 128943,
+        "records": 388,
+        "total_tokens": 2263998
+      }
+    },
+    "final": {
+      "best_individual_accuracy": 0.3,
+      "competence_matrix": {
+        "agent_0": {
+          "ALPHA": 0.3,
+          "BETA": 0.3,
+          "DELTA": 0.3,
+          "GAMMA": 0.3
+        },
+        "agent_1": {
+          "ALPHA": 0.0,
+          "BETA": 0.3,
+          "DELTA": 0.2,
+          "GAMMA": 0.1
+        },
+        "agent_2": {
+          "ALPHA": 0.1,
+          "BETA": 0.2,
+          "DELTA": 0.3,
+          "GAMMA": 0.3
+        },
+        "agent_3": {
+          "ALPHA": 0.1,
+          "BETA": 0.4,
+          "DELTA": 0.2,
+          "GAMMA": 0.5
+        }
+      },
+      "individual_accuracy": [
+        0.3,
+        0.15,
+        0.225,
+        0.3
+      ],
+      "memory_counts": {
+        "agent_0": 20,
+        "agent_1": 20,
+        "agent_2": 20,
+        "agent_3": 20
+      },
+      "normalized_hse": 0.358918409152648,
+      "normalized_task_agent_mutual_information": 0.27746623692932265,
+      "normalized_utilization_entropy": 0.9854752972273343,
+      "oracle_gain": 0.175,
+      "oracle_society_accuracy": 0.475,
+      "routing_counts": {
+        "agent_0": 6,
+        "agent_1": 4,
+        "agent_2": 6,
+        "agent_3": 4
+      },
+      "routing_counts_by_world_agent": {
+        "ALPHA": {
+          "agent_0": 2,
+          "agent_1": 0,
+          "agent_2": 1,
+          "agent_3": 2
+        },
+        "BETA": {
+          "agent_0": 0,
+          "agent_1": 0,
+          "agent_2": 3,
+          "agent_3": 1
+        },
+        "DELTA": {
+          "agent_0": 2,
+          "agent_1": 3,
+          "agent_2": 2,
+          "agent_3": 1
+        },
+        "GAMMA": {
+          "agent_0": 2,
+          "agent_1": 1,
+          "agent_2": 0,
+          "agent_3": 0
+        }
+      },
+      "temporal_role_stability": 0.225
+    },
+    "git_head": null,
+    "probe_set_hash": "cb234422389ff7d5a04566112a483f147e4a3d1212b1c69fbb0396ec9ca4c55e",
+    "run_id": "shared-seed1-20260807T002355Z-557768c8",
+    "status": "completed"
+  },
+  "shared_status": "complete"
+}

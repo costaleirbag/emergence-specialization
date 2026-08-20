@@ -1,0 +1,20 @@
+# Matched control for trajectory_private.yaml; only feedback locality differs.
+experiment:
+  num_agents: 4
+  num_rounds: 80
+  checkpoints: {every: 5}
+  seed: 1
+  max_concurrency: 4
+  technical_retries: 1
+  console_summary: true
+agent:
+  backend: omp
+  model: deepseek/deepseek-v4-flash
+  thinking: "off"
+  memory_strategy: recent_k
+  memory_k: 8
+condition:
+  memory_mode: shared
+logging:
+  output_dir: data/research_runs
+  probe_set_path: data/probe_set.json

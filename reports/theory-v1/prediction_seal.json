@@ -1,0 +1,18 @@
+{
+  "protocol": "THEORY-V1",
+  "status": "PREDICTIONS_SEALED_BEFORE_MACRO",
+  "sealed_at": "2026-08-12T12:30:00Z",
+  "protocol_reseal_tag": "theory-v1-protocol-resealed-20260812",
+  "git_head_at_seal": "theory-v1-predictions-sealed-20260812",
+  "prediction_manifest_sha256": "937ef40d0d08a4776d07748732a7727b6c22d9c25b8e619bf22b2f9d01580478",
+  "micro_manifest_sha256": "761972700ca981f59c1cfefa818662a3b16fe677419360e20dd4af8995c3c008",
+  "macro_manifest_sha256": "792df8a7f3102ed58101f154bfb9e7b7c04b5fa53f73de32d9784c8761c75da6",
+  "micro_raw_sha256": "a75193ceb1c788883bbe4f6941bfc64d3a182053f976a923dba08c4bfbade77f",
+  "micro_logical_calls": 26112,
+  "macro_logical_calls": 186368,
+  "total_logical_calls": 212480,
+  "paid_macro_calls_before_seal": 0,
+  "scientific_adaptation_after_micro": false,
+  "prediction_rows": 864,
+  "immutable_tag": "theory-v1-predictions-sealed-20260812"
+}

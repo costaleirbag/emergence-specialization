@@ -1,0 +1,8 @@
+{
+  "beta0_spectral_radius": 0.96875,
+  "beta12_spectral_radius": 1.50875,
+  "estimators_max_abs_difference": 3.0531133177191805e-16,
+  "k_max_abs_error": 1.1102230246251565e-16,
+  "psi_specialist_fixture": 0.1875,
+  "status": "MOCK_DATA_NOT_SCIENTIFIC_RESULT"
+}

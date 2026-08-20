@@ -1,0 +1,17 @@
+# p_private = 0.25; this is an information-locality condition, not a score knob.
+experiment:
+  num_agents: 4
+  num_rounds: 80
+  checkpoints: {every: 10}
+  seed: 1
+feedback:
+  mode: probabilistic
+  private_probability: 0.25
+condition:
+  memory_mode: private
+agent:
+  backend: omp
+  model: deepseek/deepseek-v4-flash
+logging:
+  output_dir: data/research_runs
+  probe_set_path: data/probe_set.json

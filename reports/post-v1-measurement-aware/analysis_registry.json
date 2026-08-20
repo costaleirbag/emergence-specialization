@@ -1,0 +1,23 @@
+{
+  "protocol": "POST-V1-MEASUREMENT-AWARE-MECHANISM-REPAIR",
+  "status": "REGISTERED_BEFORE_RESULTS",
+  "external_model_calls": 0,
+  "external_budget_usd": 0.0,
+  "starting_commit": "8bab2c4d1eb9a43ef23a78e87892a4bcd26cbc4a",
+  "primary_unit": "ecology x social seed",
+  "micro_unit": "micro seed",
+  "constructs": {"specialization": "A_bit", "router_calibration": "A_joint", "secondary_router_association": "A_bit"},
+  "probe_split": "odd_probe_index_vs_even_probe_index",
+  "intervals": [[0,16],[16,32],[32,64],[64,128]],
+  "mechanisms": ["H0_measurement_limited_dynamics","H1_router_staleness","H2_selection_on_noise","H3_exposure_memory_attenuation","H4_memory_state_insufficiency","H5_micro_macro_extrapolation","H6_sharing_timescale","H7_differentiation_churn","H8_multiple_bottlenecks"],
+  "raw_inputs": {
+    "stage_a": {"path": "data/auto-research/theory-v1-1/stage_a_events.jsonl", "sha256": "d91d5c95c9d7afe5bcd9707fa6a4a1822f3c713f128549d9edaadee4dcaf9bd5"},
+    "micro": {"path": "data/auto-research/theory-v1-1/micro_events.jsonl", "sha256": "91bf71db05358948a5e6e40dd8eee8f67722b8d0e3633b009315e3adfc28887d"},
+    "macro_events": {"path": "data/auto-research/theory-v1-1/macro/macro_events.jsonl", "sha256": "582ca0ad1c3d603061c515901f3674a51afcc64cfe365e1967fbbb65c710fe0a"},
+    "macro_steps": {"path": "data/auto-research/theory-v1-1/macro/macro_steps.jsonl", "sha256": "4a22cdfe4821a5508afdc7152804dc0a16d36a40ebe7bc62b1c8b61479affe1f"},
+    "macro_checkpoints": {"path": "data/auto-research/theory-v1-1/macro/macro_checkpoint_observations.jsonl", "sha256": "2a78d117ddbdb0a8bc98ebd0c7bdf8c54583316c3aa8b335572730486ce570d2"}
+  },
+  "preserve_previous_analysis": true,
+  "historical_v1_primary_use": false,
+  "theory_v2_defined": false
+}

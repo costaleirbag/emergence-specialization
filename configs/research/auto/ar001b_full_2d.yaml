@@ -1,0 +1,11 @@
+protocol: AR-001B-FULL-2D-EXECUTION
+backend: deepseek_direct
+model: deepseek-v4-flash
+thinking: off
+logical_calls: 112
+replicates: 2
+probes_per_world: 14
+max_physical_attempts: 224
+hard_cost_cap_usd: 0.05
+technical_retries: 1
+probe_path: data/calibrations/ar001b-full-2d/probe_set.json

@@ -1,0 +1,11 @@
+{
+  "protocol": "THEORY-V1.1",
+  "type": "post_coverage_finalization_exception",
+  "message": "ValueError: invalid literal for int() with base 10: 'C0'",
+  "scientific_observations_lost": 0,
+  "logical_terminal_ids": 62976,
+  "expected_logical_ids": 62976,
+  "duplicate_terminal_ids": 0,
+  "raw_source_of_truth": "macro_events.jsonl",
+  "interpretation": "Infrastructure bookkeeping anomaly after complete raw coverage; no scientific adaptation or rerun."
+}

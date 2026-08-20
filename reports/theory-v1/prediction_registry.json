@@ -1,0 +1,9 @@
+{
+  "protocol": "THEORY-V1",
+  "status": "PREDICTIONS_NOT_GENERATED",
+  "reason": "MICRO parameterization has not been run; this file is a pre-inference placeholder.",
+  "macro_cells_per_ecology_seed": 18,
+  "macro_social_seeds": 16,
+  "fitted_to_macro": false,
+  "predictions": []
+}

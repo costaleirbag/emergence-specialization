@@ -1,0 +1,29 @@
+{
+  "legacy": "DEVELOPMENT",
+  "macro": "CONSUMED / DEVELOPMENT-FOR-V2",
+  "aborted_macro_serial": {
+    "category": "TECHNICAL_ABORT / QUARANTINED",
+    "path": "data/quarantine/theory-v1-macro-aborted-serial-run-20260812",
+    "include_in_scorecard": false,
+    "scientific_metrics_inspected": false
+  },
+  "micro": "CONSUMED / DEVELOPMENT-FOR-V2",
+  "protocol": "THEORY-V1",
+  "status": "THEORY_V1_CLOSED_AFTER_FORENSIC_REPAIR",
+  "forensic_repair": {
+    "raw_observations_immutable": true,
+    "equations_changed": false,
+    "implementation_repaired_after_macro": true,
+    "canonical_scorecard": "reports/theory-v1/repair/theory_v1_scorecard_repaired.json"
+  },
+  "theory_v1_1": {
+    "protocol": "THEORY-V1.1-HARNESS-CLEAN",
+    "status": "FROZEN_BEFORE_NEW_INFERENCE",
+    "stage_a": "INSTRUMENT_VALIDATION",
+    "micro": "PARAMETERIZATION",
+    "macro": "CONFIRMATORY_TARGETED",
+    "historical_v1": "PROSPECTIVE_BUT_HARNESS_CONFOUNDED",
+    "hard_cap_usd": 4.0,
+    "external_calls_executed": 0
+  }
+}

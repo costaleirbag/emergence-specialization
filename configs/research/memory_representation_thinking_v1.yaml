@@ -1,0 +1,17 @@
+protocol_version: memory-representation-thinking-v1
+base_config: configs/research/v2/clean_confidence_private_20.yaml
+output_dir: data/calibrations/memory-representation-thinking-v1
+worlds: [ALPHA, BETA, GAMMA, DELTA]
+context_seeds: 10
+probes_per_world: 14
+k_values: [0, 1, 2, 4, 8]
+replicates: 3
+reasoning_modes: ["off", high]
+representations: [full_experience, feedback_only]
+include_truly_corrupted_feedback: true
+thinking_max_tokens: 2048
+technical_retries: 1
+max_concurrency: 32
+hard_cost_cap_usd: 3.0
+max_physical_attempts: 67200
+probe_set_path: data/calibrations/memory-representation-thinking-v1/balanced_probe_set.json

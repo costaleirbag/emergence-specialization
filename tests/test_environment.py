@@ -15,6 +15,10 @@ class HiddenWorldEnvironmentTests(unittest.TestCase):
         self.assertEqual(self.environment.answer_for("GAMMA", 3, 5), 1)
         self.assertEqual(self.environment.answer_for("DELTA", 3, 5), 3)
 
+    def test_gamma_provenance_freezes_zero_intercept(self) -> None:
+        self.assertEqual(HIDDEN_RULES["GAMMA"], (4, 2, 0))
+        self.assertEqual(self.environment.answer_for("GAMMA", 0, 0), 0)
+
     def test_model_prompt_exposes_no_answer_or_rule_formula(self) -> None:
         task = self.environment.make_task("ALPHA", 3, 5)
         prompt = task_prompt(task)

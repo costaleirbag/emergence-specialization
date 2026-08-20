@@ -1,0 +1,18 @@
+# Develop through round 40, swap two Python-owned memories, then continue.
+experiment:
+  num_agents: 4
+  num_rounds: 80
+  checkpoints: {every: 10}
+  seed: 1
+condition:
+  memory_mode: private
+interventions:
+  - trigger_round: 41
+    operation: memory_swap
+    source_agent: agent_0
+    target_agent: agent_1
+agent:
+  backend: mock
+logging:
+  output_dir: data/research_runs
+  probe_set_path: data/probe_set.json

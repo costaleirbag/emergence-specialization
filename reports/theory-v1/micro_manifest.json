@@ -1,0 +1,5684 @@
+{
+  "ecologies": [
+    "V31_FRESH",
+    "AFFINE_BOOLEAN_V1"
+  ],
+  "expected_calls": {
+    "macro": 186368,
+    "macro_cell": 640,
+    "micro": 26112,
+    "micro_unit": 544,
+    "total": 212480
+  },
+  "macro_cells_per_ecology_seed": 18,
+  "micro_only": true,
+  "paid_calls": 0,
+  "protocol": "THEORY-V1",
+  "status": "PREPARED_OFFLINE",
+  "units": [
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 4,
+      "memory_hash": "6656a9d5817dea26f77ecc8f852514e3a65734ab65556f1ad08fcc781e17cb3c",
+      "seed": 73101,
+      "single_swaps": [
+        {
+          "slot": 0,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 0,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 6,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 8,
+      "memory_hash": "fc8e4cd75aaafe3ab465babe5f6c2602b1c75e4b787a0efa0fa4f6807a29f778",
+      "seed": 73101,
+      "single_swaps": [
+        {
+          "slot": 0,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 0,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 6,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 7,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 11,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 12,
+      "memory_hash": "843c1fc7465dfbd0eb6027eb6b7772ffce8a543f242579cdcbf43f69402ac315",
+      "seed": 73101,
+      "single_swaps": [
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 7,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 5,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 5,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 11,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 11,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 8,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 9,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 4,
+      "memory_hash": "ffcc4eb2ca614e1d68369b0fc2884d70e6dbc03fb25c6579c2ba00fa1fe1d8eb",
+      "seed": 73102,
+      "single_swaps": [
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 6,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 6,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 8,
+      "memory_hash": "2f75df7f6696333ad7420b5c31468e06f7b694c88d6d1ecca1fe76cd788f5821",
+      "seed": 73102,
+      "single_swaps": [
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 6,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 6,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 7,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 7,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 4,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 8,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 11,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 8,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 8,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 11,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 8,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 12,
+      "memory_hash": "b8da57c398ae44a4d8f3427d06fe6648320810c9fdb3321245767412c3787005",
+      "seed": 73102,
+      "single_swaps": [
+        {
+          "slot": 8,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 4,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 11,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 11,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 9,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 7,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 5,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 4,
+      "memory_hash": "afcf70ef6f46fc1d2e413f433ef4307ad40f44b2b5a9ea5e5e6accabe0aeb42c",
+      "seed": 73103,
+      "single_swaps": [
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 5,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 5,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 5,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 5,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 8,
+      "memory_hash": "48c664490a3e76440548e11dd8f9ed3357119147d7a6f45abfab797646011505",
+      "seed": 73103,
+      "single_swaps": [
+        {
+          "slot": 5,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 6,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 5,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 7,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 4,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 10,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 12,
+      "memory_hash": "1806e08e4e26856fc5135b125d64729b9a32b3e5c0587f8d224bf4117c0c410d",
+      "seed": 73103,
+      "single_swaps": [
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 7,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 9,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 10,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 11,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 8,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 4,
+      "memory_hash": "f1b13eb708e7425a2e2eba57488ee9b1db4ad7aed3839bd3ec27bca142918156",
+      "seed": 73104,
+      "single_swaps": [
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 4,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 7,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 4,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 7,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 4,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 4,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 8,
+      "memory_hash": "e14b8f8c80050fc1f852818f951a92d1132cab9b610ea1415f1d27f73c1b2b4e",
+      "seed": 73104,
+      "single_swaps": [
+        {
+          "slot": 4,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 4,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 7,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 7,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 5,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 9,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 9,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 9,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 9,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 10,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 12,
+      "memory_hash": "87e59735e1e9dac79855695c518614e09155f15b4709e6908d85b6f4cd2dc302",
+      "seed": 73104,
+      "single_swaps": [
+        {
+          "slot": 9,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 11,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 10,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 10,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 5,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 4,
+      "memory_hash": "e9c53d5c70ce8c993248c9dea93de0d8e0c02f3f5c4e5731cb88089d86876595",
+      "seed": 73105,
+      "single_swaps": [
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 8,
+      "memory_hash": "31d0dbed2027443fe11215443b50c18be3a8bd5b717a79b04c6a720fc9ea4e0f",
+      "seed": 73105,
+      "single_swaps": [
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 4,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 5,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 7,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 9,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 10,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 9,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 7,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 9,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 10,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 9,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 12,
+      "memory_hash": "21566bbaaa2e67e429b4877a971406fc1f2ea9ac20411004b3901b344f2e1b94",
+      "seed": 73105,
+      "single_swaps": [
+        {
+          "slot": 9,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 8,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 10,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 7,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 10,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 4,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 4,
+      "memory_hash": "3cea8864500c01822d02ef4bf8697063b130147a8ca75b2c9748e5a431858c34",
+      "seed": 73106,
+      "single_swaps": [
+        {
+          "slot": 0,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 0,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 7,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 7,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 8,
+      "memory_hash": "fb1fc0f75c1f8d65683c19d9473ae163f140174a538f12023d98f18a9147a535",
+      "seed": 73106,
+      "single_swaps": [
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 7,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 7,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 4,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 9,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 8,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 12,
+      "memory_hash": "ee59495538548c36f00942de530e06a0af9f25ff9661d66f993b207c26eda8a9",
+      "seed": 73106,
+      "single_swaps": [
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 5,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 6,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 9,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 8,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 10,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 8,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 11,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 4,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 0,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 4,
+      "memory_hash": "5ad17e4cff632fba791049163480aad1c8887053762bd9a473d1cd914b2b3735",
+      "seed": 73107,
+      "single_swaps": [
+        {
+          "slot": 0,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 0,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 6,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 8,
+      "memory_hash": "45d1f0f083c84224dc96a82fa3c250faaa0f2bc5a2d318e4112e6d78907fbb0a",
+      "seed": 73107,
+      "single_swaps": [
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 6,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 5,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 7,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 5,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 10,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 12,
+      "memory_hash": "ad04596c737fd327159e51bb0664e0ecbd8fab68b6ca576a369975d184ef4763",
+      "seed": 73107,
+      "single_swaps": [
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 8,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 10,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 10,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 5,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 9,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 11,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 4,
+      "memory_hash": "b220b6da5e7c87977f14013df13f1b2927864f684df9aa22a94ade58016fb3e7",
+      "seed": 73108,
+      "single_swaps": [
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 6,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 6,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 8,
+      "memory_hash": "d638830a20bc0afcb008e886c4b43c432702d2e8c027272b7bd68970003dac09",
+      "seed": 73108,
+      "single_swaps": [
+        {
+          "slot": 7,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 7,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 6,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 6,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 5,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 5,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 11,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 8,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 11,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 7,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 11,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 8,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 11,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "V31_FRESH",
+      "k": 12,
+      "memory_hash": "be9962f59feef5a183eb52c24d2fde2f585b30ddb3ac94cd601c125334124190",
+      "seed": 73108,
+      "single_swaps": [
+        {
+          "slot": 11,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 4,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 5,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 8,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 7,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 8,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 9,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 4,
+      "memory_hash": "e9c53d5c70ce8c993248c9dea93de0d8e0c02f3f5c4e5731cb88089d86876595",
+      "seed": 83101,
+      "single_swaps": [
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 8,
+      "memory_hash": "5b3ba6d67105b58a094b092a022dfb77752aab7e9fcef7ca446955ce0066c8e1",
+      "seed": 83101,
+      "single_swaps": [
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 5,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 7,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 12,
+      "memory_hash": "c91810a375b15588d8ad94fbc67bebd6b3f992ccf13f0236dbf5e9ea53eb9a6e",
+      "seed": 83101,
+      "single_swaps": [
+        {
+          "slot": 7,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 4,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 6,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 5,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 5,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 9,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 8,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 10,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 4,
+      "memory_hash": "e95fca87cb29b5e59626b5cf3980abdab63b874b7ada07dc679115ed5e567c97",
+      "seed": 83102,
+      "single_swaps": [
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 8,
+      "memory_hash": "e56b155dc2317b71871937c0875eacfec66b5acac4ad7d52acc4d5904f123295",
+      "seed": 83102,
+      "single_swaps": [
+        {
+          "slot": 6,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 4,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 6,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 5,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 5,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 7,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 7,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 10,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 12,
+      "memory_hash": "1f1bf80a9d2a87a49e4e94d9c735971081438bd2c8f5c8f4b97c1dcbda04a318",
+      "seed": 83102,
+      "single_swaps": [
+        {
+          "slot": 6,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 7,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 9,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 10,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 8,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 4,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 11,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 4,
+      "memory_hash": "e95fca87cb29b5e59626b5cf3980abdab63b874b7ada07dc679115ed5e567c97",
+      "seed": 83103,
+      "single_swaps": [
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 7,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 8,
+      "memory_hash": "5d321c84ad56e21b4eb7ce6e7fdfb7790b6962cca1d95a8a28dd9749541916ff",
+      "seed": 83103,
+      "single_swaps": [
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 6,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 7,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 8,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 8,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 12,
+      "memory_hash": "276fa4465b55067a3bd1ba94a6038adb094d95e14cd431fc11e88cee82cf9c77",
+      "seed": 83103,
+      "single_swaps": [
+        {
+          "slot": 7,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 9,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 8,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 5,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 8,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 4,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 11,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 4,
+      "memory_hash": "5eff65af72d0ed43d872b1d6d9fdd8c76d0bb76e70ecb03864e61822217e015a",
+      "seed": 83104,
+      "single_swaps": [
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 7,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 7,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 8,
+      "memory_hash": "3637d40ff70c6099f0ab761e7a62d532c84806462c3a9fa11f55986a9709cc47",
+      "seed": 83104,
+      "single_swaps": [
+        {
+          "slot": 6,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 6,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 7,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 7,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 9,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 10,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 9,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 9,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 10,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 9,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 12,
+      "memory_hash": "5755ce2050076f8df6f3b38612f46774d35046dabda0379b6f85a0b936d3820c",
+      "seed": 83104,
+      "single_swaps": [
+        {
+          "slot": 9,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 6,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 7,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 10,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 5,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 10,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 11,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 4,
+      "memory_hash": "17fa48843e367ad53901f48b422a2b796a06d0476e21a595b72a67a015de286f",
+      "seed": 83105,
+      "single_swaps": [
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 1,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 7,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 8,
+      "memory_hash": "451202118f0954d4785717b7e576b24d09eb2b38c4f156af0c008c43f1a7c9a5",
+      "seed": 83105,
+      "single_swaps": [
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 6,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 7,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 4,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 11,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 12,
+      "memory_hash": "6af422ab97b25d13ec7ab3003b1a6abbe91985c3f99c04c2daa526d598f95ad8",
+      "seed": 83105,
+      "single_swaps": [
+        {
+          "slot": 7,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 9,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 10,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 11,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 6,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 4,
+      "memory_hash": "3e5cb469de5e56269533946aee5e2c714c34866376a303a01ed9abbd7b7e15c3",
+      "seed": 83106,
+      "single_swaps": [
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 7,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 8,
+      "memory_hash": "f76462f3bc27ea4881b6f71fce055ce7b623455cfb4d5f613dcfde0e19e44c39",
+      "seed": 83106,
+      "single_swaps": [
+        {
+          "slot": 7,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 6,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 7,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 4,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 10,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 6,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 10,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 10,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 6,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 10,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 9,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 12,
+      "memory_hash": "4921a11cf7d105c00ce33d2015f3d3da328c353ba2b1944908047b2de8c2b7d8",
+      "seed": 83106,
+      "single_swaps": [
+        {
+          "slot": 10,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 11,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 8,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 6,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 6,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 9,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 9,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 5,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 4,
+      "memory_hash": "bf1f79838eca94b462ac22036842dfa80048ce80e61e30d89f7020bb0a423c3c",
+      "seed": 83107,
+      "single_swaps": [
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 5,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 5,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 5,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 5,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 6,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 8,
+      "memory_hash": "8854d0cfcfeb80a041757bee4e66f7c763caa0c4c1da80f5f4567413a25cd7d4",
+      "seed": 83107,
+      "single_swaps": [
+        {
+          "slot": 5,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 7,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 5,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 6,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 4,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 4,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 11,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 11,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 11,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 11,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 12,
+      "memory_hash": "76076f11a8dd80b44dc13fddc1cd3c6dbba47dd1ce0a29ad029073c11187905b",
+      "seed": 83107,
+      "single_swaps": [
+        {
+          "slot": 11,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 5,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 10,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 7,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 9,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 2,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 1,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 4,
+      "memory_hash": "afcf70ef6f46fc1d2e413f433ef4307ad40f44b2b5a9ea5e5e6accabe0aeb42c",
+      "seed": 83108,
+      "single_swaps": [
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 0,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 3,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 4,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 3,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 6,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 0,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 8,
+      "memory_hash": "2b5d2cfb74c5892f87ddfa9694318e8a952b59eae26ddc9eff8a4acc20cab9e1",
+      "seed": 83108,
+      "single_swaps": [
+        {
+          "slot": 6,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 1,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 6,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 4,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 3,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 0,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 2,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 7,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 5,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 7,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    },
+    {
+      "double_swaps": [
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 0
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 9,
+            "source": 1,
+            "target": 2
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 2,
+            "source": 1,
+            "target": 3
+          }
+        ],
+        [
+          {
+            "slot": 3,
+            "source": 0,
+            "target": 1
+          },
+          {
+            "slot": 5,
+            "source": 2,
+            "target": 0
+          }
+        ]
+      ],
+      "ecology": "AFFINE_BOOLEAN_V1",
+      "k": 12,
+      "memory_hash": "a1b97afc314c3baee549014fedf648db9d087925a212ad4d76afff13a7f45b21",
+      "seed": 83108,
+      "single_swaps": [
+        {
+          "slot": 3,
+          "source": 0,
+          "target": 1
+        },
+        {
+          "slot": 4,
+          "source": 0,
+          "target": 2
+        },
+        {
+          "slot": 8,
+          "source": 0,
+          "target": 3
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 0
+        },
+        {
+          "slot": 9,
+          "source": 1,
+          "target": 2
+        },
+        {
+          "slot": 2,
+          "source": 1,
+          "target": 3
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 0
+        },
+        {
+          "slot": 10,
+          "source": 2,
+          "target": 1
+        },
+        {
+          "slot": 5,
+          "source": 2,
+          "target": 3
+        },
+        {
+          "slot": 11,
+          "source": 3,
+          "target": 0
+        },
+        {
+          "slot": 0,
+          "source": 3,
+          "target": 1
+        },
+        {
+          "slot": 6,
+          "source": 3,
+          "target": 2
+        }
+      ]
+    }
+  ]
+}

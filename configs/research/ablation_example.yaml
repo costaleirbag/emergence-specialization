@@ -1,0 +1,18 @@
+# PopulationState scaffold only: fixed-N ExperimentRunner intentionally rejects
+# dynamic population operations until metrics are generalized.
+experiment:
+  num_agents: 4
+  num_rounds: 80
+  checkpoints: {every: 10}
+  seed: 1
+condition:
+  memory_mode: private
+interventions:
+  - trigger_round: 41
+    operation: ablate_agent
+    target_agent: agent_0
+agent:
+  backend: mock
+logging:
+  output_dir: data/research_runs
+  probe_set_path: data/probe_set.json

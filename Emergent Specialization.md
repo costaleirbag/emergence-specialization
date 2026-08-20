@@ -1558,3 +1558,111 @@ It is a dynamical extension inspired by its behavioral diversity and routing rob
 # 35. One-sentence project description
 
 > **A controlled study of whether initially homogeneous LLM agents can spontaneously develop persistent, useful specialization through asymmetric interaction histories, measured as a dynamical extension of behavioral diversity metrics used in LLM routing.**
+
+# 37. Protocolo limpo v2 — semântica de resposta
+
+Uma resposta JSON só é considerada tecnicamente ilegível quando falha no
+contrato sintático/schema ou quando `confidence` não está em $[0,1]$. Um JSON
+com `answer` inteiro fora de $[0,6]$ é uma resposta científica válida, porém
+errada para o domínio: ela é registrada com `answer_in_domain=false`, não gera
+retry, continua elegível ao router e é avaliada como incorreta nas sondas.
+
+Essa separação corrige um viés do protocolo legado, no qual respostas como
+`{"answer": 7, "confidence": 0.0}` eram tratadas como falhas técnicas e
+substituídas por uma segunda tentativa. Como uma resposta selecionada pode
+alterar a memória e a trajetória, os artefatos anteriores permanecem
+**LEGACY / EXPLORATORY** e não são reutilizados como evidência limpa.
+
+O protocolo novo tem identidade `staged-v3-response-semantics`, quatro células
+(`confidence/random` $\times$ `private/shared`) e seeds 1--10. O manifesto
+reprodutível está em `data/campaigns/developmental-dynamics-v2/campaign.json`;
+as configurações são imutáveis em `configs/research/v2/`.
+
+---
+
+# 36. Estado experimental — 2026-08-08
+
+O Gate 1 (`confidence` routing, `private` versus `shared`) possui dez pares
+completos e foi analisado somente offline. Um controle mecanístico com `random`
+routing foi iniciado para separar seleção por confiança de localidade de
+informação, mantendo o restante do desenho congelado. As sementes 1 e 2
+completaram os dois braços com tarefas e sequências de seleção exatamente
+pareadas; a run `private`, seed 3, foi interrompida após respostas inválidas
+(`answer = 7`) nas duas tentativas de uma sonda, deixando 201 completions lógicas
+ausentes. O controle random é, portanto, **PARTIAL / BLOCKED**: os dois pares
+completos são um teste de plumbing, não evidência de mecanismo.
+
+O relatório reproduzível está em
+`docs/RANDOM_ROUTING_MECHANISM_REPORT.md`, com tabelas e figuras em
+`reports/campaigns/developmental-dynamics-v1/random-routing-10/`. A run inválida
+permanece preservada na auditoria de saúde. Não interpretar HSE, Phi, MI,
+utilização ou ganho de oráculo isoladamente como especialização útil; qualquer
+retomada do controle requer revisão humana explícita. Gate 2 e demais extensões
+permanecem bloqueados.
+
+# 38. Clean v2 — campanha 2×2 completa
+
+A correção da semântica de respostas foi congelada no protocolo
+`staged-v3-response-semantics`. JSON válido com `answer` inteiro fora do domínio
+é agora uma conclusão científica incorreta (`answer_in_domain=false`), sem retry;
+falhas de transporte, conteúdo vazio e JSON malformado continuam sendo falhas
+técnicas auditáveis. Os artifacts v1 permanecem legados e não entram na análise
+limpa.
+
+A campanha `developmental-dynamics-v2` executou quatro células pareadas —
+`confidence/private`, `confidence/shared`, `random/private` e `random/shared` —
+com seeds 1--10. Cada run usou quatro agentes, 20 rounds, checkpoints 0/10/20
+e 40 probes por checkpoint. Foram completadas 22.400/22.400 conclusões lógicas
+em 40 runs, com 18 classificadas como `HEALTHY / CLEAN` e 22 como
+`HEALTHY / RECOVERED`; o custo observado foi US$0,649597.
+
+Este resultado é uma base descritiva para a análise factorial posterior, não uma
+confirmação de especialização nem uma conclusão causal. HSE, Phi, MI, utilização,
+ganho de oráculo e alinhamento de routing devem ser interpretados conjuntamente.
+O inventário, as trajetórias, tabelas tidy e figuras estão em
+`reports/campaigns/developmental-dynamics-v2/clean-2x2/`; a discussão de
+proveniência e guardrails está em `docs/CLEAN_2X2_MECHANISM_REPORT.md`.
+
+# 39. Calibration de learnability — 2026-08-08
+
+Antes de autorizar qualquer nova campanha de sociedades, foi executada uma
+calibração single-agent separada (`memory-learnability-v1`). Ela reutilizou o
+renderer de prompt, parser, mundos e memória controlada congelados no v2, sem
+router, feedback ou estado multiagente. Foram feitas 9.600 consultas lógicas
+(9.669 tentativas físicas), com custo observado de US$0,398420, usando somente
+DeepSeek Direct.
+
+O resultado é uma auditoria de mensuração: a acurácia same-world não cresceu
+monotonicamente em `k = 0,1,2,4,8` (0,192; 0,150; 0,171; 0,145; 0,172), enquanto a
+confiança média cresceu em vários contextos e perdeu calibração. Portanto não se
+deve assumir que `recent_k=8` ensina a regra oculta de forma confiável. Isso não
+é evidência contra emergência; é um gate para decidir se uma nova versão do
+protocolo precisa corrigir/validar learnability antes de outra sociedade.
+
+Os artefatos estão em `data/calibrations/memory-learnability-v1/` e o relatório
+offline em `docs/MEMORY_LEARNABILITY_V1_REPORT.md`. A calibração não deve ser
+misturada aos resultados do clean v2.
+
+# 40. Response anchoring — 2026-08-08
+
+Uma correção offline mostrou que a primeira tabela de reliability agrupava
+probes diferentes como se fossem replicates do mesmo prompt. A unidade correta é
+`mode × world × k × context_seed × probe_id`; os raw JSONL permanecem imutáveis.
+Também corrigimos a semântica de `corrupted_k8`: os artifacts contêm uma previsão
+anterior errada acompanhada de feedback corretivo verdadeiro, não rótulos
+corrompidos. O nome analítico agora é
+`wrong_prediction_with_correct_feedback_k8`.
+
+No clean v2, a concordância entre agentes cresceu nos braços shared (confidence:
+0,385 em $t=0$ para 0,654 em $t=20$; random: 0,398 para 0,708), compatível com
+anchors comuns, mas sem prova causal nem evidência de competência útil.
+
+# 41. Memory representation × thinking — 2026-08-08
+
+Foi preflightado um desenho single-agent com memória `full_experience` versus
+`feedback_only`, probes balanceadas e o toggle oficial de thinking do mesmo
+`deepseek-v4-flash`. O braço `thinking=off` completou 16.800 consultas. O braço
+thinking-on foi interrompido pelo guard de custo porque o modelo consumia o
+limite de output em reasoning sem produzir JSON final; não há comparação
+factorial válida. O relatório parcial está em
+`docs/MEMORY_REPRESENTATION_THINKING_REPORT.md`.

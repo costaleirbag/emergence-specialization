@@ -5,5 +5,25 @@ __pycache__/
 .venv/
 data/runs/*
 !data/runs/.gitkeep
+data/smoke_runs/*
+!data/smoke_runs/.gitkeep
 reports/*
 !reports/.gitkeep
+presentation/node_modules/
+presentation/dist/
+
+# Local provenance bundles are immutable handoff artifacts, not source files.
+.artifacts/
+*.tar.gz
+*.tar.gz.sha256
+
+# Machine-local/editor state.
+.DS_Store
+.codex/
+
+# Local calibration and campaign journals are reproducible from frozen inputs
+# but can be large or contain machine-local runtime state.
+data/auto-research/
+data/calibrations/memory-learnability-v1/
+data/calibrations/memory-representation-thinking-v1/events.jsonl
+data/calibrations/memory-representation-thinking-v1/manifest.json

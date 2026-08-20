@@ -1,0 +1,8 @@
+# Plan only by default. The batch module never runs a provider without --run
+# --confirm-real. Historical OMP configs still use the Bitwarden launcher;
+# these replication configs use the direct Keychain-backed DeepSeek client.
+seeds: [1, 2, 3, 4, 5]
+configs:
+  - configs/research/replication_private.yaml
+  - configs/research/replication_shared.yaml
+output_dir: data/runs/replication
