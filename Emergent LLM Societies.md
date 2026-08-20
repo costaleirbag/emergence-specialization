@@ -5810,10 +5810,10 @@ sociedade — são **DEVELOPMENT**: motivam e informam a teoria, mas não contam
 confirmação independente dela.
 
 Theory V1 congela um modelo efetivo local. A resposta microscópica a uma troca
-de um slot de memória é estimada por `K^(k)`, o operador centrado é
-`T_k = P_K K^(k)ᵀ D_ρ P_K`, a retenção mean-field é
-`r(k,q)=1-[q+(1-q)/N]/k`, e a dinâmica linearizada é
-`J = rI + (1-q)((1-ε)β/N)T_k`. `Psi_spec` continua sendo a medida primária de
+de um slot de memória é estimada por $K^{(k)}$, o operador centrado é
+$T_k = P_K (K^{(k)})^\top D_\rho P_K$, a retenção mean-field é
+$r(k,q)=1-[q+(1-q)/N]/k$, e a dinâmica linearizada é
+$J = rI + (1-q)((1-\varepsilon)\beta/N)T_k$. $\Psi_{\mathrm{spec}}$ continua sendo a medida primária de
 formação de interação agente×nicho; utilidade coletiva, routing e HSE não podem
 substituí-la.
 
