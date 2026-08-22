@@ -127,6 +127,11 @@ uv run --group report python -m unittest discover -s tests -v
 The `report` group is required: the theory-V1.1, post-V1 mechanism, and
 society-repair analyses import `scipy` at module scope.
 
+Prefer `make test`. Some CPython builds skip `.pth` files whose name begins
+with an underscore, which silently disables the `__editable__*.pth` editable
+install and makes `emergent_specialization` unimportable; the Makefile puts
+`src` on `PYTHONPATH` so the offline targets work either way.
+
 Checks that depend on local historical run journals or generated report tables
 are explicitly skipped when those local inputs are absent from a clean clone;
 the implementation and protocol tests remain runnable offline.

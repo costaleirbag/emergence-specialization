@@ -1,5 +1,10 @@
 .DEFAULT_GOAL := help
 
+# Some CPython builds skip .pth files whose name begins with an underscore,
+# which silently disables setuptools' `__editable__*.pth` install. Putting the
+# source tree on PYTHONPATH makes every offline target work regardless.
+export PYTHONPATH := src$(if $(PYTHONPATH),:$(PYTHONPATH))
+
 .PHONY: help setup test smoke-dry smoke-real pilot-private pilot-shared direct-plan direct-doctor direct-benchmark pair-private pair-shared health report
 
 help:
