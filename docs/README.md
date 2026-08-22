@@ -14,6 +14,12 @@ current scientific state and reproducibility rules.
 - [Reproducibility and artifact policy](REPRODUCIBILITY_AND_ARTIFACT_POLICY.md)
   — what is versioned, what remains local, and what is required for a claim.
 
+## Code
+
+- [Code layout](CODE_LAYOUT.md) — package structure, why the boundaries
+  fall where they do, and an old-path-to-new-path map for commands recorded in
+  historical documents.
+
 ## Current scientific checkpoints
 
 - [Local plasticity V1 report](LOCAL_PLASTICITY_CURVE_V1_REPORT.md) —

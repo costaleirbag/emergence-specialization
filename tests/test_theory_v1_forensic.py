@@ -2,16 +2,16 @@ import unittest
 
 import numpy as np
 
-from emergent_specialization.theory_v1.dynamics import centered_projector
-from emergent_specialization.theory_v1 import forensic_repair
-from emergent_specialization.theory_v1.forensic_repair import (
+from emergent_specialization.studies.theory.v1.dynamics import centered_projector
+from emergent_specialization.studies.theory.v1 import forensic_repair
+from emergent_specialization.studies.theory.v1.forensic_repair import (
     QUARANTINE_ID,
     assert_scientific_run_allowed,
     centered_spectrum,
     inventory,
     reconstruct_checkpoint_records,
 )
-from emergent_specialization.theory_v1.prediction import predictions_for_k
+from emergent_specialization.studies.theory.v1.prediction import predictions_for_k
 
 
 class TheoryV1ForensicTests(unittest.TestCase):

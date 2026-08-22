@@ -2,7 +2,7 @@ import collections
 import inspect
 import unittest
 
-from emergent_specialization import cross_domain_transfer_bottleneck as bottleneck
+from emergent_specialization.studies.calibration import cross_domain_bottleneck as bottleneck
 
 
 class CrossDomainTransferBottleneckTests(unittest.TestCase):

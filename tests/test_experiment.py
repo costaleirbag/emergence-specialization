@@ -7,7 +7,7 @@ import unittest
 from dataclasses import replace
 from pathlib import Path
 
-from emergent_specialization.config import (
+from emergent_specialization.core.config import (
     AgentSettings,
     ConditionSettings,
     CostSettings,
@@ -15,10 +15,10 @@ from emergent_specialization.config import (
     LoggingSettings,
     RunConfig,
 )
-from emergent_specialization.experiment import ExperimentRunner
-from emergent_specialization.models import BackendResponse
-from emergent_specialization.probes import generate_probe_payload, write_probe_set
-from emergent_specialization.environment import HiddenWorldEnvironment
+from emergent_specialization.runtime.experiment import ExperimentRunner
+from emergent_specialization.core.models import BackendResponse
+from emergent_specialization.core.probes import generate_probe_payload, write_probe_set
+from emergent_specialization.core.environment import HiddenWorldEnvironment
 from emergent_specialization.providers.mock import MockBackend
 
 

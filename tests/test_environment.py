@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from emergent_specialization.environment import HIDDEN_RULES, HiddenWorldEnvironment, task_prompt
+from emergent_specialization.core.environment import HIDDEN_RULES, HiddenWorldEnvironment, task_prompt
 
 
 class HiddenWorldEnvironmentTests(unittest.TestCase):

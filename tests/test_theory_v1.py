@@ -3,7 +3,7 @@ from unittest import mock
 
 import numpy as np
 
-from emergent_specialization.theory_v1.dynamics import (
+from emergent_specialization.studies.theory.v1.dynamics import (
     centered_projector,
     classify_regime,
     competence_interaction,
@@ -15,15 +15,15 @@ from emergent_specialization.theory_v1.dynamics import (
     spectral_summary_centered,
     transfer_operator,
 )
-from emergent_specialization.theory_v1.ecologies import AffineBooleanV1, V31Fresh, fresh_training_state
-from emergent_specialization.theory_v1.micro_design import expected_call_counts, macro_cells, micro_manifest
-from emergent_specialization.theory_v1.micro_estimation import estimate_k_explicit, estimate_k_pairwise, superposition_diagnostics
-from emergent_specialization.theory_v1.prediction import predictions_for_k
-from emergent_specialization.theory_v1.scoring import kendall_tau, pairwise_concordance, spearman
-from emergent_specialization.theory_v1.scorecard import full_scorecard, score_t7_criticality, score_t9_mode
-from emergent_specialization.theory_v1.micro_runner import build_tasks, render_user
-from emergent_specialization.models import BackendResponse
-from emergent_specialization.theory_v1.macro_runner import (
+from emergent_specialization.studies.theory.v1.ecologies import AffineBooleanV1, V31Fresh, fresh_training_state
+from emergent_specialization.studies.theory.v1.micro_design import expected_call_counts, macro_cells, micro_manifest
+from emergent_specialization.studies.theory.v1.micro_estimation import estimate_k_explicit, estimate_k_pairwise, superposition_diagnostics
+from emergent_specialization.studies.theory.v1.prediction import predictions_for_k
+from emergent_specialization.studies.theory.v1.scoring import kendall_tau, pairwise_concordance, spearman
+from emergent_specialization.studies.theory.v1.scorecard import full_scorecard, score_t7_criticality, score_t9_mode
+from emergent_specialization.studies.theory.v1.micro_runner import build_tasks, render_user
+from emergent_specialization.core.models import BackendResponse
+from emergent_specialization.studies.theory.v1.macro_runner import (
     expected_calls as macro_expected_calls,
     run_mock_protocol,
     RequestGate,
@@ -177,7 +177,7 @@ class TheoryV1Tests(unittest.TestCase):
         import json
         import tempfile
         from pathlib import Path
-        from emergent_specialization.theory_v1.macro_runner import append_jsonl
+        from emergent_specialization.studies.theory.v1.macro_runner import append_jsonl
 
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "events.jsonl"
@@ -196,7 +196,7 @@ class TheoryV1Tests(unittest.TestCase):
         import json
         import tempfile
         from pathlib import Path
-        from emergent_specialization.theory_v1 import macro_runner
+        from emergent_specialization.studies.theory.v1 import macro_runner
 
         class FakeBackend:
             async def complete(self, **kwargs):
@@ -249,7 +249,7 @@ class TheoryV1Tests(unittest.TestCase):
         import json
         import tempfile
         from pathlib import Path
-        from emergent_specialization.theory_v1 import macro_runner
+        from emergent_specialization.studies.theory.v1 import macro_runner
 
         class UsageSequenceBackend:
             def __init__(self):

@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from emergent_specialization.analysis import (
+from emergent_specialization.reporting.analysis import (
     behavioral_rows,
     candidate_rows,
     checkpoint_rows,
@@ -16,16 +16,16 @@ from emergent_specialization.analysis import (
     round_rows,
     usage_summary,
 )
-from emergent_specialization.config import (
+from emergent_specialization.core.config import (
     AgentSettings,
     ConditionSettings,
     ExperimentSettings,
     LoggingSettings,
     RunConfig,
 )
-from emergent_specialization.environment import HiddenWorldEnvironment
-from emergent_specialization.experiment import ExperimentRunner
-from emergent_specialization.probes import generate_probe_payload, write_probe_set
+from emergent_specialization.core.environment import HiddenWorldEnvironment
+from emergent_specialization.runtime.experiment import ExperimentRunner
+from emergent_specialization.core.probes import generate_probe_payload, write_probe_set
 from emergent_specialization.providers.mock import MockBackend
 
 

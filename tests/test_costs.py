@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from emergent_specialization.costs import normalize_token_usage, summarize_usage
+from emergent_specialization.core.costs import normalize_token_usage, summarize_usage
 
 
 class CostAccountingTests(unittest.TestCase):

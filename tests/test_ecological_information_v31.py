@@ -3,8 +3,8 @@ import math
 import random
 import unittest
 
-from emergent_specialization.ecological_information import FAMILIES, GEOMETRIES, generate_environment, sample_history
-from emergent_specialization.ecological_information_v31 import (
+from emergent_specialization.studies.ecology.ecological_information import FAMILIES, GEOMETRIES, generate_environment, sample_history
+from emergent_specialization.studies.ecology.ecological_information_v31 import (
     EVAL_TEMPLATE_IDS,
     SEMANTIC_SCHEMAS,
     TRAIN_TEMPLATE_IDS,
@@ -60,7 +60,7 @@ class ObservableInformationV31Tests(unittest.TestCase):
         probs = learner.predictive(history, target, (0, 1, 2))
         self.assertAlmostEqual(sum(probs), 1.0)
         # Exact replay must preserve the latent posterior for every query.
-        from emergent_specialization.ecological_information import posterior_predictive
+        from emergent_specialization.studies.ecology.ecological_information import posterior_predictive
         latent = posterior_predictive(env, "ACCESS", "RELEASE", cases, (0, 1, 2))
         self.assertEqual(probs, latent)
 

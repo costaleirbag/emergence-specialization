@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from emergent_specialization.parsing import ResponseParseError, parse_agent_output
+from emergent_specialization.core.parsing import ResponseParseError, parse_agent_output
 
 
 class ParsingTests(unittest.TestCase):

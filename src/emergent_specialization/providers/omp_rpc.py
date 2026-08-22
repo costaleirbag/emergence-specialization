@@ -15,7 +15,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from ..models import BackendResponse
+from emergent_specialization.core.models import BackendResponse
 
 
 class OMPBackend:

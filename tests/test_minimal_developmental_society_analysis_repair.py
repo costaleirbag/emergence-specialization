@@ -4,8 +4,8 @@ from unittest.mock import patch
 
 import numpy as np
 
-from emergent_specialization import minimal_developmental_society as society
-from emergent_specialization.minimal_developmental_society_analysis_repair import (
+from emergent_specialization.studies.society import minimal_developmental_society as society
+from emergent_specialization.studies.society.analysis_repair import (
     _make_cell,
     _filter_segment,
     _summary_by_regime,

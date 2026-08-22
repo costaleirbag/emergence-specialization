@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Sequence
 
-from .behavioral import individual_accuracy
+from emergent_specialization.metrics.behavioral import individual_accuracy
 
 
 def complementarity_metrics(matrix: Sequence[Sequence[int]]) -> dict[str, float | list[float]]:

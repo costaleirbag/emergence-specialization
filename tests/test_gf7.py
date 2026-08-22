@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import unittest
 
-from emergent_specialization.environment import HIDDEN_RULES, HiddenWorldEnvironment
-from emergent_specialization.gf7 import affine_rank, evaluate, solve_affine
-from emergent_specialization.hidden_rule_identifiability import _context_key
+from emergent_specialization.core.environment import HIDDEN_RULES, HiddenWorldEnvironment
+from emergent_specialization.core.gf7 import affine_rank, evaluate, solve_affine
+from emergent_specialization.audits.hidden_rule_identifiability import _context_key
 
 
 def _observations(coefficients: tuple[int, int, int], points: list[tuple[int, int]]) -> list[tuple[int, int, int]]:

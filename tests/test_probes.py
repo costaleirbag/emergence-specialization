@@ -5,8 +5,8 @@ import unittest
 from collections import Counter
 from pathlib import Path
 
-from emergent_specialization.environment import HiddenWorldEnvironment
-from emergent_specialization.probes import generate_probe_payload, load_probe_set, write_probe_set
+from emergent_specialization.core.environment import HiddenWorldEnvironment
+from emergent_specialization.core.probes import generate_probe_payload, load_probe_set, write_probe_set
 
 
 class ProbeTests(unittest.TestCase):

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import unittest
 
-from emergent_specialization.ar001b import generate_probes
-from emergent_specialization.semantic_ecology import ECOLOGIES, OUTPUT_CLASSES, ROOT_CLASSES, predictive_identifiability
-from emergent_specialization.ecology_transfer import build_tasks
+from emergent_specialization.studies.calibration.ar001b import generate_probes
+from emergent_specialization.studies.ecology.semantic_ecology import ECOLOGIES, OUTPUT_CLASSES, ROOT_CLASSES, predictive_identifiability
+from emergent_specialization.studies.ecology.ecology_transfer import build_tasks
 
 
 class SemanticEcologyTests(unittest.TestCase):

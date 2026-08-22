@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from emergent_specialization.response_anchoring import anchoring_metrics
+from emergent_specialization.audits.response_anchoring import anchoring_metrics
 
 
 class ResponseAnchoringTests(unittest.TestCase):

@@ -12,7 +12,7 @@ import time
 from collections.abc import Mapping
 from typing import Any
 
-from ..models import BackendResponse
+from emergent_specialization.core.models import BackendResponse
 
 
 RETRYABLE_STATUS_CODES = {429, 500, 503}

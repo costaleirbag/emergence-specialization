@@ -6,7 +6,7 @@ import math
 from collections import defaultdict
 from typing import Sequence
 
-from ..models import Task
+from emergent_specialization.core.models import Task
 
 
 def behavioral_cosine_distance(a: Sequence[int], b: Sequence[int]) -> float:

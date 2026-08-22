@@ -5,7 +5,7 @@ import json
 import tempfile
 from pathlib import Path
 
-from emergent_specialization.health import run_health
+from emergent_specialization.runtime.health import run_health
 
 
 class HealthTests(unittest.TestCase):

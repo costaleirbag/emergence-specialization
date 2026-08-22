@@ -3,10 +3,10 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-from emergent_specialization.agents import ExperimentalAgent
-from emergent_specialization.environment import HiddenWorldEnvironment
-from emergent_specialization.memory import MemoryPolicy
-from emergent_specialization.memory_learnability import (
+from emergent_specialization.core.agents import ExperimentalAgent
+from emergent_specialization.core.environment import HiddenWorldEnvironment
+from emergent_specialization.core.memory import MemoryPolicy
+from emergent_specialization.studies.calibration.memory_learnability import (
     build_contexts,
     expected_query_count,
     load_spec,
@@ -14,7 +14,7 @@ from emergent_specialization.memory_learnability import (
     _probe_map,
     _query_id,
 )
-from emergent_specialization.models import Task
+from emergent_specialization.core.models import Task
 
 
 class MemoryLearnabilityPreflightTests(unittest.TestCase):
@@ -53,6 +53,6 @@ class MemoryLearnabilityPreflightTests(unittest.TestCase):
         context = next(item for item in self.contexts if item["mode"] == "same_world" and item["target_world"] == "BETA" and item["k"] == 1)
         agent = ExperimentalAgent("calibration_agent")
         task = Task(world="BETA", x=1, y=2, correct_answer=0, task_id="held-out")
-        prompt, _ = agent.prompt_parts(task, MemoryPolicy("recent_k", 8), memory_snapshot=tuple(__import__("emergent_specialization.models", fromlist=["Experience"]).Experience(**item) for item in context["memory"]))
+        prompt, _ = agent.prompt_parts(task, MemoryPolicy("recent_k", 8), memory_snapshot=tuple(__import__("emergent_specialization.core.models", fromlist=["Experience"]).Experience(**item) for item in context["memory"]))
         self.assertNotIn("HIDDEN_RULES", prompt)
         self.assertNotIn("(1, 3, 2)", prompt)

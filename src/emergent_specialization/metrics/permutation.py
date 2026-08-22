@@ -7,7 +7,7 @@ import math
 from collections import Counter
 from typing import Mapping, Sequence
 
-from .information import entropy
+from emergent_specialization.metrics.information import entropy
 
 
 def routing_mass_order(routing_counts: Mapping[str, int | float]) -> tuple[str, ...]:

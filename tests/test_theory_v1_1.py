@@ -5,11 +5,11 @@ import inspect
 import json
 import unittest
 
-from emergent_specialization import observable_learner_calibration as calibration
-from emergent_specialization import observable_learner_calibration_v2 as calibration_v2
-from emergent_specialization.theory_v1 import micro_runner
-from emergent_specialization.theory_v1 import macro_runner
-from emergent_specialization.theory_v1_1 import (
+from emergent_specialization.studies.calibration import observable_learner_v1 as calibration
+from emergent_specialization.studies.calibration import observable_learner_v2 as calibration_v2
+from emergent_specialization.studies.theory.v1 import micro_runner
+from emergent_specialization.studies.theory.v1 import macro_runner
+from emergent_specialization.studies.theory.v1_1.replication import (
     CLEAN_OUTPUT_INSTRUCTION,
     ECOLOGIES,
     MACRO_CELLS_V11,
@@ -20,8 +20,8 @@ from emergent_specialization.theory_v1_1 import (
     render_user,
     _novel_seed_audit,
 )
-from emergent_specialization.theory_v1 import forensic_repair
-from emergent_specialization import theory_v1_1_macro
+from emergent_specialization.studies.theory.v1 import forensic_repair
+from emergent_specialization.studies.theory.v1_1 import macro as theory_v1_1_macro
 
 
 class TheoryV11HarnessTests(unittest.TestCase):
