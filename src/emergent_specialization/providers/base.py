@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Protocol
 
-from ..models import BackendResponse
+from emergent_specialization.core.models import BackendResponse
 
 
 class LLMBackend(Protocol):

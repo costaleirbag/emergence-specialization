@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from emergent_specialization.hse_robustness import behavioral_distance, normalized_hierarchical_diversity
+from emergent_specialization.audits.hse_robustness import behavioral_distance, normalized_hierarchical_diversity
 
 
 class HSERobustnessTests(unittest.TestCase):

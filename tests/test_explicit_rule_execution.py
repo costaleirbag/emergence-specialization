@@ -9,10 +9,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from emergent_specialization.explicit_rule_execution import (
+from emergent_specialization.studies.calibration.explicit_rule_execution import (
     DEFAULT_CONFIG, EXPECTED_CONFIG, _validate_reservation, preflight, probes, prompt, report, run_real,
 )
-from emergent_specialization.models import BackendResponse
+from emergent_specialization.core.models import BackendResponse
 
 
 def response(answer: int = 0, *, model: str | None = "deepseek-v4-flash", cost: float | None = 0.000001,
@@ -122,7 +122,7 @@ class ExplicitRuleExecutionTests(unittest.TestCase):
         result = self.run_experiment(FakeBackend(lambda _i, _k: response(0))); self.assertEqual(result["status"], "invalid_duplicate_success")
         fresh = self.root / "credential-failure"
         self.reset_ledger()
-        with patch("emergent_specialization.explicit_rule_execution.CredentialStore.get", side_effect=RuntimeError("no credential")):
+        with patch("emergent_specialization.studies.calibration.explicit_rule_execution.CredentialStore.get", side_effect=RuntimeError("no credential")):
             result = asyncio.run(run_real(confirm_real=True, output_dir=fresh, ledger_path=self.ledger, sleep=self.no_sleep))
         self.assertEqual(result["status"], "failed"); manifest = json.loads((fresh / "manifest.json").read_text())
         self.assertIn("config_hash", manifest); self.assertIn("git_head", manifest)

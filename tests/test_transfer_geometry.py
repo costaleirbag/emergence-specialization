@@ -4,10 +4,10 @@ import unittest
 
 import numpy as np
 
-from emergent_specialization.semantic_ecology import GEOMETRY_ECOLOGIES
-from emergent_specialization.transfer_geometry import SEEDS, build_tasks, expected_calls
-from emergent_specialization.transfer_analysis import _alignment, _stable_seed
-from emergent_specialization.transfer_operator import (
+from emergent_specialization.studies.ecology.semantic_ecology import GEOMETRY_ECOLOGIES
+from emergent_specialization.studies.ecology.transfer_geometry import SEEDS, build_tasks, expected_calls
+from emergent_specialization.studies.ecology.transfer_analysis import _alignment, _stable_seed
+from emergent_specialization.studies.ecology.transfer_operator import (
     analytical_jacobian,
     block_matrix,
     block_modes,

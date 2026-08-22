@@ -10,8 +10,8 @@ from pathlib import Path
 
 import numpy as np
 
-from emergent_specialization.post_v1_mechanisms.analysis import center
-from emergent_specialization.post_v1_measurement.analysis import (
+from emergent_specialization.studies.mechanisms.decomposition.analysis import center
+from emergent_specialization.studies.mechanisms.measurement.analysis import (
     MACRO_CELLS_V11,
     attach_memory_overlap,
     corr,

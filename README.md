@@ -25,11 +25,13 @@ The initial report is retained with a `SUPERSEDED` notice for provenance.
 
 Theory V1 is now frozen as a prospective challenge, not a result. Its offline
 equations, epistemic ledger, deterministic manifests, and mock validation are
-under `src/emergent_specialization/theory_v1/` and `docs/theory/`. The fixed
+under `src/emergent_specialization/studies/theory/v1/` and `docs/theory/`. The fixed
 design plans 212,480 logical completions; the preflight currently blocks paid
 execution because the required safety-margin forecast exceeds its US$6.25 cap.
 
-For navigation, start with the [documentation map](docs/README.md), then use
+For the code, start with the [code layout](docs/CODE_LAYOUT.md).
+
+For the science, start with the [documentation map](docs/README.md), then use
 the [experiment registry](docs/EXPERIMENT_REGISTRY.md) to identify each phase,
 the [hypothesis ledger](docs/HYPOTHESIS_LEDGER.md) to follow decisions, and
 the [reproducibility policy](docs/REPRODUCIBILITY_AND_ARTIFACT_POLICY.md) to
@@ -119,8 +121,16 @@ test` e `make smoke-dry` não fazem chamadas de modelo.
 Run the automated test suite (it never contacts DeepSeek):
 
 ```bash
-uv run python -m unittest discover -s tests -v
+uv run --group report python -m unittest discover -s tests -v
 ```
+
+The `report` group is required: the theory-V1.1, post-V1 mechanism, and
+society-repair analyses import `scipy` at module scope.
+
+Prefer `make test`. Some CPython builds skip `.pth` files whose name begins
+with an underscore, which silently disables the `__editable__*.pth` editable
+install and makes `emergent_specialization` unimportable; the Makefile puts
+`src` on `PYTHONPATH` so the offline targets work either way.
 
 Checks that depend on local historical run journals or generated report tables
 are explicitly skipped when those local inputs are absent from a clean clone;
@@ -130,13 +140,13 @@ Run the complete loop with the deterministic fake backend, without any model
 calls:
 
 ```bash
-uv run python -m emergent_specialization.experiment --config configs/pilot_private.yaml --dry-run
+uv run python -m emergent_specialization.runtime.experiment --config configs/pilot_private.yaml --dry-run
 ```
 
 For a no-call local validation, run the deterministic fake backend:
 
 ```bash
-uv run python -m emergent_specialization.experiment --config configs/pilot_private.yaml --dry-run
+uv run python -m emergent_specialization.runtime.experiment --config configs/pilot_private.yaml --dry-run
 ```
 
 The original matched private/shared pair and the later Minimal Developmental
@@ -166,16 +176,16 @@ The new backend reads the API key once from macOS Keychain and keeps it only in
 the Python process memory. Register/check/delete it with:
 
 ```bash
-uv run python -m emergent_specialization.credentials store
-uv run python -m emergent_specialization.credentials status
-uv run python -m emergent_specialization.credentials delete
+uv run python -m emergent_specialization.providers.credentials store
+uv run python -m emergent_specialization.providers.credentials status
+uv run python -m emergent_specialization.providers.credentials delete
 ```
 
 Offline direct validation (no model call, no Keychain lookup) is:
 
 ```bash
-uv run python -m emergent_specialization.deepseek_doctor
-uv run python -m emergent_specialization.benchmark.deepseek \
+uv run python -m emergent_specialization.runtime.doctor
+uv run python -m emergent_specialization.runtime.benchmark.deepseek \
   --concurrency 4,8,16,32 --jobs-per-level 32
 ```
 
@@ -260,7 +270,7 @@ uv run --group report emergence-report --run data/runs/<run-id>
 Or request the report at the end of an experiment:
 
 ```bash
-uv run --group report python -m emergent_specialization.experiment \
+uv run --group report python -m emergent_specialization.runtime.experiment \
   --config configs/pilot_private.yaml \
   --report
 ```
@@ -298,11 +308,11 @@ uv run python -m emergent_specialization.metrics.online \
   --run data/runs/<run-id>
 
 # expand a multi-seed plan; this prints commands but executes none
-uv run python -m emergent_specialization.batch \
+uv run python -m emergent_specialization.runtime.batch \
   --config configs/research/batches/private_shared_seeds.yaml --plan
 
 # aggregate completed runs without changing their raw artifacts
-uv run python -m emergent_specialization.aggregate \
+uv run python -m emergent_specialization.reporting.aggregate \
   data/runs/<private-1> data/runs/<shared-1> \
   --output reports/aggregate/summary.json
 ```

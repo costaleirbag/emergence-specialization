@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from emergent_specialization.minimal_developmental_society import (
+from emergent_specialization.studies.society.minimal_developmental_society import (
     CHECKPOINTS,
     EVAL_COUNT,
     FAMILIES,
@@ -26,7 +26,7 @@ from emergent_specialization.minimal_developmental_society import (
     run_mock,
     sample_from_u,
 )
-from emergent_specialization.models import BackendResponse
+from emergent_specialization.core.models import BackendResponse
 
 
 class MinimalDevelopmentalSocietyTests(unittest.TestCase):
@@ -108,7 +108,7 @@ class MinimalDevelopmentalSocietyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "events.jsonl"
             backend = FakeBackend(); attempts = {}
-            with patch("emergent_specialization.minimal_developmental_society._budget_update", return_value={}):
+            with patch("emergent_specialization.studies.society.minimal_developmental_society._budget_update", return_value={}):
                 result = asyncio.run(_one_completion(
                     backend, logical_id="logical", seed=SEEDS[0], regime="RP", phase="online",
                     checkpoint=1, agent=0, niche=FAMILIES[0], task=task, memory=[], existing={},
@@ -139,7 +139,7 @@ class MinimalDevelopmentalSocietyTests(unittest.TestCase):
         task = {"niche": FAMILIES[0], "x": [0, 1, 2], "y": [1, 0, 1], "template_id": 3}
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "events.jsonl"; backend = FakeBackend(); attempts = {"logical": 1}
-            with patch("emergent_specialization.minimal_developmental_society._budget_update", return_value={}):
+            with patch("emergent_specialization.studies.society.minimal_developmental_society._budget_update", return_value={}):
                 result = asyncio.run(_one_completion(
                     backend, logical_id="logical", seed=SEEDS[0], regime="RP", phase="online",
                     checkpoint=1, agent=0, niche=FAMILIES[0], task=task, memory=[], existing={},

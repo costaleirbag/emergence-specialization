@@ -1,6 +1,6 @@
 import unittest
 
-from emergent_specialization.alias_anchor_reanalysis import displayed_memory_metrics, is_modular_alias
+from emergent_specialization.audits.alias_anchor import displayed_memory_metrics, is_modular_alias
 
 
 class AliasAnchorReanalysisTests(unittest.TestCase):

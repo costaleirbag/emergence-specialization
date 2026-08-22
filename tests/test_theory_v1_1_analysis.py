@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from emergent_specialization.theory_v1_1_analysis import (
+from emergent_specialization.studies.theory.v1_1.analysis import (
     _rank_corr,
     expected_checkpoint_ids,
     expected_t0_ids,

@@ -14,7 +14,7 @@ from collections import Counter
 from itertools import product
 from typing import Any
 
-from ..models import BackendResponse
+from emergent_specialization.core.models import BackendResponse
 
 
 _MEMORY_RE = re.compile(r"CONTROLLED_MEMORY_JSON:\n(.*?)\n\nCURRENT_TASK:", re.DOTALL)

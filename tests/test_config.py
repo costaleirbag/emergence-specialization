@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-from emergent_specialization.config import AgentSettings, CostSettings, RouterSettings, load_config
+from emergent_specialization.core.config import AgentSettings, CostSettings, RouterSettings, load_config
 
 
 class ConfigTests(unittest.TestCase):

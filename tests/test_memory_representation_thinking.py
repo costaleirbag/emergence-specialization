@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import unittest
 
-from emergent_specialization.environment import HiddenWorldEnvironment
-from emergent_specialization.memory_representation_thinking import (
+from emergent_specialization.core.environment import HiddenWorldEnvironment
+from emergent_specialization.studies.calibration.memory_representation_thinking import (
     _exemplars,
     _probe_map,
     _render_memory,

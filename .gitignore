@@ -27,3 +27,4 @@ data/auto-research/
 data/calibrations/memory-learnability-v1/
 data/calibrations/memory-representation-thinking-v1/events.jsonl
 data/calibrations/memory-representation-thinking-v1/manifest.json
+*.pdf

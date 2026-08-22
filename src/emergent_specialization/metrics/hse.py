@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from typing import Sequence
 
-from .behavioral import pairwise_behavioral_distances
+from emergent_specialization.metrics.behavioral import pairwise_behavioral_distances
 
 
 def _components_at_threshold(distances: Sequence[Sequence[float]], threshold: float) -> list[list[int]]:

@@ -1,5 +1,10 @@
 .DEFAULT_GOAL := help
 
+# Some CPython builds skip .pth files whose name begins with an underscore,
+# which silently disables setuptools' `__editable__*.pth` install. Putting the
+# source tree on PYTHONPATH makes every offline target work regardless.
+export PYTHONPATH := src$(if $(PYTHONPATH),:$(PYTHONPATH))
+
 .PHONY: help setup test smoke-dry smoke-real pilot-private pilot-shared direct-plan direct-doctor direct-benchmark pair-private pair-shared health report
 
 help:
@@ -21,10 +26,10 @@ setup:
 	uv sync
 
 test:
-	uv run python -m unittest discover -s tests -v
+	uv run --group report python -m unittest discover -s tests -v
 
 smoke-dry:
-	uv run python -m emergent_specialization.experiment \
+	uv run python -m emergent_specialization.runtime.experiment \
 		--config configs/smoke_real_private.yaml \
 		--dry-run
 
@@ -43,34 +48,34 @@ pilot-shared:
 		--config configs/pilot_shared.yaml
 
 direct-plan:
-	uv run python -m emergent_specialization.batch \
+	uv run python -m emergent_specialization.runtime.batch \
 		--config configs/research/batches/private_shared_replication_5seeds.yaml \
 		--plan --only-seed 1 --json
 
 direct-doctor:
-	uv run python -m emergent_specialization.deepseek_doctor
+	uv run python -m emergent_specialization.runtime.doctor
 
 direct-benchmark:
-	uv run python -m emergent_specialization.benchmark.deepseek \
+	uv run python -m emergent_specialization.runtime.benchmark.deepseek \
 		--concurrency 4,8,16,32 --jobs-per-level 32
 
 pair-private:
 	@test "$(CONFIRM)" = "YES" || \
 		(echo "Para chamadas reais, use: make pair-private CONFIRM=YES"; exit 1)
-	uv run python -m emergent_specialization.experiment \
+	uv run python -m emergent_specialization.runtime.experiment \
 		--config configs/research/replication_private.yaml \
 		--seed 1 --output-dir data/runs/replication --confirm-real
 
 pair-shared:
 	@test "$(CONFIRM)" = "YES" || \
 		(echo "Para chamadas reais, use: make pair-shared CONFIRM=YES"; exit 1)
-	uv run python -m emergent_specialization.experiment \
+	uv run python -m emergent_specialization.runtime.experiment \
 		--config configs/research/replication_shared.yaml \
 		--seed 1 --output-dir data/runs/replication --confirm-real
 
 health:
 	@test -n "$(RUN)" || (echo "Uso: make health RUN=data/runs/<run-id>"; exit 1)
-	uv run python -m emergent_specialization.health --run "$(RUN)"
+	uv run python -m emergent_specialization.runtime.health --run "$(RUN)"
 
 report:
 	@test -n "$(RUN)" || \

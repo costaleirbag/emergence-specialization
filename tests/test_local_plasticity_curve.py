@@ -1,7 +1,7 @@
 import collections
 import unittest
 
-from emergent_specialization import local_plasticity_curve as curve
+from emergent_specialization.studies.calibration import local_plasticity_curve as curve
 
 
 class LocalPlasticityCurveTests(unittest.TestCase):

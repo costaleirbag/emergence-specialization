@@ -2,7 +2,7 @@ import itertools
 import re
 import unittest
 
-from emergent_specialization import observable_learner_calibration_v2 as v2
+from emergent_specialization.studies.calibration import observable_learner_v2 as v2
 
 
 class ObservableLearnerCalibrationV2Tests(unittest.TestCase):

@@ -14,7 +14,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 
-from .information import mi_null_diagnostic, normalized_mutual_information, normalized_utilization_entropy
+from emergent_specialization.metrics.information import mi_null_diagnostic, normalized_mutual_information, normalized_utilization_entropy
 
 
 def gini(values: Sequence[float]) -> float:

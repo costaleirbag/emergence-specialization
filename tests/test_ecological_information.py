@@ -2,7 +2,7 @@ import math
 import random
 import unittest
 
-from emergent_specialization.ecological_information import (
+from emergent_specialization.studies.ecology.ecological_information import (
     BALANCED_MAPS,
     FAMILIES,
     GEOMETRIES,

@@ -7,7 +7,7 @@ import unittest
 from dataclasses import asdict
 from pathlib import Path
 
-from emergent_specialization.campaign import (
+from emergent_specialization.runtime.campaign import (
     GATE_1,
     GATE_2,
     GATE_RANDOM_10,
@@ -23,10 +23,10 @@ from emergent_specialization.campaign import (
     observed_baseline_cost_per_logical,
     run_gate,
 )
-from emergent_specialization.batch import nominal_call_counts
-from emergent_specialization.config import load_config
-from emergent_specialization.environment import HiddenWorldEnvironment
-from emergent_specialization.probes import generate_probe_payload, write_probe_set
+from emergent_specialization.runtime.batch import nominal_call_counts
+from emergent_specialization.core.config import load_config
+from emergent_specialization.core.environment import HiddenWorldEnvironment
+from emergent_specialization.core.probes import generate_probe_payload, write_probe_set
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -95,7 +95,7 @@ class CampaignPlanningTests(unittest.TestCase):
             shared_config_path = root / "shared.yaml"
             shared_config_path.write_text(private_config_path.read_text(encoding="utf-8").replace("memory_mode: private", "memory_mode: shared"), encoding="utf-8")
             config = load_config(private_config_path)
-            probe_tasks, probe_hash = __import__("emergent_specialization.probes", fromlist=["load_probe_set"]).load_probe_set(probes)
+            probe_tasks, probe_hash = __import__("emergent_specialization.core.probes", fromlist=["load_probe_set"]).load_probe_set(probes)
             counts = nominal_call_counts(config, len(probe_tasks))
             rows: list[dict[str, object]] = []
             for seed in (97, 98):

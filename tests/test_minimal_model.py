@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from emergent_specialization.minimal_model import MinimalModelConfig, simulate
+from emergent_specialization.studies.society.minimal_model import MinimalModelConfig, simulate
 
 
 class MinimalModelTests(unittest.TestCase):

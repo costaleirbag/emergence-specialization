@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import unittest
 
-from emergent_specialization.agents import DEFAULT_SYSTEM_PROMPT, ExperimentalAgent, assert_initial_symmetry
-from emergent_specialization.environment import HiddenWorldEnvironment
-from emergent_specialization.memory import MemoryPolicy
-from emergent_specialization.models import Experience
+from emergent_specialization.core.agents import DEFAULT_SYSTEM_PROMPT, ExperimentalAgent, assert_initial_symmetry
+from emergent_specialization.core.environment import HiddenWorldEnvironment
+from emergent_specialization.core.memory import MemoryPolicy
+from emergent_specialization.core.models import Experience
 
 
 def experience(round_id: int) -> Experience:

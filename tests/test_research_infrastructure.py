@@ -6,9 +6,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from emergent_specialization.aggregate import aggregate_runs
-from emergent_specialization.batch import nominal_call_counts, plan_batch, plan_manifest, run_batch
-from emergent_specialization.config import (
+from emergent_specialization.reporting.aggregate import aggregate_runs
+from emergent_specialization.runtime.batch import nominal_call_counts, plan_batch, plan_manifest, run_batch
+from emergent_specialization.core.config import (
     AgentSettings,
     ConditionSettings,
     ExperimentSettings,
@@ -20,16 +20,16 @@ from emergent_specialization.config import (
     load_config,
     normalize_checkpoints,
 )
-from emergent_specialization.environment import HiddenWorldEnvironment
-from emergent_specialization.experiment import ExperimentRunner
-from emergent_specialization.interventions import (
+from emergent_specialization.core.environment import HiddenWorldEnvironment
+from emergent_specialization.runtime.experiment import ExperimentRunner
+from emergent_specialization.core.interventions import (
     InterventionSpec,
     PopulationState,
     apply_memory_intervention,
     apply_population_intervention,
 )
-from emergent_specialization.agents import ExperimentalAgent
-from emergent_specialization.models import Experience
+from emergent_specialization.core.agents import ExperimentalAgent
+from emergent_specialization.core.models import Experience
 from emergent_specialization.metrics.information import mi_null_diagnostic
 from emergent_specialization.metrics.online import online_observables, online_team_accuracy
 from emergent_specialization.metrics.permutation import (
@@ -39,10 +39,10 @@ from emergent_specialization.metrics.permutation import (
     world_argmax_label_counts,
     within_run_asymmetry,
 )
-from emergent_specialization.gate1_report import _pearson
-from emergent_specialization.probes import generate_probe_payload, write_probe_set
+from emergent_specialization.reporting.gate1 import _pearson
+from emergent_specialization.core.probes import generate_probe_payload, write_probe_set
 from emergent_specialization.providers.mock import MockBackend
-from emergent_specialization.models import BackendResponse
+from emergent_specialization.core.models import BackendResponse
 
 
 class CheckpointAndFeedbackTests(unittest.TestCase):

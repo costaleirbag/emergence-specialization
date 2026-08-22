@@ -7,14 +7,14 @@ import unittest
 
 import numpy as np
 
-from emergent_specialization.post_v1_mechanisms.analysis import (
+from emergent_specialization.studies.mechanisms.decomposition.analysis import (
     center,
     cosine,
     memory_features,
     pmat,
     selected_from_p,
 )
-from emergent_specialization.theory_v1.dynamics import psi_spec
+from emergent_specialization.studies.theory.v1.dynamics import psi_spec
 
 
 class PostV1MechanismTests(unittest.TestCase):

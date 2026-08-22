@@ -17,10 +17,10 @@ dependencies = [
 ]
 
 [project.scripts]
-emergent-specialization = "emergent_specialization.experiment:main"
-emergence-report = "emergent_specialization.reporting:main"
-emergence-compare = "emergent_specialization.reporting:comparison_main"
-emergence-credentials = "emergent_specialization.credentials:main"
+emergent-specialization = "emergent_specialization.runtime.experiment:main"
+emergence-report = "emergent_specialization.reporting.notebooks:main"
+emergence-compare = "emergent_specialization.reporting.notebooks:comparison_main"
+emergence-credentials = "emergent_specialization.providers.credentials:main"
 
 [dependency-groups]
 report = [

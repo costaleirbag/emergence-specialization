@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from emergent_specialization.observable_learner_calibration import (
+from emergent_specialization.studies.calibration.observable_learner_v1 import (
     FAMILIES,
     GEOMETRIES,
     PROBE_COUNT,

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from emergent_specialization.clean_campaign import (
+from emergent_specialization.runtime.clean_campaign import (
     CONFIGS,
     PROTOCOL_VERSION,
     SEEDS,

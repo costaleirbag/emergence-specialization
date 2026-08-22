@@ -2,8 +2,8 @@ import inspect
 import itertools
 import unittest
 
-from emergent_specialization import ecology_regime_observability as audit
-from emergent_specialization import observable_learner_calibration_v2 as v2
+from emergent_specialization.studies.ecology import regime_observability as audit
+from emergent_specialization.studies.calibration import observable_learner_v2 as v2
 
 
 class EcologyRegimeObservabilityTests(unittest.TestCase):

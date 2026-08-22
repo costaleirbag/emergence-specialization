@@ -3,8 +3,8 @@ from __future__ import annotations
 import random
 import unittest
 
-from emergent_specialization.models import AgentResponse
-from emergent_specialization.router import ConfidenceRouter, RandomRouter
+from emergent_specialization.core.models import AgentResponse
+from emergent_specialization.core.router import ConfidenceRouter, RandomRouter
 
 
 class RouterTests(unittest.TestCase):

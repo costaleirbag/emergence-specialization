@@ -2,7 +2,7 @@ import collections
 import inspect
 import unittest
 
-from emergent_specialization import relation_signal_causal_transfer as relation
+from emergent_specialization.studies.calibration import relation_signal_transfer as relation
 
 
 class RelationSignalCausalTransferTests(unittest.TestCase):
