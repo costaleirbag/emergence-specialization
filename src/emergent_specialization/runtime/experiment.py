@@ -1200,7 +1200,7 @@ async def async_main(argv: Iterable[str] | None = None) -> Path:
         run_dir = await ExperimentRunner(config).run()
     print(f"Raw events and metrics: {run_dir}")
     if args.report:
-        from emergent_specialization.reporting.notebooks.notebooks import generate_run_report
+        from emergent_specialization.reporting.notebooks import generate_run_report
 
         report_dir = generate_run_report(run_dir, args.report_output)
         print(f"Executed notebook: {report_dir / 'report.ipynb'}")

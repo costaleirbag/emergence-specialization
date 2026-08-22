@@ -113,7 +113,7 @@ unset BW_SESSION
 
 export DEEPSEEK_API_KEY="$deepseek_api_key"
 set +e
-"$uv_command" run python -m emergent_specialization.experiment "$@"
+"$uv_command" run python -m emergent_specialization.runtime.experiment "$@"
 experiment_exit=$?
 set -e
 exit "$experiment_exit"
