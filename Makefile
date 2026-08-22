@@ -21,7 +21,7 @@ setup:
 	uv sync
 
 test:
-	uv run python -m unittest discover -s tests -v
+	uv run --group report python -m unittest discover -s tests -v
 
 smoke-dry:
 	uv run python -m emergent_specialization.runtime.experiment \

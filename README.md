@@ -121,8 +121,11 @@ test` e `make smoke-dry` não fazem chamadas de modelo.
 Run the automated test suite (it never contacts DeepSeek):
 
 ```bash
-uv run python -m unittest discover -s tests -v
+uv run --group report python -m unittest discover -s tests -v
 ```
+
+The `report` group is required: the theory-V1.1, post-V1 mechanism, and
+society-repair analyses import `scipy` at module scope.
 
 Checks that depend on local historical run journals or generated report tables
 are explicitly skipped when those local inputs are absent from a clean clone;
